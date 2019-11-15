@@ -7,8 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.Coding;
-
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import edu.gatech.chai.omoponfhir.local.model.FhirOmopCodeMapEntry;
 
 public class FhirOmopCodeMapImpl extends BaseFhirOmopMap implements FhirOmopCodeMap {
@@ -92,7 +91,7 @@ public class FhirOmopCodeMapImpl extends BaseFhirOmopMap implements FhirOmopCode
 	}
 
 	@Override
-	public Long getOmopCodeFromFhirCoding(Coding fhirCoding) {
+	public Long getOmopCodeFromFhirCoding(CodingDt fhirCoding) {
 		Long retv = 0L;
 		String sql = "SELECT * FROM FhirOmopCodeMap where fhir_system=? and fhir_code=?";
 
@@ -120,8 +119,8 @@ public class FhirOmopCodeMapImpl extends BaseFhirOmopMap implements FhirOmopCode
 	}
 
 	@Override
-	public Coding getFhirCodingFromOmopConcept(Long omopConcept) {
-		Coding retv = null;
+	public CodingDt getFhirCodingFromOmopConcept(Long omopConcept) {
+		CodingDt retv = null;
 		String sql = "SELECT * FROM FhirOmopCodeMap where omop_concept=?";
 
 		try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -136,7 +135,7 @@ public class FhirOmopCodeMapImpl extends BaseFhirOmopMap implements FhirOmopCode
 				fhirCode = rs.getString("fhir_code");
 				fhirDisplay = rs.getString("fhir_display");
 
-				retv = new Coding();
+				retv = new CodingDt();
 				retv.setSystem(fhirSystem);
 				retv.setCode(fhirCode);
 				retv.setDisplay(fhirDisplay);
@@ -151,8 +150,8 @@ public class FhirOmopCodeMapImpl extends BaseFhirOmopMap implements FhirOmopCode
 	}
 
 	@Override
-	public Coding getFhirCodingFromOmopSourceString(String omopSourceString) {
-		Coding retv = null;
+	public CodingDt getFhirCodingFromOmopSourceString(String omopSourceString) {
+		CodingDt retv = null;
 		String sql = "SELECT * FROM FhirOmopCodeMap where fhir_display=?";
 
 		try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -167,7 +166,7 @@ public class FhirOmopCodeMapImpl extends BaseFhirOmopMap implements FhirOmopCode
 				fhirCode = rs.getString("fhir_code");
 				fhirDisplay = rs.getString("fhir_display");
 
-				retv = new Coding();
+				retv = new CodingDt();
 				retv.setSystem(fhirSystem);
 				retv.setCode(fhirCode);
 				retv.setDisplay(fhirDisplay);

@@ -3,8 +3,7 @@ package edu.gatech.chai.omoponfhir.local.dao;
 import java.sql.Connection;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.Coding;
-
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import edu.gatech.chai.omoponfhir.local.model.FhirOmopCodeMapEntry;
 
 public interface FhirOmopCodeMap {
@@ -14,7 +13,7 @@ public interface FhirOmopCodeMap {
 	public void update(FhirOmopCodeMapEntry codeMapEntry);
 	public void delete(Long omopConcept);
 	public List<FhirOmopCodeMapEntry> get();
-	public Long getOmopCodeFromFhirCoding(Coding fhirCoding);
-	public Coding getFhirCodingFromOmopConcept(Long omopConcept);
-	public Coding getFhirCodingFromOmopSourceString(String omopSourceString);
+	public Long getOmopCodeFromFhirCoding(CodingDt fhirCoding);
+	public CodingDt getFhirCodingFromOmopConcept(Long omopConcept);
+	public CodingDt getFhirCodingFromOmopSourceString(String omopSourceString);
 }

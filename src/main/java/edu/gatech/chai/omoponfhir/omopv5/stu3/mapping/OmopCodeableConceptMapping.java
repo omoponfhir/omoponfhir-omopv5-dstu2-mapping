@@ -15,7 +15,8 @@
  *******************************************************************************/
 package edu.gatech.chai.omoponfhir.omopv5.stu3.mapping;
 
-import org.hl7.fhir.exceptions.FHIRException;
+//import org.hl7.fhir.exceptions.FHIRException;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 
 /***
  * 

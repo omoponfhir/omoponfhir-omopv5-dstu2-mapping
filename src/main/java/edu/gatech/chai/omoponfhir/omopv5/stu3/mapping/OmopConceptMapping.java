@@ -19,8 +19,8 @@ import org.hl7.fhir.dstu3.model.codesystems.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.codesystems.OrganizationType;
 import org.hl7.fhir.dstu3.model.codesystems.V3ActCode;
 import org.hl7.fhir.dstu3.model.codesystems.ObservationCategory;
-import org.hl7.fhir.exceptions.FHIRException;
-
+//import org.hl7.fhir.exceptions.FHIRException;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 public enum OmopConceptMapping {
 	
 	/**

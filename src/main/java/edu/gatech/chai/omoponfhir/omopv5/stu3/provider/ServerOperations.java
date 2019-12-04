@@ -34,7 +34,8 @@ import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.ResourceType;
 import org.hl7.fhir.dstu3.model.UriType;
-import org.hl7.fhir.exceptions.FHIRException;
+//import org.hl7.fhir.exceptions.FHIRException;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 
 import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.annotation.OperationParam;

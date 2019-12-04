@@ -32,7 +32,8 @@ import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.ResourceType;
-import org.hl7.fhir.exceptions.FHIRException;
+//import org.hl7.fhir.exceptions.FHIRException;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 

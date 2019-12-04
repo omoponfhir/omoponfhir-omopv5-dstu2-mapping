@@ -18,8 +18,10 @@ package edu.gatech.chai.omoponfhir.omopv5.stu3.mapping;
 import java.util.List;
 import java.util.Map;
 
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Resource;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Resource;
+import ca.uhn.fhir.model.dstu2.resource.BaseResource;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 
@@ -27,11 +29,11 @@ import ca.uhn.fhir.rest.api.SortSpec;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 import edu.gatech.chai.omopv5.model.entity.BaseEntity;
 
-public interface IResourceMapping<v extends Resource, t extends BaseEntity> {
-	public v toFHIR(IdType id);
-	public Long toDbase(v fhirResource, IdType fhirId) throws FHIRException;
+public interface IResourceMapping<v extends BaseResource, t extends BaseEntity> {
+	public v toFHIR(IdDt id);
+	public Long toDbase(v fhirResource, IdDt fhirId) throws FHIRException;
 	public void removeDbase(Long id);
-	public Long removeByFhirId (IdType fhirId) throws FHIRException;
+	public Long removeByFhirId (IdDt fhirId) throws FHIRException;
 	public Long getSize();
 	public Long getSize(List<ParameterWrapper> mapList);
 

@@ -18,9 +18,13 @@ package edu.gatech.chai.omoponfhir.omopv5.stu3.mapping;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Resource;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+//import org.hl7.fhir.dstu3.model.Resource;
+import ca.uhn.fhir.model.dstu2.resource.BaseResource;
+
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
@@ -32,7 +36,7 @@ import edu.gatech.chai.omopv5.dba.service.IService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 import edu.gatech.chai.omopv5.model.entity.BaseEntity;
 
-public abstract class BaseOmopResource<v extends Resource, t extends BaseEntity, p extends IService<t>>
+public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEntity, p extends IService<t>>
 		implements IResourceMapping<v, t> {
 
 	protected FhirOmopVocabularyMapImpl fhirOmopVocabularyMap;
@@ -75,7 +79,7 @@ public abstract class BaseOmopResource<v extends Resource, t extends BaseEntity,
 		myOmopService.removeById(id);
 	}
 
-	public Long removeByFhirId(IdType fhirId) {
+	public Long removeByFhirId(IdDt fhirId) {
 		Long id_long_part = fhirId.getIdPartAsLong();
 		Long myId = IdMapping.getOMOPfromFHIR(id_long_part, getMyFhirResourceType());
 
@@ -115,7 +119,7 @@ public abstract class BaseOmopResource<v extends Resource, t extends BaseEntity,
 	/***
 	 * toFHIR this is called from FHIR provider for read operation.
 	 */
-	public v toFHIR(IdType id) {
+	public v toFHIR(IdDt id) {
 		Long id_long_part = id.getIdPartAsLong();
 		Long myId = IdMapping.getOMOPfromFHIR(id_long_part, getMyFhirResourceType());
 

@@ -4,14 +4,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.BooleanType;
-import org.hl7.fhir.dstu3.model.CodeType;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.ConceptMap;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Parameters;
-import org.hl7.fhir.dstu3.model.Parameters.ParametersParameterComponent;
-import org.hl7.fhir.exceptions.FHIRException;
+//import org.hl7.fhir.dstu3.model.BooleanType;
+import ca.uhn.fhir.model.primitive.BooleanDt;
+//import org.hl7.fhir.dstu3.model.CodeType;
+import ca.uhn.fhir.model.primitive.CodeDt;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.ConceptMap;
+import ca.uhn.fhir.model.dstu2.resource.ConceptMap;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Parameters;
+import ca.uhn.fhir.model.dstu2.resource.Parameters;
+//import org.hl7.fhir.dstu3.model.Parameters.ParametersParameterComponent;
+import ca.uhn.fhir.model.dstu2.resource.Parameters.Parameter;
+//import org.hl7.fhir.exceptions.FHIRException;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
@@ -47,7 +55,7 @@ public class OmopConceptMap extends BaseOmopResource<ConceptMap, ConceptRelation
 	}
 	
 	@Override
-	public Long toDbase(ConceptMap fhirResource, IdType fhirId) throws FHIRException {
+	public Long toDbase(ConceptMap fhirResource, IdDt fhirId) throws FHIRException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -117,17 +125,17 @@ public class OmopConceptMap extends BaseOmopResource<ConceptMap, ConceptRelation
 			logger.info("$translate: mapping information is not found ("+system+"|"+code+" to "+targetSystem+")");
 			return retVal;
 		}
-		
-		ParametersParameterComponent parameter = retVal.addParameter();
+
+		Parameters.Parameter parameter = retVal.addParameter();
 		parameter.setName("result");
-		parameter.setValue(new BooleanType(true));
+		parameter.setValue(new BooleanDt(true));
 		
 		parameter = retVal.addParameter();
 		parameter.setName("match");
-		
-		ParametersParameterComponent partParameter = parameter.addPart();
+
+		Parameters.Parameter partParameter = parameter.addPart();
 		partParameter.setName("equivalence");
-		partParameter.setValue(new CodeType("equivalent"));
+		partParameter.setValue(new CodeDt("equivalent"));
 		
 		for (ConceptRelationship conceptRealationship: conceptRealationships) {
 			// We found the mapping. Populate this information in Parameters resource.
@@ -139,7 +147,7 @@ public class OmopConceptMap extends BaseOmopResource<ConceptMap, ConceptRelation
 			Concept targetConcept = conceptService.findById(targetConceptId);
 			
 			logger.debug("$translate: target concept obtained with vocabulary_id="+targetConcept.getVocabulary());
-			Coding targetCoding = CodeableConceptUtil.getCodingFromOmopConcept(targetConcept, getFhirOmopVocabularyMap());
+			CodingDt targetCoding = CodeableConceptUtil.getCodingFromOmopConcept(targetConcept, getFhirOmopVocabularyMap());
 			partParameter.setValue(targetCoding);
 		}
 		

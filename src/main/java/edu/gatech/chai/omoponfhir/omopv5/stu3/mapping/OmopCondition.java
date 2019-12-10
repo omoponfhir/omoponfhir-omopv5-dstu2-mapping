@@ -20,6 +20,7 @@ import ca.uhn.fhir.rest.param.ParamPrefixEnum;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.CodeableConceptUtil;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.mapping.IdMapping;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.provider.ConditionResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.provider.EncounterResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.provider.PatientResourceProvider;
@@ -28,6 +29,7 @@ import edu.gatech.chai.omopv5.dba.service.*;
 import edu.gatech.chai.omopv5.model.entity.*;
 
 import org.hl7.fhir.dstu3.model.*;
+import org.hl7.fhir.dstu3.model.codesystems.ConditionCategory;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.slf4j.Logger;
@@ -105,10 +107,16 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 	@Override
 	public Long toDbase(Condition fhirResource, IdType fhirId) throws FHIRException {
 		Long retval;
-		Long omopId = null;
+		Long omopId = null, fhirIdLong = null;
 
 		if (fhirId != null) {
-			omopId = IdMapping.getOMOPfromFHIR(fhirId.getIdPartAsLong(), ConditionResourceProvider.getType());
+			fhirIdLong = fhirId.getIdPartAsLong();
+			if (fhirIdLong == null) {
+				logger.error("Failed to get Condition.id as Long Value");
+				return null;
+			}
+
+			omopId = IdMapping.getOMOPfromFHIR(fhirIdLong, ConditionResourceProvider.getType());
 		}
 
 		ConditionOccurrence conditionOccurrence = constructOmop(omopId, fhirResource);
@@ -121,7 +129,7 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 			retval = conditionOccurrenceService.create(conditionOccurrence).getId();
 		}
 
-		return IdMapping.getFHIRfromOMOP(retval, getMyFhirResourceType());
+		return IdMapping.getFHIRfromOMOP(retval, ConditionResourceProvider.getType());
 	}
 
 	public List<ParameterWrapper> mapParameter(String parameter, Object value, boolean or) {
@@ -133,152 +141,152 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 			paramWrapper.setUpperRelationship("and");
 
 		switch (parameter) {
-		case Condition.SP_ABATEMENT_AGE:
-			// not supporting
-			break;
-		case Condition.SP_ABATEMENT_BOOLEAN:
-			// not supporting
-			break;
-		case Condition.SP_ABATEMENT_DATE:
-			// Condition.abatementDate -> Omop ConditionOccurrence.conditionEndDate
-			putDateInParamWrapper(paramWrapper, value, "conditionEndDate");
-			mapList.add(paramWrapper);
-			break;
-		case Condition.SP_ABATEMENT_STRING:
-			// not supporting
-			break;
-		case Condition.SP_ASSERTED_DATE:
-			// Condition.assertedDate -> Omop ConditionOccurrence.conditionStartDate
-			putDateInParamWrapper(paramWrapper, value, "conditionStartDate");
-			mapList.add(paramWrapper);
-			break;
-		case Condition.SP_ASSERTER:
-			// Condition.asserter -> Omop Provider
-			ReferenceParam patientReference = ((ReferenceParam) value);
-			String patientId = String.valueOf(patientReference.getIdPartAsLong());
-
-			paramWrapper.setParameterType("Long");
-			paramWrapper.setParameters(Arrays.asList("provider.id"));
-			paramWrapper.setOperators(Arrays.asList("="));
-			paramWrapper.setValues(Arrays.asList(patientId));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Condition.SP_BODY_SITE:
-			// not supporting
-			break;
-		case Condition.SP_CATEGORY:
-			// Condition.category
-			putConditionInParamWrapper(paramWrapper, value);
-			mapList.add(paramWrapper);
-			break;
-		case Condition.SP_CLINICAL_STATUS:
-			break;
-		case Condition.SP_CODE:
-			String system = ((TokenParam) value).getSystem();
-			String code = ((TokenParam) value).getValue();
-//    			System.out.println("\n\n\n\n\nSystem:"+system+"\n\ncode:"+code+"\n\n\n\n\n");
-			if ((system == null || system.isEmpty()) && (code == null || code.isEmpty()))
+			case Condition.SP_ABATEMENT_AGE:
+				// not supporting
 				break;
+			case Condition.SP_ABATEMENT_BOOLEAN:
+				// not supporting
+				break;
+			case Condition.SP_ABATEMENT_DATE:
+				// Condition.abatementDate -> Omop ConditionOccurrence.conditionEndDate
+				putDateInParamWrapper(paramWrapper, value, "conditionEndDate");
+				mapList.add(paramWrapper);
+				break;
+			case Condition.SP_ABATEMENT_STRING:
+				// not supporting
+				break;
+			case Condition.SP_ASSERTED_DATE:
+				// Condition.assertedDate -> Omop ConditionOccurrence.conditionStartDate
+				putDateInParamWrapper(paramWrapper, value, "conditionStartDate");
+				mapList.add(paramWrapper);
+				break;
+			case Condition.SP_ASSERTER:
+				// Condition.asserter -> Omop Provider
+				ReferenceParam patientReference = ((ReferenceParam) value);
+				String patientId = String.valueOf(patientReference.getIdPartAsLong());
 
-			String omopVocabulary = "None";
-			if (system != null && !system.isEmpty()) {
-				try {
-					omopVocabulary = OmopCodeableConceptMapping.omopVocabularyforFhirUri(system);
-				} catch (FHIRException e) {
-					e.printStackTrace();
+				paramWrapper.setParameterType("Long");
+				paramWrapper.setParameters(Arrays.asList("provider.id"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(patientId));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Condition.SP_BODY_SITE:
+				// not supporting
+				break;
+			case Condition.SP_CATEGORY:
+				// Condition.category
+				putConditionInParamWrapper(paramWrapper, value);
+				mapList.add(paramWrapper);
+				break;
+			case Condition.SP_CLINICAL_STATUS:
+				break;
+			case Condition.SP_CODE:
+				String system = ((TokenParam) value).getSystem();
+				String code = ((TokenParam) value).getValue();
+//    			System.out.println("\n\n\n\n\nSystem:"+system+"\n\ncode:"+code+"\n\n\n\n\n");
+				if ((system == null || system.isEmpty()) && (code == null || code.isEmpty()))
+					break;
+
+				String omopVocabulary = "None";
+				if (system != null && !system.isEmpty()) {
+					try {
+						omopVocabulary = OmopCodeableConceptMapping.omopVocabularyforFhirUri(system);
+					} catch (FHIRException e) {
+						e.printStackTrace();
+					}
 				}
-			}
 
-			paramWrapper.setParameterType("String");
-			if ("None".equals(omopVocabulary) && code != null && !code.isEmpty()) {
-				paramWrapper.setParameters(Arrays.asList("conceptId.conceptCode"));
-				paramWrapper.setOperators(Arrays.asList("="));
-				paramWrapper.setValues(Arrays.asList(code));
-			} else if (!"None".equals(omopVocabulary) && (code == null || code.isEmpty())) {
-				paramWrapper.setParameters(Arrays.asList("conceptId.vocabulary"));
-				paramWrapper.setOperators(Arrays.asList("="));
-				paramWrapper.setValues(Arrays.asList(omopVocabulary));
-			} else {
-				paramWrapper.setParameters(Arrays.asList("conceptId.vocabulary", "conceptId.conceptCode"));
-				paramWrapper.setOperators(Arrays.asList("=", "="));
-				paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
-			}
-			paramWrapper.setRelationship("and");
-			mapList.add(paramWrapper);
+				paramWrapper.setParameterType("String");
+				if ("None".equals(omopVocabulary) && code != null && !code.isEmpty()) {
+					paramWrapper.setParameters(Arrays.asList("conceptId.conceptCode"));
+					paramWrapper.setOperators(Arrays.asList("="));
+					paramWrapper.setValues(Arrays.asList(code));
+				} else if (!"None".equals(omopVocabulary) && (code == null || code.isEmpty())) {
+					paramWrapper.setParameters(Arrays.asList("conceptId.vocabulary"));
+					paramWrapper.setOperators(Arrays.asList("="));
+					paramWrapper.setValues(Arrays.asList(omopVocabulary));
+				} else {
+					paramWrapper.setParameters(Arrays.asList("conceptId.vocabulary", "conceptId.conceptCode"));
+					paramWrapper.setOperators(Arrays.asList("=", "="));
+					paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
+				}
+				paramWrapper.setRelationship("and");
+				mapList.add(paramWrapper);
 
 //                //Condition.code -> Omop Concept
 //                putConditionInParamWrapper(paramWrapper, value);
 //                mapList.add(paramWrapper);
 
-			break;
-		case Condition.SP_CONTEXT:
-			// Condition.context -> Omop VisitOccurrence
-			ReferenceParam visitReference = (ReferenceParam) value;
-			String visitId = String.valueOf(visitReference.getIdPartAsLong());
-			paramWrapper.setParameterType("Long");
-			paramWrapper.setParameters(Arrays.asList("visitOccurrence.id"));
-			paramWrapper.setOperators(Arrays.asList("="));
-			paramWrapper.setValues(Arrays.asList(visitId));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Condition.SP_ENCOUNTER:
-			// not supporting
-			break;
-		case Condition.SP_EVIDENCE:
-			// not supporting
-			break;
-		case Condition.SP_EVIDENCE_DETAIL:
-			// not supporting
-			break;
-		case Condition.SP_IDENTIFIER:
-			// not supporting
-			break;
-		case Condition.SP_ONSET_AGE:
-			// not supporting
-			break;
-		case Condition.SP_ONSET_DATE:
-			// not supporting
-			break;
-		case Condition.SP_ONSET_INFO:
-			// not supporting
-			break;
-		case Condition.SP_PATIENT:
-		case Condition.SP_SUBJECT:
-			ReferenceParam subjectReference = ((ReferenceParam) value);
-			Long fhirPatientId = subjectReference.getIdPartAsLong();
-			Long omopPersonId = IdMapping.getOMOPfromFHIR(fhirPatientId, PatientResourceProvider.getType());
+				break;
+			case Condition.SP_CONTEXT:
+				// Condition.context -> Omop VisitOccurrence
+				ReferenceParam visitReference = (ReferenceParam) value;
+				String visitId = String.valueOf(visitReference.getIdPartAsLong());
+				paramWrapper.setParameterType("Long");
+				paramWrapper.setParameters(Arrays.asList("visitOccurrence.id"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(visitId));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Condition.SP_ENCOUNTER:
+				// not supporting
+				break;
+			case Condition.SP_EVIDENCE:
+				// not supporting
+				break;
+			case Condition.SP_EVIDENCE_DETAIL:
+				// not supporting
+				break;
+			case Condition.SP_IDENTIFIER:
+				// not supporting
+				break;
+			case Condition.SP_ONSET_AGE:
+				// not supporting
+				break;
+			case Condition.SP_ONSET_DATE:
+				// not supporting
+				break;
+			case Condition.SP_ONSET_INFO:
+				// not supporting
+				break;
+			case Condition.SP_PATIENT:
+			case Condition.SP_SUBJECT:
+				ReferenceParam subjectReference = ((ReferenceParam) value);
+				Long fhirPatientId = subjectReference.getIdPartAsLong();
+				Long omopPersonId = IdMapping.getOMOPfromFHIR(fhirPatientId, PatientResourceProvider.getType());
 
-			String omopPersonIdString = String.valueOf(omopPersonId);
+				String omopPersonIdString = String.valueOf(omopPersonId);
 
-			paramWrapper.setParameterType("Long");
-			paramWrapper.setParameters(Arrays.asList("fPerson.id"));
-			paramWrapper.setOperators(Arrays.asList("="));
-			paramWrapper.setValues(Arrays.asList(omopPersonIdString));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Procedure.SP_RES_ID:
-			String conditionId = ((TokenParam) value).getValue();
-			paramWrapper.setParameterType("Long");
-			paramWrapper.setParameters(Arrays.asList("id"));
-			paramWrapper.setOperators(Arrays.asList("="));
-			paramWrapper.setValues(Arrays.asList(conditionId));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Condition.SP_SEVERITY:
-			// not supporting
-			break;
-		case Condition.SP_STAGE:
-			// not supporting
-			break;
-		case Condition.SP_VERIFICATION_STATUS:
-			// not supporting
-			break;
-		default:
-			mapList = null;
+				paramWrapper.setParameterType("Long");
+				paramWrapper.setParameters(Arrays.asList("fPerson.id"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(omopPersonIdString));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Procedure.SP_RES_ID:
+				String conditionId = ((TokenParam) value).getValue();
+				paramWrapper.setParameterType("Long");
+				paramWrapper.setParameters(Arrays.asList("id"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(conditionId));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Condition.SP_SEVERITY:
+				// not supporting
+				break;
+			case Condition.SP_STAGE:
+				// not supporting
+				break;
+			case Condition.SP_VERIFICATION_STATUS:
+				// not supporting
+				break;
+			default:
+				mapList = null;
 		}
 
 		return mapList;
@@ -374,12 +382,29 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		// Condition.category
 		Concept typeConceptId = conditionOccurrence.getTypeConceptId();
 		if (typeConceptId != null) {
-			CodeableConcept typeCodeableConcept = retrieveCodeableConcept(typeConceptId);
-			if (typeCodeableConcept != null) {
-				List<CodeableConcept> typeList = new ArrayList<CodeableConcept>();
-				typeList.add(typeCodeableConcept);
-				condition.setCategory(typeList);
+			String systemUri = ConditionCategory.PROBLEMLISTITEM.getSystem();
+			String code = null;
+
+			String fhirCategoryCode = OmopConceptMapping.fhirForConditionTypeConcept(typeConceptId.getId());
+			if (OmopConceptMapping.COND_NULL.fhirCode.equals(fhirCategoryCode)) {
+				// We couldn't fine one. Default to problem-list
+				code = ConditionCategory.PROBLEMLISTITEM.toCode(); // default
+			} else {
+				code = fhirCategoryCode;
 			}
+
+//			CodeableConcept typeCodeableConcept = retrieveCodeableConcept(typeConceptId);
+			Coding typeCoding = new Coding();
+			typeCoding.setSystem(systemUri);
+			typeCoding.setCode(code);
+			CodeableConcept typeCodeableConcept = new CodeableConcept();
+			typeCodeableConcept.addCoding(typeCoding);
+			condition.addCategory(typeCodeableConcept);
+//			if (typeCodeableConcept != null) {
+//				List<CodeableConcept> typeList = new ArrayList<CodeableConcept>();
+//				typeList.add(typeCodeableConcept);
+//				condition.setCategory(typeList);
+//			}
 		}
 	}
 
@@ -410,7 +435,6 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		ConditionOccurrence conditionOccurrence;
 		FPerson fPerson;
 		Provider provider;
-		VisitOccurrence visitOccurrence;
 
 		// check for an existing condition
 		if (omopId != null) {
@@ -424,6 +448,14 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 			Long subjectId = fhirResource.getSubject().getReferenceElement().getIdPartAsLong();
 			Long subjectFhirId = IdMapping.getOMOPfromFHIR(subjectId, PatientResourceProvider.getType());
 			fPerson = fPersonService.findById(subjectFhirId);
+			if (fPerson == null) {
+				try {
+					throw new FHIRException("Could not get Person class.");
+				} catch (FHIRException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			conditionOccurrence.setFPerson(fPerson);
 		} else {
 			// throw an error
@@ -443,50 +475,46 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 			if (provider != null) {
 				conditionOccurrence.setProvider(provider);
 			}
-		} else {
-			// else create provider
-			try {
-				throw new FHIRException("FHIR Resource does not contain a Provider.");
-			} catch (FHIRException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 
 		// get the concept code
-		if (fhirResource.getCode() != null) {
-			List<Coding> codes = fhirResource.getCode().getCoding();
-			Concept omopConcept;
-			// there is only one so get the first
-			try {
-				omopConcept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService, codes.get(0));
-				// set the concept
-				conditionOccurrence.setConceptId(omopConcept);
-			} catch (FHIRException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else {
-			// is there a generic condition concept to use?
-			try {
-				throw new FHIRException("FHIR Resource does not contain a Condition Code.");
-			} catch (FHIRException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		CodeableConcept code = fhirResource.getCode();
+		String valueSourceString = null;
+		Concept concept = fhirCode2OmopConcept(conceptService, code, valueSourceString);
+		conditionOccurrence.setConceptId(concept);
+
+//		if (code != null) {
+//			List<Coding> codes = code.getCoding();
+//			Concept omopConcept;
+//			// there is only one so get the first
+//			try {
+//				omopConcept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService, codes.get(0));
+//				// set the concept
+//				conditionOccurrence.setConceptId(omopConcept);
+//			} catch (FHIRException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		} else {
+//			// is there a generic condition concept to use?
+//			try {
+//				throw new FHIRException("FHIR Resource does not contain a Condition Code.");
+//			} catch (FHIRException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
 
 		// get the start and end date. We are expecting both to be of type DateTimeType
-		if (fhirResource.getOnset() != null && fhirResource.getOnset() instanceof DateTimeType) {
+		Type onSet = fhirResource.getOnset();
+		if (onSet != null && onSet instanceof DateTimeType) {
 			conditionOccurrence.setStartDate(((DateTimeType) fhirResource.getOnset()).toCalendar().getTime());
-		} else {
-			// create a start date
-			try {
-				throw new FHIRException("FHIR Resource does not contain a start date.");
-			} catch (FHIRException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		} if (onSet != null && onSet instanceof Period) {
+			Period period = (Period)onSet;
+			Date start = period.getStart();
+			Date end = period.getEnd();
+			if (start != null) conditionOccurrence.setStartDate(start);
+			if (end != null) conditionOccurrence.setEndDate(end);
 		}
 
 		if (fhirResource.getAbatement() != null && fhirResource.getAbatement() instanceof DateTimeType) {
@@ -495,32 +523,37 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 			// leave alone, end date not required
 		}
 
-		// set the conditions
-		if (fhirResource.getCategory() != null) {
-			List<CodeableConcept> categories = fhirResource.getCategory();
-			Concept omopTypeConcept;
-			// there is only one so get the first
-			try {
-				omopTypeConcept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService,
-						categories.get(0).getCodingFirstRep());
-				conditionOccurrence.setTypeConceptId(omopTypeConcept);
-			} catch (FHIRException e) {
-				e.printStackTrace();
+		// set the category
+		List<CodeableConcept> categories = fhirResource.getCategory();
+		Long typeConceptId = 0L;
+		for (CodeableConcept category : categories) {
+			List<Coding> codings = category.getCoding();
+			for (Coding coding : codings) {
+				String fhirSystem = coding.getSystem();
+				String fhirCode = coding.getCode();
+				if (fhirSystem == null || fhirSystem.isEmpty() || fhirCode == null || fhirCode.isEmpty()) {
+					continue;
+				}
+				try {
+					typeConceptId = OmopConceptMapping.omopForConditionCategoryCode(fhirCode);
+				} catch (FHIRException e) {
+					e.printStackTrace();
+				}
+				if (typeConceptId > 0L)
+					break;
 			}
-		} else {
-			// is there a generic condition type concept to use?
-			try {
-				throw new FHIRException("FHIR Resource does not contain a Condition category.");
-			} catch (FHIRException e) {
-				e.printStackTrace();
-			}
+			if (typeConceptId > 0L)
+				break;
 		}
 
+		concept = conceptService.findById(typeConceptId);
+		conditionOccurrence.setTypeConceptId(concept);
+
 		// set the context
-		if (fhirResource.getContext() != null) {
-			Long visitId = fhirResource.getContext().getReferenceElement().getIdPartAsLong();
-			Long visitFhirId = IdMapping.getOMOPfromFHIR(visitId, EncounterResourceProvider.getType());
-			visitOccurrence = visitOccurrenceService.findById(visitFhirId);
+		/* Set visit occurrence */
+		Reference contextReference = fhirResource.getContext();
+		VisitOccurrence visitOccurrence = fhirContext2OmopVisitOccurrence(visitOccurrenceService, contextReference);
+		if (visitOccurrence != null) {
 			conditionOccurrence.setVisitOccurrence(visitOccurrence);
 		}
 

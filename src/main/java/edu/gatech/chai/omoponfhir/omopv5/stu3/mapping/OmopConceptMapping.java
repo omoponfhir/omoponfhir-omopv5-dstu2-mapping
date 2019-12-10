@@ -19,36 +19,37 @@ import org.hl7.fhir.dstu3.model.codesystems.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.codesystems.OrganizationType;
 import org.hl7.fhir.dstu3.model.codesystems.V3ActCode;
 import org.hl7.fhir.dstu3.model.codesystems.ObservationCategory;
+import org.hl7.fhir.dstu3.model.codesystems.ConditionCategory;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 public enum OmopConceptMapping {
-	
+
 	/**
 	 * AdministrativeGender Mapping to OMOP Gender Concept ID.
 	 */
 	MALE(AdministrativeGender.MALE.toCode(), 8507L),
 	FEMALE(AdministrativeGender.FEMALE.toCode(), 8532L),
 	UNKNOWN(AdministrativeGender.UNKNOWN.toCode(), 8551L),
-	OTHER(AdministrativeGender.OTHER.toCode(), 8521L),
-	NULL(AdministrativeGender.NULL.toCode(),8570L),
-	
-	/*
+	ADMIN_OTHER(AdministrativeGender.OTHER.toCode(), 8521L),
+	ADMIN_NULL(AdministrativeGender.NULL.toCode(),8570L),
+
+	/**
 	 * OrganizationType Mapping
 	 */
-	PROV(OrganizationType.PROV.toCode(), 4107295L), 
-	DEPT(OrganizationType.DEPT.toCode(), 4318944L), 
-	TEAM(OrganizationType.TEAM.toCode(), 4217012L), 
-	GOVT(OrganizationType.GOVT.toCode(), 4195901L), 
-	INS(OrganizationType.INS.toCode(), 8844L), 
-	EDU(OrganizationType.EDU.toCode(), 4030303L), 
-	RELI(OrganizationType.RELI.toCode(), 8844L), 
-	CRS(OrganizationType.CRS.toCode(), 8844L), 
-	CG(OrganizationType.CG.toCode(), 4127377L), 
-	BUS(OrganizationType.BUS.toCode(), 8844L), 
-	ORG_OTHER(OrganizationType.OTHER.toCode(), 8844L), 
+	PROV(OrganizationType.PROV.toCode(), 4107295L),
+	DEPT(OrganizationType.DEPT.toCode(), 4318944L),
+	TEAM(OrganizationType.TEAM.toCode(), 4217012L),
+	GOVT(OrganizationType.GOVT.toCode(), 4195901L),
+	INS(OrganizationType.INS.toCode(), 8844L),
+	EDU(OrganizationType.EDU.toCode(), 4030303L),
+	RELI(OrganizationType.RELI.toCode(), 8844L),
+	CRS(OrganizationType.CRS.toCode(), 8844L),
+	CG(OrganizationType.CG.toCode(), 4127377L),
+	BUS(OrganizationType.BUS.toCode(), 8844L),
+	ORG_OTHER(OrganizationType.OTHER.toCode(), 8844L),
 	ORG_NULL(OrganizationType.NULL.toCode(), 8844L),
-	
-	/*
+
+	/**
 	 * Observation Category Mapping
 	 */
 	SOCIALHISTORY(ObservationCategory.SOCIALHISTORY.toCode(), 44788346L),
@@ -60,133 +61,168 @@ public enum OmopConceptMapping {
 	EXAM(ObservationCategory.EXAM.toCode(), 44803645L),
 	THERAPY(ObservationCategory.THERAPY.toCode(), 44807025L),
 	OBS_NULL(ObservationCategory.NULL.toCode(), 0L),
-	
-	/*
+
+	/**
 	 * Encounter Class Mapping
 	 */
 	INPATIENT(V3ActCode.IMP.toCode(), 9201L),
 	OUTPATIENT(V3ActCode.AMB.toCode(), 9202L),
-	EMERGENCY(V3ActCode.EMER.toCode(), 9203L);
-	
-	/*
+	EMERGENCY(V3ActCode.EMER.toCode(), 9203L),
+	ENC_NULL(V3ActCode.NULL.toCode(), 0L),
+
+	/**
+	 * Condition Category Mapping
+	 */
+	PROBLEM_LIST_ITEM(ConditionCategory.PROBLEMLISTITEM.toCode(), 38000245L),
+	// Couldn't find exact matching for encounter-diagnosis. This is 'Observation recorded from EHR' in Concept Table
+	ENCOUNTER_DIAGNOSIS(ConditionCategory.ENCOUNTERDIAGNOSIS.toCode(), 43542353L),
+	COND_NULL(ConditionCategory.NULL.toCode(), 0L);
+
+	/**
 	 * DocumentReference Type Mapping
 	 */
-	
-	
+
+
 	public static Long omopForAdministrativeGenderCode(String administrativeGenderCode) throws FHIRException {
 		if (administrativeGenderCode == null || administrativeGenderCode.isEmpty()) {
 			throw new FHIRException("Unknow Administrative Gender code: '"+administrativeGenderCode+"'");
 		}
-		
-		if ("male".equals(administrativeGenderCode)) {
-			return 8507L; // MALE in OMOP
+
+		if (MALE.getFhirCode().equals(administrativeGenderCode)) {
+			return MALE.getOmopConceptId(); // MALE in OMOP
 		}
-		if ("female".equals(administrativeGenderCode)) {
-			return 8532L; // FEMALE in OMOP
+		if (FEMALE.getFhirCode().equals(administrativeGenderCode)) {
+			return FEMALE.getOmopConceptId(); // FEMALE in OMOP
 		}
-		if ("unknown".equals(administrativeGenderCode)) {
-			return 8551L;
+		if (UNKNOWN.getFhirCode().equals(administrativeGenderCode)) {
+			return UNKNOWN.getOmopConceptId();
 		}
-		if ("other".equals(administrativeGenderCode)) {
-			return 8521L;
+		if (ADMIN_OTHER.getFhirCode().equals(administrativeGenderCode)) {
+			return ADMIN_OTHER.getOmopConceptId();
 		} else {
-			return 8570L;
+			return ADMIN_NULL.getOmopConceptId();
 		}
 	}
-	
+
 	public static Long omopForOrganizationTypeCode(String organizationTypeCode) throws FHIRException {
 		if (organizationTypeCode == null || organizationTypeCode.isEmpty()) {
 			throw new FHIRException("Unknow Organization Type code: '"+organizationTypeCode+"'");
 		}
-		
-		if ("prov".equals(organizationTypeCode)) {
-			return 4107295L;
+
+		if (PROV.getFhirCode().equals(organizationTypeCode)) {
+			return PROV.getOmopConceptId();
 		}
-		if ("dept".equals(organizationTypeCode)) {
-			return 4318944L;
+		if (DEPT.getFhirCode().equals(organizationTypeCode)) {
+			return DEPT.getOmopConceptId();
 		}
-		if ("team".equals(organizationTypeCode)) {
-			return 4217012L;
+		if (TEAM.getFhirCode().equals(organizationTypeCode)) {
+			return TEAM.getOmopConceptId();
 		}
-		if ("govt".equals(organizationTypeCode)) {
-			return 4195901L;
+		if (GOVT.getFhirCode().equals(organizationTypeCode)) {
+			return GOVT.getOmopConceptId();
 		}
-		if ("ins".equals(organizationTypeCode)) {
-			return 8844L; // Other place of service... can't find right one.
+		if (INS.getFhirCode().equals(organizationTypeCode)) {
+			return INS.getOmopConceptId(); // Other place of service... can't find right one.
 		}
-		if ("edu".equals(organizationTypeCode)) {
-			return 4030303L;
+		if (EDU.getFhirCode().equals(organizationTypeCode)) {
+			return EDU.getOmopConceptId();
 		}
-		if ("reli".equals(organizationTypeCode)) {
-			return 8844L;
+		if (RELI.getFhirCode().equals(organizationTypeCode)) {
+			return RELI.getOmopConceptId();
 		}
-		if ("crs".equals(organizationTypeCode)) {
-			return 8844L;
+		if (CRS.getFhirCode().equals(organizationTypeCode)) {
+			return CRS.getOmopConceptId();
 		}
-		if ("cg".equals(organizationTypeCode)) {
-			return 4127377L;
+		if (CG.getFhirCode().equals(organizationTypeCode)) {
+			return CG.getOmopConceptId();
 		}
-		if ("bus".equals(organizationTypeCode)) {
-			return 8844L;
+		if (BUS.getFhirCode().equals(organizationTypeCode)) {
+			return BUS.getOmopConceptId();
 		}
-		if ("other".equals(organizationTypeCode)) {
-			return 8844L;
+		if (ORG_OTHER.getFhirCode().equals(organizationTypeCode)) {
+			return ORG_OTHER.getOmopConceptId();
 		} else {
-			return 8844L;
+			return ORG_NULL.getOmopConceptId();
 		}
 	}
-	
+
 	public static Long omopForObservationCategoryCode(String observationCategoryCode) throws FHIRException {
 		if (observationCategoryCode == null || observationCategoryCode.isEmpty()) {
 			throw new FHIRException("Unknow Observation Category code: '"+observationCategoryCode+"'");
 		}
-		
-		if ("social-history".equals(observationCategoryCode)) {
-			return 44788346L;
+
+		if (SOCIALHISTORY.getFhirCode().equals(observationCategoryCode)) {
+			return SOCIALHISTORY.getOmopConceptId();
 		}
-		if ("vital-signs".equals(observationCategoryCode)) {
-			return 44806924L;
+		if (VITAL.getFhirCode().equals(observationCategoryCode)) {
+			return VITAL.getOmopConceptId();
 		}
-		if ("imaging".equals(observationCategoryCode)) {
-			return 44788404L;
+		if (IMAGING.getFhirCode().equals(observationCategoryCode)) {
+			return IMAGING.getOmopConceptId();
 		}
-		if ("laboratory".equals(observationCategoryCode)) {
-			return 44791245L;
+		if (LABORATORY.getFhirCode().equals(observationCategoryCode)) {
+			return LABORATORY.getOmopConceptId();
 		}
-		if ("procedure".equals(observationCategoryCode)) {
-			return 44810322L;
+		if (PROCEDURE.getFhirCode().equals(observationCategoryCode)) {
+			return PROCEDURE.getOmopConceptId();
 		}
-		if ("survey".equals(observationCategoryCode)) {
-			return 45905771L;
+		if (SURVEY.getFhirCode().equals(observationCategoryCode)) {
+			return SURVEY.getOmopConceptId();
 		}
-		if ("exam".equals(observationCategoryCode)) {
-			return 44803645L;
+		if (EXAM.getFhirCode().equals(observationCategoryCode)) {
+			return EXAM.getOmopConceptId();
 		}
-		if ("therapy".equals(observationCategoryCode)) {
-			return 44807025L;
-		} else {
-			return 0L;
+		if (THERAPY.getFhirCode().equals(observationCategoryCode)) {
+			return THERAPY.getOmopConceptId();
 		}
+
+		return OBS_NULL.getOmopConceptId();
 	}
-	
+
+	public static Long omopForConditionCategoryCode(String conditionCategoryCode) throws FHIRException {
+		if (conditionCategoryCode == null || conditionCategoryCode.isEmpty()) {
+			throw new FHIRException("Unknow Condition Category code: '"+conditionCategoryCode+"'");
+		}
+
+		if (PROBLEM_LIST_ITEM.getFhirCode().equals(conditionCategoryCode)) {
+			return PROBLEM_LIST_ITEM.getOmopConceptId();
+		}
+		if (ENCOUNTER_DIAGNOSIS.getFhirCode().equals(conditionCategoryCode)) {
+			return ENCOUNTER_DIAGNOSIS.getOmopConceptId();
+		}
+
+		return COND_NULL.getOmopConceptId();
+	}
+
 	public static Long omopForEncounterClassCode(String encounterClassCode) throws FHIRException {
 		if (encounterClassCode == null || encounterClassCode.isEmpty()) {
 			throw new FHIRException("Unknow Observation Category code: '"+encounterClassCode+"'");
 		}
 
-		if ("IMP".equals(encounterClassCode)) {
-			return 9201L;
+		if (INPATIENT.getFhirCode().equals(encounterClassCode)) {
+			return INPATIENT.getOmopConceptId();
 		}
-		if ("AMB".equals(encounterClassCode)) {
-			return 9202L;
+		if (OUTPATIENT.getFhirCode().equals(encounterClassCode)) {
+			return OUTPATIENT.getOmopConceptId();
 		}
-		if ("EMER".equals(encounterClassCode)) {
-			return 9203L;
+		if (EMERGENCY.getFhirCode().equals(encounterClassCode)) {
+			return EMERGENCY.getOmopConceptId();
 		}
-		
-		return 0L;
+
+		return ENC_NULL.getOmopConceptId();
 	}
-	
+
+	public static String fhirForConditionTypeConcept(Long conditionTypeConceptId) {
+		if (PROBLEM_LIST_ITEM.getOmopConceptId() == conditionTypeConceptId) {
+			return PROBLEM_LIST_ITEM.getFhirCode();
+		}
+		if (ENCOUNTER_DIAGNOSIS.getOmopConceptId() == conditionTypeConceptId) {
+			return ENCOUNTER_DIAGNOSIS.getFhirCode();
+		}
+
+		return COND_NULL.getFhirCode();
+	}
+
 	String fhirCode;
 	Long omopConceptId;
 

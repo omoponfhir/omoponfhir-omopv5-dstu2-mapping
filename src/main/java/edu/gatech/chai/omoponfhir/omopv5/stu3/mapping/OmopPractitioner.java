@@ -50,57 +50,57 @@ import edu.gatech.chai.omopv5.model.entity.Provider;
 public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, ProviderService> implements IResourceMapping<Practitioner, Provider>{
 
 	private static OmopPractitioner omopPractitioner = new OmopPractitioner();
-	
+
 	private CareSiteService careSiteService;
-	private LocationService locationService;	
-	
+	private LocationService locationService;
+
 	public OmopPractitioner(WebApplicationContext context) {
 		super(context, Provider.class, ProviderService.class, PractitionerResourceProvider.getType());
 		initialize(context);
 	}
-	
+
 	public OmopPractitioner() {
 		super(ContextLoaderListener.getCurrentWebApplicationContext(), Provider.class, ProviderService.class, PractitionerResourceProvider.getType());
 		initialize(ContextLoaderListener.getCurrentWebApplicationContext());
 	}
-	
+
 	private void initialize(WebApplicationContext context) {
-		
+
 		careSiteService = context.getBean(CareSiteService.class);
 		locationService = context.getBean(LocationService.class);
 	}
-	
+
 	public static OmopPractitioner getInstance() {
 		return omopPractitioner;
 	}
-	
+
 //	@Override
 //	public Practitioner toFHIR(IdType id) {
 //		String practitioncerResourceName = ResourceType.Practitioner.getPath();
 //		Long id_long_part = id.getIdPartAsLong();
 //		Long omopId = IdMapping.getOMOPfromFHIR(id_long_part, practitioncerResourceName);
-//		
+//
 //		Provider omopProvider = getMyOmopService().findById(omopId);
 //		if(omopProvider == null) return null;
-//		
+//
 //		Long fhirId = IdMapping.getFHIRfromOMOP(id_long_part, practitioncerResourceName);
-//		
+//
 //		return constructResource(fhirId, omopProvider, null);
 //	}
-	
+
 //	@Override
 //	public Practitioner constructResource(Long fhirId, Provider entity,List<String> includes) {
 //		Practitioner practitioner = constructFHIR(fhirId,entity); //Assuming default active state
 //		return practitioner;
 //	}
-	
+
 	@Override
 	public Practitioner constructFHIR(Long fhirId, Provider omopProvider) {
 		Practitioner practitioner = new Practitioner(); //Assuming default active state
 		practitioner.setId(new IdType(fhirId));
-		
+
 		CareSite omopCareSite = omopProvider.getCareSite();
-		
+
 		if(omopProvider.getProviderName() != null && !omopProvider.getProviderName().isEmpty()) {
 			HumanName fhirName = new HumanName();
 			fhirName.setText(omopProvider.getProviderName());
@@ -108,21 +108,21 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 			fhirNameList.add(fhirName);
 			practitioner.setName(fhirNameList);
 		}
-		
+
 		//TODO: Need practictioner telecom information
 		//Set address
 		if(omopCareSite != null && omopCareSite.getLocation() != null && omopCareSite.getLocation().getId() != 0L) {
 			practitioner.addAddress()
-			.setUse(AddressUse.WORK)
-			.addLine(omopCareSite.getLocation().getAddress1())
-			.addLine(omopCareSite.getLocation().getAddress2())//WARNING check if mapping for lines are correct
-			.setCity(omopCareSite.getLocation().getCity())
-			.setPostalCode(omopCareSite.getLocation().getZipCode())
-			.setState(omopCareSite.getLocation().getState());
+					.setUse(AddressUse.WORK)
+					.addLine(omopCareSite.getLocation().getAddress1())
+					.addLine(omopCareSite.getLocation().getAddress2())//WARNING check if mapping for lines are correct
+					.setCity(omopCareSite.getLocation().getCity())
+					.setPostalCode(omopCareSite.getLocation().getZipCode())
+					.setState(omopCareSite.getLocation().getState());
 		}
 		//Set gender
 		if (omopProvider.getGenderConcept() != null) {
-			String gName = omopProvider.getGenderConcept().getName().toLowerCase(); 
+			String gName = omopProvider.getGenderConcept().getName().toLowerCase();
 			AdministrativeGender gender;
 			try {
 				gender = AdministrativeGender.fromCode(gName);
@@ -136,7 +136,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 
 	@Override
 	public Long toDbase(Practitioner practitioner, IdType fhirId) throws FHIRException {
-		
+
 		// If we have match in identifier, then we can update or create since
 		// we have the patient. If we have no match, but fhirId is not null,
 		// then this is update with fhirId. We need to do another search.
@@ -161,9 +161,9 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 				}
 			}
 		}
-		
+
 		Provider omopProvider = constructOmop(omopId, practitioner);
-		
+
 		Long omopRecordId = null;
 		if (omopProvider.getId() != null) {
 			omopRecordId = getMyOmopService().update(omopProvider).getId();
@@ -172,7 +172,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		}
 		return IdMapping.getFHIRfromOMOP(omopRecordId, PractitionerResourceProvider.getType());
 	}
-	
+
 //	@Override
 //	public Long getSize() {
 //		return providerService.getSize(Provider.class);
@@ -181,10 +181,10 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 //	public Long getSize(Map<String, List<ParameterWrapper>> map) {
 //		return providerService.getSize(Provider.class, map);
 //	}
-	
+
 	public Location searchAndUpdateLocation (Address address, Location location) {
 		if (address == null) return null;
-		
+
 		List<StringType> addressLines = address.getLine();
 		if (addressLines.size() > 0) {
 			String line1 = addressLines.get(0).getValue();
@@ -194,7 +194,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 			String zipCode = address.getPostalCode();
 			String city = address.getCity();
 			String state = address.getState();
-			
+
 			Location existingLocation = locationService.searchByAddress(line1, line2, city, state, zipCode);
 			if (existingLocation != null) {
 				return existingLocation;
@@ -211,12 +211,12 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 				} else {
 					return new Location (line1, line2, city, state, zipCode);
 				}
-			}			
+			}
 		}
-		
+
 		return null;
 	}
-	
+
 	public CareSite searchAndUpdateCareSite(Address address) {
 		Location location = AddressUtil.searchAndUpdate(locationService, address, null);
 		if(location == null) return null;
@@ -230,10 +230,10 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 			return careSite;
 		}
 	}
-	
+
 	/**
 	 * mapParameter: This maps the FHIR parameter to OMOP column name.
-	 * 
+	 *
 	 * @param parameter
 	 *            FHIR parameter name.
 	 * @param value
@@ -244,65 +244,65 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 	public List<ParameterWrapper> mapParameter(String parameter, Object value, boolean or) {
 		List<ParameterWrapper> mapList = new ArrayList<ParameterWrapper>();
 		ParameterWrapper paramWrapper = new ParameterWrapper();
-        if (or) paramWrapper.setUpperRelationship("or");
-        else paramWrapper.setUpperRelationship("and");
+		if (or) paramWrapper.setUpperRelationship("or");
+		else paramWrapper.setUpperRelationship("and");
 
 		switch (parameter) {
-		case Practitioner.SP_RES_ID:
-			String practitionerId = ((TokenParam) value).getValue();
-			paramWrapper.setParameterType("Long");
-			paramWrapper.setParameters(Arrays.asList("id"));
-			paramWrapper.setOperators(Arrays.asList("="));
-			paramWrapper.setValues(Arrays.asList(practitionerId));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Practitioner.SP_FAMILY:
-			// This is family name, which is string. use like.
-			String familyString;
-			if (((StringParam) value).isExact())
-				familyString = ((StringParam) value).getValue();
-			else
-				familyString = "%"+((StringParam) value).getValue()+"%";
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("providerName"));
-			paramWrapper.setOperators(Arrays.asList("like"));
-			paramWrapper.setValues(Arrays.asList(familyString));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Practitioner.SP_GIVEN:
-			String givenString;
-			if (((StringParam) value).isExact())
-				givenString = ((StringParam) value).getValue();
-			else
-				givenString = "%"+((StringParam) value).getValue()+"%";
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("providerName"));
-			paramWrapper.setOperators(Arrays.asList("like"));
-			paramWrapper.setValues(Arrays.asList(givenString));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_GENDER:
-			//Not sure whether we should just search the encoded concept, or the source concept as well. Doing both for now.
-			String genderValue = ((TokenParam) value).getValue();
-			Long genderLongCode = null;
-			//Setting the value to omop concept NULL if we cannot find an omopId
-			try {
-				genderLongCode = OmopConceptMapping.omopForAdministrativeGenderCode(genderValue);
-			} catch (FHIRException e) {
-				genderLongCode = OmopConceptMapping.NULL.omopConceptId;
-			}
-			paramWrapper.setParameterType("Long");
-			paramWrapper.setParameters(Arrays.asList("gender_source_concept_id", "gender_source_value"));
-			paramWrapper.setOperators(Arrays.asList("="));
-			paramWrapper.setValues(Arrays.asList(genderLongCode.toString(),genderLongCode.toString()));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		default:
-			mapList = null;
+			case Practitioner.SP_RES_ID:
+				String practitionerId = ((TokenParam) value).getValue();
+				paramWrapper.setParameterType("Long");
+				paramWrapper.setParameters(Arrays.asList("id"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(practitionerId));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Practitioner.SP_FAMILY:
+				// This is family name, which is string. use like.
+				String familyString;
+				if (((StringParam) value).isExact())
+					familyString = ((StringParam) value).getValue();
+				else
+					familyString = "%"+((StringParam) value).getValue()+"%";
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("providerName"));
+				paramWrapper.setOperators(Arrays.asList("like"));
+				paramWrapper.setValues(Arrays.asList(familyString));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Practitioner.SP_GIVEN:
+				String givenString;
+				if (((StringParam) value).isExact())
+					givenString = ((StringParam) value).getValue();
+				else
+					givenString = "%"+((StringParam) value).getValue()+"%";
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("providerName"));
+				paramWrapper.setOperators(Arrays.asList("like"));
+				paramWrapper.setValues(Arrays.asList(givenString));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_GENDER:
+				//Not sure whether we should just search the encoded concept, or the source concept as well. Doing both for now.
+				String genderValue = ((TokenParam) value).getValue();
+				Long genderLongCode = null;
+				//Setting the value to omop concept NULL if we cannot find an omopId
+				try {
+					genderLongCode = OmopConceptMapping.omopForAdministrativeGenderCode(genderValue);
+				} catch (FHIRException e) {
+					genderLongCode = OmopConceptMapping.ADMIN_NULL.getOmopConceptId();
+				}
+				paramWrapper.setParameterType("Long");
+				paramWrapper.setParameters(Arrays.asList("gender_source_concept_id", "gender_source_value"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(genderLongCode.toString(),genderLongCode.toString()));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			default:
+				mapList = null;
 		}
 		return mapList;
 	}
@@ -323,17 +323,17 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		} else {
 			omopProvider = new Provider();
 		}
-		
+
 		String providerSourceValue = null;
 		CareSite omopCareSite = new CareSite();
-		
+
 		//Set name
 		Iterator<HumanName> practitionerIterator = practitioner.getName().iterator();
 		if(practitionerIterator.hasNext()) {
 			HumanName next = practitionerIterator.next();
 			omopProvider.setProviderName(next.getText());
 		}
-		
+
 		//Set address
 		List<Address> addresses = practitioner.getAddress();
 		Location retLocation = null;
@@ -344,7 +344,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 				omopCareSite.setLocation(retLocation);
 			}
 		}
-		
+
 		//Set gender concept
 		omopProvider.setGenderConcept(new Concept());
 		String genderCode = practitioner.getGender().toCode();
@@ -353,7 +353,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		} catch (FHIRException e) {
 			e.printStackTrace();
 		}
-		
+
 		//Create a new caresite if does not exist
 		// TODO: Should we?
 		if(!practitioner.getAddress().isEmpty()) {
@@ -364,7 +364,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 				careSiteService.create(careSite);
 			}
 		}
-		
+
 		Identifier identifier = practitioner.getIdentifierFirstRep();
 		if (identifier.getValue().isEmpty() == false) {
 			providerSourceValue = identifier.getValue();

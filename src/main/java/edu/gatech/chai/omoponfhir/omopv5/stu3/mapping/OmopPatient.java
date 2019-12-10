@@ -44,6 +44,8 @@ import org.hl7.fhir.dstu3.model.codesystems.V3MaritalStatus;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IIdType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -74,6 +76,8 @@ import edu.gatech.chai.omopv5.model.entity.VisitOccurrence;
 
 public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPersonService>
 		implements IResourceMapping<USCorePatient, FPerson> {
+
+	private static final Logger logger = LoggerFactory.getLogger(OmopPatient.class);
 
 	private static OmopPatient omopPatient = new OmopPatient();
 
@@ -432,24 +436,27 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 
 	/**
 	 * OMOP on FHIR mapping - from FHIR to OMOP
-	 * 
+	 *
 	 * @param Patient resource.
 	 * @param IdType  fhirId that you want to update
-	 * 
+	 *
 	 * @return Resource ID. Returns ID in Long. This is what needs to be used to
 	 *         refer this resource.
 	 */
 	@Override
 	public Long toDbase(USCorePatient patient, IdType fhirId) throws FHIRException {
-		Long omopId = null;
+		Long omopId = null, fhirIdLong = null;
 
 		if (fhirId != null) {
 			// update
-			omopId = fhirId.getIdPartAsLong();
-			if (omopId == null) {
+			fhirIdLong = fhirId.getIdPartAsLong();
+			if (fhirIdLong == null) {
 				// Invalid fhirId.
+				logger.error("Failed to get Patient.id as Long value");
 				return null;
 			}
+
+			omopId = IdMapping.getOMOPfromFHIR(fhirIdLong, PatientResourceProvider.getType());
 		}
 
 		FPerson fperson = constructOmop(omopId, patient);
@@ -514,9 +521,9 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 	 * provider table in OMOP. If exist, return it. We may have this received
 	 * before, in this case, search it from source column and return it. Otherwise,
 	 * create a new one.
-	 * 
+	 *
 	 * Returns provider entity in OMOP.
-	 * 
+	 *
 	 * @param generalPractitioner
 	 * @return
 	 */
@@ -557,7 +564,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 
 	/**
 	 * mapParameter: This maps the FHIR parameter to OMOP column name.
-	 * 
+	 *
 	 * @param parameter FHIR parameter name.
 	 * @param value     FHIR value for the parameter
 	 * @return returns ParameterWrapper class, which contains OMOP column name and
@@ -572,234 +579,234 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 			paramWrapper.setUpperRelationship("and");
 
 		switch (parameter) {
-		case Patient.SP_ACTIVE:
-			// True of False in FHIR. In OMOP, this is 1 or 0.
-			String activeValue = ((TokenParam) value).getValue();
-			String activeString;
-			if (activeValue.equalsIgnoreCase("true"))
-				activeString = "1";
-			else
-				activeString = "0";
-			paramWrapper.setParameterType("Short");
-			paramWrapper.setParameters(Arrays.asList("active"));
-			paramWrapper.setOperators(Arrays.asList("="));
-			paramWrapper.setValues(Arrays.asList(activeString));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_EMAIL:
-			String emailValue = ((TokenParam) value).getValue();
-			String emailSystemValue = ContactPoint.ContactPointSystem.EMAIL.toCode();
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("contactPoint1", "contactPoint2", "contactPoint3"));
-			paramWrapper.setOperators(Arrays.asList("like", "like", "like"));
-			paramWrapper.setValues(Arrays.asList("%" + emailSystemValue + ":%:%" + emailValue + "%"));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_PHONE:
-			String phoneValue = ((TokenParam) value).getValue();
-			String phoneSystemValue = ContactPoint.ContactPointSystem.PHONE.toCode();
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("contactPoint1", "contactPoint2", "contactPoint3"));
-			paramWrapper.setOperators(Arrays.asList("like", "like", "like"));
-			paramWrapper.setValues(Arrays.asList("%" + phoneSystemValue + ":%:%" + phoneValue + "%"));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_TELECOM:
-			String telecomValue = ((TokenParam) value).getValue();
-			String telecomSystemValue = ((TokenParam) value).getSystem();
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("contactPoint1", "contactPoint2", "contactPoint3"));
-			paramWrapper.setOperators(Arrays.asList("like", "like", "like"));
-			paramWrapper.setValues(Arrays.asList("%" + telecomSystemValue + ":%:%" + telecomValue + "%"));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_BIRTHDATE:
-			// We only compare date (no time). Get year, month, date
-			// form DateParam value.
-			Date date = ((DateParam) value).getValue();
-			ParamPrefixEnum relation = ((DateParam) value).getPrefix();
-			String operator;
-			if (relation.equals(ParamPrefixEnum.LESSTHAN))
-				operator = "<";
-			else if (relation.equals(ParamPrefixEnum.LESSTHAN_OR_EQUALS))
-				operator = "<=";
-			else if (relation.equals(ParamPrefixEnum.GREATERTHAN))
-				operator = ">";
-			else if (relation.equals(ParamPrefixEnum.GREATERTHAN_OR_EQUALS))
-				operator = ">=";
-			else
-				operator = "=";
-
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(date);
-			int year = cal.get(Calendar.YEAR);
-			int month = cal.get(Calendar.MONDAY) + 1;
-			int day = cal.get(Calendar.DAY_OF_MONTH);
-			paramWrapper.setParameterType("Integer");
-			paramWrapper.setParameters(Arrays.asList("yearOfBirth", "monthOfBirth", "dayOfBirth"));
-			paramWrapper.setOperators(Arrays.asList(operator, operator, operator));
-			paramWrapper.setValues(Arrays.asList(String.valueOf(year), String.valueOf(month), String.valueOf(day)));
-			paramWrapper.setRelationship("and");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_FAMILY:
-			// This is family name, which is string. use like.
-			String familyString;
-			if (((StringParam) value).isExact())
-				familyString = ((StringParam) value).getValue();
-			else
-				familyString = "%" + ((StringParam) value).getValue() + "%";
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("familyName"));
-			paramWrapper.setOperators(Arrays.asList("like"));
-			paramWrapper.setValues(Arrays.asList(familyString));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_GIVEN:
-			// This is given name, which is string. use like.
-			String givenName;
-			if (((StringParam) value).isExact())
-				givenName = ((StringParam) value).getValue();
-			else
-				givenName = "%" + ((StringParam) value).getValue() + "%";
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("givenName1", "givenName2"));
-			paramWrapper.setOperators(Arrays.asList("like", "like"));
-			paramWrapper.setValues(Arrays.asList(givenName));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_NAME:
-			// This is family name, which is string. use like.
-			String nameString;
-			if (((StringParam) value).isExact())
-				nameString = ((StringParam) value).getValue();
-			else
-				nameString = "%" + ((StringParam) value).getValue() + "%";
-			paramWrapper.setParameterType("String");
-			paramWrapper
-					.setParameters(Arrays.asList("familyName", "givenName1", "givenName2", "prefixName", "suffixName"));
-			paramWrapper.setOperators(Arrays.asList("like", "like", "like", "like", "like"));
-			paramWrapper.setValues(Arrays.asList(nameString));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_RES_ID:
-			String patientId = ((TokenParam) value).getValue();
-			paramWrapper.setParameterType("Long");
-			paramWrapper.setParameters(Arrays.asList("id"));
-			paramWrapper.setOperators(Arrays.asList("="));
-			paramWrapper.setValues(Arrays.asList(patientId));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_IDENTIFIER:
-			String identifierSystem = ((TokenParam) value).getSystem();
-			String identifierValue = ((TokenParam) value).getValue();
-
-			String searchString = identifierValue;
-			if (identifierSystem != null && !identifierSystem.isEmpty()) {
-				String omopVocabId = fhirOmopVocabularyMap.getOmopVocabularyFromFhirSystemName(identifierSystem);
-				if (!"None".equals(omopVocabId)) {
-					searchString = omopVocabId + "^" + searchString;
-				}
-			}
-
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("personSourceValue"));
-			if (identifierValue == null || identifierValue.trim().isEmpty()) {
-				// We are only searching by system. So, we should select with % after system
-				// name.
-				paramWrapper.setOperators(Arrays.asList("like"));
-				paramWrapper.setValues(Arrays.asList(searchString + "%"));
-			} else if (identifierSystem == null || identifierSystem.isEmpty()) {
-				paramWrapper.setOperators(Arrays.asList("like"));
-				paramWrapper.setValues(Arrays.asList("%" + searchString));
-			} else {
+			case Patient.SP_ACTIVE:
+				// True of False in FHIR. In OMOP, this is 1 or 0.
+				String activeValue = ((TokenParam) value).getValue();
+				String activeString;
+				if (activeValue.equalsIgnoreCase("true"))
+					activeString = "1";
+				else
+					activeString = "0";
+				paramWrapper.setParameterType("Short");
+				paramWrapper.setParameters(Arrays.asList("active"));
 				paramWrapper.setOperators(Arrays.asList("="));
-				paramWrapper.setValues(Arrays.asList(searchString));
-			}
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_ADDRESS:
-			String addressName;
-			if (((StringParam) value).isExact())
-				addressName = ((StringParam) value).getValue();
-			else
-				addressName = "%" + ((StringParam) value).getValue() + "%";
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("location.address1", "location.address2", "location.city",
-					"location.state", "location.zipCode"));
-			paramWrapper.setOperators(Arrays.asList("like", "like", "like", "like", "like"));
-			paramWrapper.setValues(Arrays.asList(addressName));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_ADDRESS_CITY:
-			String addressCityName;
-			if (((StringParam) value).isExact())
-				addressCityName = ((StringParam) value).getValue();
-			else
-				addressCityName = "%" + ((StringParam) value).getValue() + "%";
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("location.city"));
-			paramWrapper.setOperators(Arrays.asList("like"));
-			paramWrapper.setValues(Arrays.asList(addressCityName));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_ADDRESS_STATE:
-			String addressStateName;
-			if (((StringParam) value).isExact())
-				addressStateName = ((StringParam) value).getValue();
-			else
-				addressStateName = "%" + ((StringParam) value).getValue() + "%";
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("location.state"));
-			paramWrapper.setOperators(Arrays.asList("like"));
-			paramWrapper.setValues(Arrays.asList(addressStateName));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case Patient.SP_ADDRESS_POSTALCODE:
-			String addressZipName;
-			if (((StringParam) value).isExact())
-				addressZipName = ((StringParam) value).getValue();
-			else
-				addressZipName = "%" + ((StringParam) value).getValue() + "%";
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("location.zipCode"));
-			paramWrapper.setOperators(Arrays.asList("like"));
-			paramWrapper.setValues(Arrays.asList(addressZipName));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case "Organization:" + Organization.SP_NAME:
-			String orgName = (String) value;
-			paramWrapper.setParameterType("String");
-			paramWrapper.setParameters(Arrays.asList("careSite.careSiteName"));
-			paramWrapper.setOperators(Arrays.asList("like"));
-			paramWrapper.setValues(Arrays.asList("%" + orgName + "%"));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		case "Organization:" + Organization.SP_RES_ID:
-			String orgId = (String) value;
-			paramWrapper.setParameterType("Long");
-			paramWrapper.setParameters(Arrays.asList("careSite.id"));
-			paramWrapper.setOperators(Arrays.asList("="));
-			paramWrapper.setValues(Arrays.asList(orgId));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
-		default:
-			mapList = null;
+				paramWrapper.setValues(Arrays.asList(activeString));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_EMAIL:
+				String emailValue = ((TokenParam) value).getValue();
+				String emailSystemValue = ContactPoint.ContactPointSystem.EMAIL.toCode();
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("contactPoint1", "contactPoint2", "contactPoint3"));
+				paramWrapper.setOperators(Arrays.asList("like", "like", "like"));
+				paramWrapper.setValues(Arrays.asList("%" + emailSystemValue + ":%:%" + emailValue + "%"));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_PHONE:
+				String phoneValue = ((TokenParam) value).getValue();
+				String phoneSystemValue = ContactPoint.ContactPointSystem.PHONE.toCode();
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("contactPoint1", "contactPoint2", "contactPoint3"));
+				paramWrapper.setOperators(Arrays.asList("like", "like", "like"));
+				paramWrapper.setValues(Arrays.asList("%" + phoneSystemValue + ":%:%" + phoneValue + "%"));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_TELECOM:
+				String telecomValue = ((TokenParam) value).getValue();
+				String telecomSystemValue = ((TokenParam) value).getSystem();
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("contactPoint1", "contactPoint2", "contactPoint3"));
+				paramWrapper.setOperators(Arrays.asList("like", "like", "like"));
+				paramWrapper.setValues(Arrays.asList("%" + telecomSystemValue + ":%:%" + telecomValue + "%"));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_BIRTHDATE:
+				// We only compare date (no time). Get year, month, date
+				// form DateParam value.
+				Date date = ((DateParam) value).getValue();
+				ParamPrefixEnum relation = ((DateParam) value).getPrefix();
+				String operator;
+				if (relation.equals(ParamPrefixEnum.LESSTHAN))
+					operator = "<";
+				else if (relation.equals(ParamPrefixEnum.LESSTHAN_OR_EQUALS))
+					operator = "<=";
+				else if (relation.equals(ParamPrefixEnum.GREATERTHAN))
+					operator = ">";
+				else if (relation.equals(ParamPrefixEnum.GREATERTHAN_OR_EQUALS))
+					operator = ">=";
+				else
+					operator = "=";
+
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(date);
+				int year = cal.get(Calendar.YEAR);
+				int month = cal.get(Calendar.MONDAY) + 1;
+				int day = cal.get(Calendar.DAY_OF_MONTH);
+				paramWrapper.setParameterType("Integer");
+				paramWrapper.setParameters(Arrays.asList("yearOfBirth", "monthOfBirth", "dayOfBirth"));
+				paramWrapper.setOperators(Arrays.asList(operator, operator, operator));
+				paramWrapper.setValues(Arrays.asList(String.valueOf(year), String.valueOf(month), String.valueOf(day)));
+				paramWrapper.setRelationship("and");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_FAMILY:
+				// This is family name, which is string. use like.
+				String familyString;
+				if (((StringParam) value).isExact())
+					familyString = ((StringParam) value).getValue();
+				else
+					familyString = "%" + ((StringParam) value).getValue() + "%";
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("familyName"));
+				paramWrapper.setOperators(Arrays.asList("like"));
+				paramWrapper.setValues(Arrays.asList(familyString));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_GIVEN:
+				// This is given name, which is string. use like.
+				String givenName;
+				if (((StringParam) value).isExact())
+					givenName = ((StringParam) value).getValue();
+				else
+					givenName = "%" + ((StringParam) value).getValue() + "%";
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("givenName1", "givenName2"));
+				paramWrapper.setOperators(Arrays.asList("like", "like"));
+				paramWrapper.setValues(Arrays.asList(givenName));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_NAME:
+				// This is family name, which is string. use like.
+				String nameString;
+				if (((StringParam) value).isExact())
+					nameString = ((StringParam) value).getValue();
+				else
+					nameString = "%" + ((StringParam) value).getValue() + "%";
+				paramWrapper.setParameterType("String");
+				paramWrapper
+						.setParameters(Arrays.asList("familyName", "givenName1", "givenName2", "prefixName", "suffixName"));
+				paramWrapper.setOperators(Arrays.asList("like", "like", "like", "like", "like"));
+				paramWrapper.setValues(Arrays.asList(nameString));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_RES_ID:
+				String patientId = ((TokenParam) value).getValue();
+				paramWrapper.setParameterType("Long");
+				paramWrapper.setParameters(Arrays.asList("id"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(patientId));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_IDENTIFIER:
+				String identifierSystem = ((TokenParam) value).getSystem();
+				String identifierValue = ((TokenParam) value).getValue();
+
+				String searchString = identifierValue;
+				if (identifierSystem != null && !identifierSystem.isEmpty()) {
+					String omopVocabId = fhirOmopVocabularyMap.getOmopVocabularyFromFhirSystemName(identifierSystem);
+					if (!"None".equals(omopVocabId)) {
+						searchString = omopVocabId + "^" + searchString;
+					}
+				}
+
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("personSourceValue"));
+				if (identifierValue == null || identifierValue.trim().isEmpty()) {
+					// We are only searching by system. So, we should select with % after system
+					// name.
+					paramWrapper.setOperators(Arrays.asList("like"));
+					paramWrapper.setValues(Arrays.asList(searchString + "%"));
+				} else if (identifierSystem == null || identifierSystem.isEmpty()) {
+					paramWrapper.setOperators(Arrays.asList("like"));
+					paramWrapper.setValues(Arrays.asList("%" + searchString));
+				} else {
+					paramWrapper.setOperators(Arrays.asList("="));
+					paramWrapper.setValues(Arrays.asList(searchString));
+				}
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_ADDRESS:
+				String addressName;
+				if (((StringParam) value).isExact())
+					addressName = ((StringParam) value).getValue();
+				else
+					addressName = "%" + ((StringParam) value).getValue() + "%";
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("location.address1", "location.address2", "location.city",
+						"location.state", "location.zipCode"));
+				paramWrapper.setOperators(Arrays.asList("like", "like", "like", "like", "like"));
+				paramWrapper.setValues(Arrays.asList(addressName));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_ADDRESS_CITY:
+				String addressCityName;
+				if (((StringParam) value).isExact())
+					addressCityName = ((StringParam) value).getValue();
+				else
+					addressCityName = "%" + ((StringParam) value).getValue() + "%";
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("location.city"));
+				paramWrapper.setOperators(Arrays.asList("like"));
+				paramWrapper.setValues(Arrays.asList(addressCityName));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_ADDRESS_STATE:
+				String addressStateName;
+				if (((StringParam) value).isExact())
+					addressStateName = ((StringParam) value).getValue();
+				else
+					addressStateName = "%" + ((StringParam) value).getValue() + "%";
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("location.state"));
+				paramWrapper.setOperators(Arrays.asList("like"));
+				paramWrapper.setValues(Arrays.asList(addressStateName));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case Patient.SP_ADDRESS_POSTALCODE:
+				String addressZipName;
+				if (((StringParam) value).isExact())
+					addressZipName = ((StringParam) value).getValue();
+				else
+					addressZipName = "%" + ((StringParam) value).getValue() + "%";
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("location.zipCode"));
+				paramWrapper.setOperators(Arrays.asList("like"));
+				paramWrapper.setValues(Arrays.asList(addressZipName));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case "Organization:" + Organization.SP_NAME:
+				String orgName = (String) value;
+				paramWrapper.setParameterType("String");
+				paramWrapper.setParameters(Arrays.asList("careSite.careSiteName"));
+				paramWrapper.setOperators(Arrays.asList("like"));
+				paramWrapper.setValues(Arrays.asList("%" + orgName + "%"));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			case "Organization:" + Organization.SP_RES_ID:
+				String orgId = (String) value;
+				paramWrapper.setParameterType("Long");
+				paramWrapper.setParameters(Arrays.asList("careSite.id"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(orgId));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
+			default:
+				mapList = null;
 		}
 
 		return mapList;
@@ -924,7 +931,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 			if (next.getGiven().size() > 0) {
 				fperson.setGivenName1(next.getGiven().get(0).getValue());
 				if (next.getGiven().size() > 1) // TODO add unit tests, to assure
-												// this won't be changed to hasNext
+					// this won't be changed to hasNext
 					fperson.setGivenName2(next.getGiven().get(1).getValue());
 			}
 			String family = next.getFamily();

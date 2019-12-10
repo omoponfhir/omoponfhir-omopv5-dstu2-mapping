@@ -20,17 +20,25 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.Device;
-import org.hl7.fhir.dstu3.model.Device.DeviceUdiComponent;
-import org.hl7.fhir.dstu3.model.DeviceUseStatement;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Period;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.hl7.fhir.dstu3.model.Resource;
-import org.hl7.fhir.dstu3.model.ResourceType;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.Device;
+import ca.uhn.fhir.model.dstu2.resource.Device;
+//import org.hl7.fhir.dstu3.model.Device.DeviceUdiComponent;
+//import org.hl7.fhir.dstu3.model.DeviceUseStatement;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+//import org.hl7.fhir.dstu3.model.Period;
+import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
+//import org.hl7.fhir.dstu3.model.Reference;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
+//import org.hl7.fhir.dstu3.model.Resource;
+import ca.uhn.fhir.model.dstu2.resource.BaseResource;
+//import org.hl7.fhir.dstu3.model.ResourceType;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IIdType;
@@ -93,7 +101,7 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		if (!includes.isEmpty()) {
 			if (includes.contains("DeviceUseStatement:device")) {
 				if (deviceUseStatement.hasDevice()) {
-					Reference deviceReference = deviceUseStatement.getDevice();
+					ResourceReferenceDt deviceReference = deviceUseStatement.getDevice();
 					IIdType deviceReferenceId = deviceReference.getReferenceElement();
 					Long deviceReferenceFhirId = deviceReferenceId.getIdPartAsLong();
 					MyDevice device = OmopDevice.getInstance().constructFHIR(deviceReferenceFhirId, entity);
@@ -108,7 +116,7 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 	@Override
 	public MyDeviceUseStatement constructFHIR(Long fhirId, DeviceExposure entity) {
 		MyDeviceUseStatement myDeviceUseStatement = new MyDeviceUseStatement();
-		myDeviceUseStatement.setId(new IdType(DeviceUseStatementResourceProvider.getType(), fhirId));
+		myDeviceUseStatement.setId(new IdDt(DeviceUseStatementResourceProvider.getType(), fhirId));
 		
 		// In OMOPonFHIR, both Device and DeviceUseStatement are coming from the same
 		// DeviceExposure table. Thus, Device._id = DeviceUseStatment._id
@@ -119,12 +127,12 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		myDeviceUseStatement.addContained(myDevice);
 		
 		// Set the Id as a local id.
-		myDeviceUseStatement.setDevice(new Reference("#"+String.valueOf(fhirId)));
+		myDeviceUseStatement.setDevice(new ResourceReferenceDt("#"+String.valueOf(fhirId)));
 		
 //		myDeviceUseStatement.setDevice(new Reference(new IdType(DeviceResourceProvider.getType(), fhirId)));
 		
 		// set subject, which is a patient.
-		Reference patientReference = new Reference(new IdType(PatientResourceProvider.getType(), entity.getFPerson().getId()));
+		ResourceReferenceDt patientReference = new ResourceReferenceDt(new IdDt(PatientResourceProvider.getType(), entity.getFPerson().getId()));
 		String singleName = entity.getFPerson().getNameAsSingleString();
 		if (singleName != null && !singleName.isEmpty()) {
 			patientReference.setDisplay(singleName);
@@ -132,7 +140,7 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		myDeviceUseStatement.setSubject(patientReference);
 		
 		// set when this device is used.
-		Period whenUsedPeriod = new Period();
+		PeriodDt whenUsedPeriod = new PeriodDt();
 		Date startDate = entity.getDeviceExposureStartDate();
 		whenUsedPeriod.setStart(startDate);
 		
@@ -148,14 +156,14 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		if (provider != null) {
 			Long providerOmopId = provider.getId();
 			Long practitionerFhirId = IdMapping.getFHIRfromOMOP(providerOmopId, PractitionerResourceProvider.getType());
-			myDeviceUseStatement.setSource(new Reference(new IdType(PractitionerResourceProvider.getType(),practitionerFhirId)));
+			myDeviceUseStatement.setSource(new ResourceReferenceDt(new IdDt(PractitionerResourceProvider.getType(),practitionerFhirId)));
 		}
 		
 		return myDeviceUseStatement;
 	}
 	
 	@Override
-	public Long toDbase(MyDeviceUseStatement fhirResource, IdType fhirId) throws FHIRException {
+	public Long toDbase(MyDeviceUseStatement fhirResource, IdDt fhirId) throws FHIRException {
 		Long omopId = null;
 		if (fhirId != null) {
 			// Search for this ID.
@@ -243,14 +251,14 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		// the deviceExposure contain both device and deviceUseStatement.
 		// The provider should have been validated the resource if it contains device if create.
 		// If device is not contained, then it means this is update.
-		Reference deviceReference = deviceUseStatement.getDevice();
+		ResourceReferenceDt deviceReference = deviceUseStatement.getDevice();
 		
 		// reference should be pointing to contained or should have same id as deviceUseStatement.
 		IIdType idType = deviceReference.getReferenceElement();
 		if (idType.isLocal()) {
 			// Check contained section.
-			List<Resource> containeds = deviceUseStatement.getContained();
-			for (Resource contained: containeds) {
+			List<BaseResource> containeds = deviceUseStatement.getContained();
+			for (BaseResource contained: containeds) {
 				if (contained.getResourceType()==ResourceType.Device &&
 						contained.getId().equals(idType.getIdPart())) {
 					device = (Device) contained;
@@ -269,8 +277,8 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 				return null;
 			}
 		}
-		
-		Reference subject = deviceUseStatement.getSubject();
+
+		ResourceReferenceDt subject = deviceUseStatement.getSubject();
 		IIdType subjectReference = subject.getReferenceElement();
 		if (!subjectReference.getResourceType().equals(PatientResourceProvider.getType())) {
 			try {
@@ -298,7 +306,7 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		deviceExposure.setFPerson(fPerson);
 		
 		// start and end datetime.
-		Period periodUsed = deviceUseStatement.getWhenUsed();
+		PeriodDt periodUsed = deviceUseStatement.getWhenUsed();
 		if (periodUsed != null && !periodUsed.isEmpty()) {
 			Date startDate = periodUsed.getStart();
 			if (startDate != null) {
@@ -312,7 +320,7 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		}
 		
 		// source(Practitioner)
-		Reference practitionerSource = deviceUseStatement.getSource();
+		ResourceReferenceDt practitionerSource = deviceUseStatement.getSource();
 		if (practitionerSource != null && !practitionerSource.isEmpty()) {
 			IIdType practitionerReference = practitionerSource.getReferenceElement();
 			Long practitionerId = practitionerReference.getIdPartAsLong();
@@ -334,9 +342,9 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		// check Device parameters.
 		if (device != null) {
 			// set device type
-			CodeableConcept deviceType = device.getType();
+			CodeableConceptDt deviceType = device.getType();
 			if (deviceType != null && !deviceType.isEmpty()) {
-				Coding deviceTypeCoding = deviceType.getCodingFirstRep();
+				CodingDt deviceTypeCoding = deviceType.getCodingFirstRep();
 				try {
 					Concept concept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService, deviceTypeCoding);
 					if (concept != null) {

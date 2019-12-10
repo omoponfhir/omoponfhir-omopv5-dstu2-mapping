@@ -19,14 +19,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.Device;
-import org.hl7.fhir.dstu3.model.Device.DeviceUdiComponent;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Identifier;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Reference;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.Device;
+import ca.uhn.fhir.model.dstu2.resource.Device;
+//import org.hl7.fhir.dstu3.model.Device.DeviceUdiComponent;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Identifier;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+//import org.hl7.fhir.dstu3.model.Reference;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.slf4j.Logger;
@@ -72,10 +78,10 @@ public class OmopDevice extends BaseOmopResource<Device, DeviceExposure, DeviceE
 	@Override
 	public MyDevice constructFHIR(Long fhirId, DeviceExposure entity) {
 		MyDevice device = new MyDevice();
-		device.setId(new IdType(fhirId));
+		device.setId(new IdDt(fhirId));
 		
 		// Set patient information.
-		Reference patientReference = new Reference(new IdType("Patient", entity.getFPerson().getId()));
+		ResourceReferenceDt patientReference = new ResourceReferenceDt(new IdDt("Patient", entity.getFPerson().getId()));
 		String singleName = entity.getFPerson().getNameAsSingleString();
 		if (singleName != null && !singleName.isEmpty()) {
 			patientReference.setDisplay(singleName);
@@ -93,20 +99,20 @@ public class OmopDevice extends BaseOmopResource<Device, DeviceExposure, DeviceE
 		
 		String code = entityConcept.getConceptCode();
 		String dispaly = entityConcept.getName();
-		
-		Coding typeCoding = new Coding();
+
+		CodingDt typeCoding = new CodingDt();
 		typeCoding.setSystem(systemUri);
 		typeCoding.setCode(code);
 		typeCoding.setDisplay(dispaly);
-		
-		CodeableConcept typeCodeableConcept = new CodeableConcept();
+
+		CodeableConceptDt typeCodeableConcept = new CodeableConceptDt();
 		typeCodeableConcept.addCoding(typeCoding);
 		
 		// if deviceSourceValue is not empty, then add it here. 
 		String deviceSourceValue = entity.getDeviceSourceValue();
 		if (deviceSourceValue != null) {
 			String[] sources = deviceSourceValue.split(":");
-			Coding extraCoding = new Coding();
+			CodingDt extraCoding = new CodingDt();
 			if (sources.length != 3) {
 				// just put this in the text field
 				extraCoding.setDisplay(deviceSourceValue);
@@ -154,16 +160,17 @@ public class OmopDevice extends BaseOmopResource<Device, DeviceExposure, DeviceE
 		String udi = entity.getUniqueDeviceId();
 		
 		if (udi != null && !udi.isEmpty()) {
-			DeviceUdiComponent deviceUdiComponent = new DeviceUdiComponent();
-			deviceUdiComponent.setDeviceIdentifier(udi);
-			device.setUdi(deviceUdiComponent);
+//			DeviceUdiComponent deviceUdiComponent = new DeviceUdiComponent();
+//			deviceUdiComponent.setDeviceIdentifier(udi);
+//			device.setUdi(deviceUdiComponent);
+			device.setUdi(udi);
 		}
 		
 		return device;
 	}
 
 	@Override
-	public Long toDbase(Device fhirResource, IdType fhirId) throws FHIRException {
+	public Long toDbase(Device fhirResource, IdDt fhirId) throws FHIRException {
 		// TODO Auto-generated method stub
 		return null;
 	}

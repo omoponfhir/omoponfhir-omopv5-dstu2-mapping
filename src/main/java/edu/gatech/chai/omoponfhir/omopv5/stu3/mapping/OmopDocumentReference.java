@@ -22,17 +22,24 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.Attachment;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.DocumentReference;
-import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContentComponent;
-import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContextComponent;
-import org.hl7.fhir.dstu3.model.Encounter;
-import org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Reference;
+//import org.hl7.fhir.dstu3.model.Attachment;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.DocumentReference;
+import ca.uhn.fhir.model.dstu2.resource.DocumentReference;
+//import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContentComponent;
+//import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContextComponent;
+//import org.hl7.fhir.dstu3.model.Encounter;
+import ca.uhn.fhir.model.dstu2.resource.Encounter;
+//import org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+//import org.hl7.fhir.dstu3.model.Reference;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.springframework.web.context.ContextLoaderListener;
@@ -102,7 +109,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 	}
 
 	@Override
-	public Long toDbase(DocumentReference fhirResource, IdType fhirId) throws FHIRException {
+	public Long toDbase(DocumentReference fhirResource, IdDt fhirId) throws FHIRException {
 		Long omopId = null;
 		if (fhirId != null) {
 			// Update
@@ -277,12 +284,12 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		}
 		
 		// get type
-		CodeableConcept typeCodeableConcept = fhirResource.getType();
-		Coding loincCoding = null;
+		CodeableConceptDt typeCodeableConcept = fhirResource.getType();
+		CodingDt loincCoding = null;
 		Concept typeOmopConcept = null;
 		Concept typeFhirConcept = null;
 		if (typeCodeableConcept != null & !typeCodeableConcept.isEmpty()) {
-			for (Coding coding: typeCodeableConcept.getCoding()) {
+			for (CodingDt coding: typeCodeableConcept.getCoding()) {
 				try {
 					typeFhirConcept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService, coding);
 				} catch (FHIRException e) {
@@ -317,7 +324,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		}
 		
 		// Get patient
-		Reference subject = fhirResource.getSubject();
+		ResourceReferenceDt subject = fhirResource.getSubject();
 		if (subject == null || subject.isEmpty()) {
 			ThrowFHIRExceptions.unprocessableEntityException("Subject(Patient) must be provided");
 		}
@@ -346,7 +353,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		}
 		
 		// get author.
-		Reference authorReference = fhirResource.getAuthorFirstRep();
+		ResourceReferenceDt authorReference = fhirResource.getAuthorFirstRep();
 		if (authorReference != null && !authorReference.isEmpty()) {
 			if (authorReference.getReferenceElement().getResourceType().equals(PractitionerResourceProvider.getType())) {
 				Long practitionerId = authorReference.getReferenceElement().getIdPartAsLong();
@@ -365,7 +372,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		// get encounter.
 		DocumentReferenceContextComponent context = fhirResource.getContext();
 		if (context != null && !context.isEmpty()) {
-			Reference encounterReference = context.getEncounter();
+			ResourceReferenceDt encounterReference = context.getEncounter();
 			if (encounterReference != null && !encounterReference.isEmpty()) {
 				Long encounterId = encounterReference.getReferenceElement().getIdPartAsLong();
 				Long omopVisitOccurrenceId = IdMapping.getOMOPfromFHIR(encounterId, EncounterResourceProvider.getType());
@@ -450,14 +457,14 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 	public DocumentReference constructFHIR(Long fhirId, Note entity) {
 		MyDocumentReference documentReference = new MyDocumentReference();
 
-		documentReference.setId(new IdType(fhirId));
+		documentReference.setId(new IdDt(fhirId));
 
 		// status: hard code to current.
 		documentReference.setStatus(DocumentReferenceStatus.CURRENT);
 
 		// type: map OMOP's Note Type concept to LOINC code if possible.
 		Concept omopTypeConcept = entity.getType();
-		CodeableConcept typeCodeableConcept = null;
+		CodeableConceptDt typeCodeableConcept = null;
 		if ("Note Type".equals(omopTypeConcept.getVocabulary())) {
 			Long loincConceptId = OmopNoteTypeMapping.getLoincConceptIdFor(omopTypeConcept.getId());
 			System.out.println("origin:"+omopTypeConcept.getId()+" loinc:"+loincConceptId);
@@ -491,7 +498,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		
 		// Set Subject
 		FPerson fPerson = entity.getFPerson();
-		Reference patientReference = new Reference(new IdType(PatientResourceProvider.getType(), IdMapping.getFHIRfromOMOP(fPerson.getId(), PatientResourceProvider.getType())));
+		ResourceReferenceDt patientReference = new ResourceReferenceDt(new IdDt(PatientResourceProvider.getType(), IdMapping.getFHIRfromOMOP(fPerson.getId(), PatientResourceProvider.getType())));
 		patientReference.setDisplay(fPerson.getNameAsSingleString());
 		documentReference.setSubject(patientReference);
 		
@@ -514,7 +521,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		// Set author 
 		Provider provider = entity.getProvider();
 		if (provider != null) {
-			Reference practitionerReference = new Reference (new IdType(PractitionerResourceProvider.getType(), IdMapping.getFHIRfromOMOP(provider.getId(), PractitionerResourceProvider.getType())));
+			ResourceReferenceDt practitionerReference = new ResourceReferenceDt (new IdDt(PractitionerResourceProvider.getType(), IdMapping.getFHIRfromOMOP(provider.getId(), PractitionerResourceProvider.getType())));
 			practitionerReference.setDisplay(provider.getProviderName());
 			documentReference.addAuthor(practitionerReference);
 		}
@@ -536,7 +543,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		// Set context if visitOccurrence exists.
 		VisitOccurrence visitOccurrence = entity.getVisitOccurrence();
 		if (visitOccurrence != null) {
-			Reference encounterReference = new Reference(new IdType(EncounterResourceProvider.getType(), IdMapping.getFHIRfromOMOP(visitOccurrence.getId(), EncounterResourceProvider.getType())));
+			ResourceReferenceDt encounterReference = new ResourceReferenceDt(new IdDt(EncounterResourceProvider.getType(), IdMapping.getFHIRfromOMOP(visitOccurrence.getId(), EncounterResourceProvider.getType())));
 			DocumentReferenceContextComponent documentReferenceContextComponent = new DocumentReferenceContextComponent();
 			documentReferenceContextComponent.setEncounter(encounterReference);
 			documentReferenceContextComponent.setSourcePatientInfo(patientReference);

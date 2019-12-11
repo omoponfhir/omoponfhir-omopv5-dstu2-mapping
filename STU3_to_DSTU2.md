@@ -11,25 +11,28 @@
 `import org.hl7.fhir.dstu3.model.codesystems.AdministrativeGender; becomes import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;`
 `import org.hl7.fhir.dstu3.model.Reference becomes import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt
 ;`
-`//import org.hl7.fhir.dstu3.model.Resource; becomes import ca.uhn.fhir.model.dstu2.resource.BaseResource;`
+`import org.hl7.fhir.dstu3.model.Resource; becomes import ca.uhn.fhir.model.dstu2.resource.BaseResource;`
 ` becomes import ca.uhn.fhir.model.primitive.DateTimeDt;`
 ` becomes import ca.uhn.fhir.model.api.IDatatype;`
 `import org.hl7.fhir.dstu3.model.codesystems.ConditionCategory; becomes import ca.uhn.fhir.model.dstu2.valueset.ConditionCategoryCodesEnum;`
-`//import org.hl7.fhir.dstu3.model.Device; becomes import ca.uhn.fhir.model.dstu2.resource.Device;`
-`//import org.hl7.fhir.dstu3.model.Period; becomes import ca.uhn.fhir.model.dstu2.composite.PeriodDt;`
-`//import org.hl7.fhir.dstu3.model.DeviceUseStatement; becomes import ca.uhn.fhir.model.dstu2.resource.DeviceUseStatement;`
-`//import org.hl7.fhir.dstu3.model.DocumentReference; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference;`
-`//import org.hl7.fhir.dstu3.model.Encounter; becomes import ca.uhn.fhir.model.dstu2.resource.Encounter;`
-`//import org.hl7.fhir.dstu3.model.Identifier; becomes import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;`
-`//import org.hl7.fhir.dstu3.model.ResourceType; becomes import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;`
-`//import org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus; becomes import ca.uhn.fhir.model.dstu2.valueset.DocumentReferenceStatusEnum;`
-`//import org.hl7.fhir.dstu3.model.Attachment; becomes import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;`
-`//import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContentComponent; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Content;`
-`//import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContextComponent; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Context;`
-`//import org.hl7.fhir.dstu3.model.Encounter; becomes import ca.uhn.fhir.model.dstu2.resource.Encounter;`
-`//import org.hl7.fhir.dstu3.model.Medication; becomes import ca.uhn.fhir.model.dstu2.resource.Medication;`
-`//import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;`
-
+`import org.hl7.fhir.dstu3.model.Device; becomes import ca.uhn.fhir.model.dstu2.resource.Device;`
+`import org.hl7.fhir.dstu3.model.Period; becomes import ca.uhn.fhir.model.dstu2.composite.PeriodDt;`
+`import org.hl7.fhir.dstu3.model.DeviceUseStatement; becomes import ca.uhn.fhir.model.dstu2.resource.DeviceUseStatement;`
+`import org.hl7.fhir.dstu3.model.DocumentReference; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference;`
+`import org.hl7.fhir.dstu3.model.Encounter; becomes import ca.uhn.fhir.model.dstu2.resource.Encounter;`
+`import org.hl7.fhir.dstu3.model.Identifier; becomes import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;`
+`import org.hl7.fhir.dstu3.model.ResourceType; becomes import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;`
+`import org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus; becomes import ca.uhn.fhir.model.dstu2.valueset.DocumentReferenceStatusEnum;`
+`import org.hl7.fhir.dstu3.model.Attachment; becomes import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;`
+`import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContentComponent; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Content;`
+`import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContextComponent; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Context;`
+`import org.hl7.fhir.dstu3.model.Encounter; becomes import ca.uhn.fhir.model.dstu2.resource.Encounter;`
+`import org.hl7.fhir.dstu3.model.Medication; becomes import ca.uhn.fhir.model.dstu2.resource.Medication;`
+`import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;`
+`import org.hl7.fhir.dstu3.model.Identifier; becomes import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;`
+`import org.hl7.fhir.dstu3.model.Organization; becomes import ca.uhn.fhir.model.dstu2.resource.Organization;`
+`//import org.hl7.fhir.dstu3.model.Address; becomes import ca.uhn.fhir.model.dstu2.composite.AddressDt;`
+`//import org.hl7.fhir.dstu3.model.Address.AddressUse; becomes import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -41,6 +44,9 @@
 `Reference becomes ResourceReferenceDt`
 `DocumentReferenceContentComponent becomes Content`
 `DocumentReferenceContextComponent becomes Context`
+`Identifier becomes IdentifierDt`
+`Address becomes AddressDt`
+`AddressUse becomes AddressUseEnum`
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`
@@ -51,3 +57,9 @@ In the condition class, there is no "Context" type, but there is an "Encounter" 
 	`.getContext becomes .getEncounter`
 
 This that were previously Date Type, need to be converted over to DateTimeDt
+
+any Coding instance that used the 3 parameter constructor needs changed to the 2 constructor, and adding the display
+	new Coding(systemUriString, codeString, displayString) 
+	VS 
+	CodingDt tempcoding = new CodingDt(systemUriString,codeString);
+	tempcoding.setDisplay(displayString)

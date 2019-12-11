@@ -19,17 +19,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Identifier;
-import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Reference;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Identifier;
+import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
+//import org.hl7.fhir.dstu3.model.Organization;
+import ca.uhn.fhir.model.dstu2.resource.Organization;
+//import org.hl7.fhir.dstu3.model.Reference;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IIdType;
-import org.hl7.fhir.dstu3.model.Address;
-import org.hl7.fhir.dstu3.model.Address.AddressUse;
+//import org.hl7.fhir.dstu3.model.Address;
+import ca.uhn.fhir.model.dstu2.composite.AddressDt;
+//import org.hl7.fhir.dstu3.model.Address.AddressUse;
+import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -75,7 +83,7 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 	public Organization constructFHIR(Long fhirId, CareSite careSite) {
 		Organization organization = new Organization();
 
-		organization.setId(new IdType(fhirId));
+		organization.setId(new IdDt(fhirId));
 
 		if (careSite.getCareSiteName() != null && careSite.getCareSiteName() != "") {
 			organization.setName(careSite.getCareSiteName());
@@ -86,15 +94,17 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 //			String systemUriString = careSite.getPlaceOfServiceConcept().getVocabulary().getVocabularyReference();
 			String systemUriString = vocabularyService.findById(careSite.getPlaceOfServiceConcept().getVocabulary()).getVocabularyReference();
 			String displayString = careSite.getPlaceOfServiceConcept().getName();
-
-			CodeableConcept typeCodeableConcept = new CodeableConcept()
-					.addCoding(new Coding(systemUriString, codeString, displayString));
-			organization.addType(typeCodeableConcept);
+			CodingDt tempcoding = new CodingDt(systemUriString,codeString);
+			tempcoding.setDisplay(displayString);
+			CodeableConceptDt typeCodeableConcept = new CodeableConceptDt()
+					.addCoding(tempcoding);
+			organization.setType(typeCodeableConcept);
+//			organization.addType(typeCodeableConcept);
 		}
 
 		if (careSite.getLocation() != null) {
 			// WARNING check if mapping for lines are correct
-			organization.addAddress().setUse(AddressUse.HOME).addLine(careSite.getLocation().getAddress1())
+			organization.addAddress().setUse(AddressUseEnum.HOME).addLine(careSite.getLocation().getAddress1())
 					.addLine(careSite.getLocation().getAddress2())
 					.setCity(careSite.getLocation().getCity()).setPostalCode(careSite.getLocation().getZipCode())
 					.setState(careSite.getLocation().getState());
@@ -105,7 +115,7 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 	}
 
 	@Override
-	public Long toDbase(Organization organization, IdType fhirId) throws FHIRException {
+	public Long toDbase(Organization organization, IdDt fhirId) throws FHIRException {
 		// If fhirId is null, then it's CREATE.
 		// If fhirId is not null, then it's UPDATE.
 
@@ -116,10 +126,10 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 			// See if we have this already. If so, we throw error.
 			// Get the identifier to store the source information.
 			// If we found a matching one, replace this with the careSite.
-			List<Identifier> identifiers = organization.getIdentifier();
+			List<IdentifierDt> identifiers = organization.getIdentifier();
 			CareSite existingCareSite = null;
 			String careSiteSourceValue = null;
-			for (Identifier identifier: identifiers) {
+			for (IdentifierDt identifier: identifiers) {
 				if (identifier.getValue().isEmpty() == false) {
 					careSiteSourceValue = identifier.getValue();
 					
@@ -161,7 +171,7 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 		
 		if (!includes.isEmpty()) {
 			if (includes.contains("Organization:partof")) {
-				Reference partOfOrganization = myOrganization.getPartOf();
+				ResourceReferenceDt partOfOrganization = myOrganization.getPartOf();
 				if (partOfOrganization != null && partOfOrganization.isEmpty() == false) {
 					IIdType partOfOrgId = partOfOrganization.getReferenceElement();
 					Long partOfOrgFhirId = partOfOrgId.getIdPartAsLong();
@@ -230,8 +240,8 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 		} else {
 			careSite = new CareSite();
 		}
-		
-		Identifier identifier = myOrganization.getIdentifierFirstRep();
+
+		IdentifierDt identifier = myOrganization.getIdentifierFirstRep();
 		if (!identifier.getValue().isEmpty()) {
 			careSiteSourceValue = identifier.getValue();
 			careSite.setCareSiteSourceValue(careSiteSourceValue);
@@ -246,9 +256,9 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 		careSite.setCareSiteName(myOrganization.getName());
 
 		// Organzation.type to Place of Service Concept
-		List<CodeableConcept> orgTypes = myOrganization.getType();
-		for (CodeableConcept orgType: orgTypes) {
-			List<Coding> typeCodings = orgType.getCoding();
+		List<CodeableConceptDt> orgTypes = myOrganization.getType();
+		for (CodeableConceptDt orgType: orgTypes) {
+			List<CodingDt> typeCodings = orgType.getCoding();
 			if (typeCodings.size() > 0) {
 				String typeCode = typeCodings.get(0).getCode();
 				Long placeOfServiceId;
@@ -264,8 +274,8 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 		}
 
 		// Address to Location ID
-		List<Address> addresses = myOrganization.getAddress();
-		for (Address address: addresses) {
+		List<AddressDt> addresses = myOrganization.getAddress();
+		for (AddressDt address: addresses) {
 			// We can only store one address.
 			Location retLocation = AddressUtil.searchAndUpdate(locationService, address, careSite.getLocation());
 			if (retLocation != null) {

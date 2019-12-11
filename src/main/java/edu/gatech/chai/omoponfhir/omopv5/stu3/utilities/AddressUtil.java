@@ -17,7 +17,8 @@ package edu.gatech.chai.omoponfhir.omopv5.stu3.utilities;
 
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.Address;
+//import org.hl7.fhir.dstu3.model.Address;
+import ca.uhn.fhir.model.dstu2.composite.AddressDt;
 import org.hl7.fhir.dstu3.model.StringType;
 
 import edu.gatech.chai.omopv5.dba.service.LocationService;
@@ -31,7 +32,7 @@ public class AddressUtil {
 	 * @param location : Location entity class in OMOP
 	 * @return : Location class found. Null if not found
 	 */
-	public static Location searchAndUpdate(LocationService locationService, Address address, Location location) {
+	public static Location searchAndUpdate(LocationService locationService, AddressDt address, Location location) {
 		if (address == null)
 			return null;
 

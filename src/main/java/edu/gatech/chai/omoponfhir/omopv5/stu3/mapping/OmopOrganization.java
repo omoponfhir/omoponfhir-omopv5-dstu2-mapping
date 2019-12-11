@@ -256,20 +256,35 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 		careSite.setCareSiteName(myOrganization.getName());
 
 		// Organzation.type to Place of Service Concept
-		List<CodeableConceptDt> orgTypes = myOrganization.getType();
-		for (CodeableConceptDt orgType: orgTypes) {
-			List<CodingDt> typeCodings = orgType.getCoding();
-			if (typeCodings.size() > 0) {
-				String typeCode = typeCodings.get(0).getCode();
-				Long placeOfServiceId;
-				try {
-					placeOfServiceId = OmopConceptMapping.omopForOrganizationTypeCode(typeCode);
-					Concept placeOfServiceConcept = new Concept();
-					placeOfServiceConcept.setId(placeOfServiceId);
-					careSite.setPlaceOfServiceConcept(placeOfServiceConcept);
-				} catch (FHIRException e) {
-					e.printStackTrace();
-				}
+//		in DSTU2, this only returns 1, not a list
+//		List<CodeableConceptDt> orgTypes = myOrganization.getType();
+//		for (CodeableConceptDt orgType: orgTypes) {
+//			List<CodingDt> typeCodings = orgType.getCoding();
+//			if (typeCodings.size() > 0) {
+//				String typeCode = typeCodings.get(0).getCode();
+//				Long placeOfServiceId;
+//				try {
+//					placeOfServiceId = OmopConceptMapping.omopForOrganizationTypeCode(typeCode);
+//					Concept placeOfServiceConcept = new Concept();
+//					placeOfServiceConcept.setId(placeOfServiceId);
+//					careSite.setPlaceOfServiceConcept(placeOfServiceConcept);
+//				} catch (FHIRException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+		CodeableConceptDt orgType = myOrganization.getType();
+		List<CodingDt> typeCodings = orgType.getCoding();
+		if (typeCodings.size() > 0) {
+			String typeCode = typeCodings.get(0).getCode();
+			Long placeOfServiceId;
+			try {
+				placeOfServiceId = OmopConceptMapping.omopForOrganizationTypeCode(typeCode);
+				Concept placeOfServiceConcept = new Concept();
+				placeOfServiceConcept.setId(placeOfServiceId);
+				careSite.setPlaceOfServiceConcept(placeOfServiceConcept);
+			} catch (FHIRException e) {
+				e.printStackTrace();
 			}
 		}
 

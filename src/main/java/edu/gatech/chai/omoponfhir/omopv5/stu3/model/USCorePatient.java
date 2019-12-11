@@ -19,8 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hl7.fhir.dstu3.model.BackboneElement;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.Patient;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 
 import ca.uhn.fhir.model.api.annotation.Block;
 import ca.uhn.fhir.model.api.annotation.Child;
@@ -94,17 +96,17 @@ public class USCorePatient extends Patient {
 		@Description(shortDefinition = "The 5 race category codes according to the OMB Standards")
 		@Extension(url = "ombCategory", isModifier = false, definedLocally = true)
 		@Child(name = "category", min = 0, max = 5)
-		private List<Coding> myCategory;
+		private List<CodingDt> myCategory;
 
-		public List<Coding> getCategory() {
+		public List<CodingDt> getCategory() {
 			if (myCategory == null) {
-				myCategory = new ArrayList<Coding>();
+				myCategory = new ArrayList<CodingDt>();
 			}
 			
 			return myCategory;
 		}
 
-		public void setCategory(List<Coding> myCategory) {
+		public void setCategory(List<CodingDt> myCategory) {
 			this.myCategory = myCategory;
 		}
 
@@ -152,17 +154,17 @@ public class USCorePatient extends Patient {
 		@Description(shortDefinition = "The 2 ethnicity category codes according to the OMB Standards")
 		@Extension(url = "ombCategory", isModifier = false, definedLocally = true)
 		@Child(name = "category", min = 0, max = 5)
-		private List<Coding> myCategory;
+		private List<CodingDt> myCategory;
 
-		public List<Coding> getCategory() {
+		public List<CodingDt> getCategory() {
 			if (myCategory == null) {
-				myCategory = new ArrayList<Coding>();
+				myCategory = new ArrayList<CodingDt>();
 			}
 			
 			return myCategory;
 		}
 
-		public void setCategory(List<Coding> myCategory) {
+		public void setCategory(List<CodingDt> myCategory) {
 			this.myCategory = myCategory;
 		}
 

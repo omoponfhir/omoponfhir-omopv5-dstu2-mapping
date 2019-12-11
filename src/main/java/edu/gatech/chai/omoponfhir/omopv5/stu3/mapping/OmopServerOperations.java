@@ -21,15 +21,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Observation;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.hl7.fhir.dstu3.model.Resource;
-import org.hl7.fhir.dstu3.model.ResourceType;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Observation;
+import ca.uhn.fhir.model.dstu2.resource.Observation;
+//import org.hl7.fhir.dstu3.model.Reference;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
+//import org.hl7.fhir.dstu3.model.Resource;
+import ca.uhn.fhir.model.dstu2.resource.BaseResource;
+//import org.hl7.fhir.dstu3.model.ResourceType;
+import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
-import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent;
+//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
+import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
+//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent;
+import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryResponse;
 import org.hl7.fhir.instance.model.api.IIdType;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
@@ -69,7 +76,7 @@ public class OmopServerOperations {
 		return omopTransaction;
 	}
 
-	private IdType linkToPatient(Reference subject, Map<String, Long> patientMap) {
+	private IdDt linkToPatient(ResourceReferenceDt subject, Map<String, Long> patientMap) {
 		if (subject == null || subject.isEmpty()) {
 			// We must have subject information to link this to patient.
 			// This is OMOP requirement. We skip this for Transaction Messages.
@@ -104,17 +111,17 @@ public class OmopServerOperations {
 				// giving up...
 				return null;
 			}
-			return new IdType("Patient", refFPerson.getId());
+			return new IdDt("Patient", refFPerson.getId());
 		} else {
-			return new IdType("Patient", fhirId);
+			return new IdDt("Patient", fhirId);
 		}
 	}
 
-	public BundleEntryComponent addResponseEntry(String status, String location) {
-		BundleEntryComponent entryBundle = new BundleEntryComponent();
+	public Entry addResponseEntry(String status, String location) {
+		Entry entryBundle = new Entry();
 		UUID uuid = UUID.randomUUID();
 		entryBundle.setFullUrl("urn:uuid:" + uuid.toString());
-		BundleEntryResponseComponent responseBundle = new BundleEntryResponseComponent();
+		EntryResponse responseBundle = new EntryResponse();
 		responseBundle.setStatus(status);
 		if (location != null)
 			responseBundle.setLocation(location);
@@ -123,13 +130,13 @@ public class OmopServerOperations {
 		return entryBundle;
 	}
 
-	public List<BundleEntryComponent> createEntries(List<Resource> resources) throws FHIRException {
-		List<BundleEntryComponent> responseEntries = new ArrayList<BundleEntryComponent>();
+	public List<Entry> createEntries(List<BaseResource> resources) throws FHIRException {
+		List<Entry> responseEntries = new ArrayList<Entry>();
 		Map<String, Long> patientMap = new HashMap<String, Long>();
 
 		// do patient first.
-		for (Resource resource : resources) {
-			if (resource.getResourceType() == ResourceType.Patient) {
+		for (BaseResource resource : resources) {
+			if (resource.getResourceType() == ResourceTypeEnum.PATIENT) {
 				String originalId = resource.getId();
 				Long fhirId = OmopPatient.getInstance().toDbase(ExtensionUtil.usCorePatientFromResource(resource),
 						null);
@@ -140,23 +147,23 @@ public class OmopServerOperations {
 		}
 
 		// Now process the rest.
-		for (Resource resource : resources) {
-			if (resource.getResourceType() == ResourceType.Patient) {
+		for (BaseResource resource : resources) {
+			if (resource.getResourceType() == ResourceTypeEnum.PATIENT) {
 				// already done.
 				continue;
 			}
 
-			if (resource.getResourceType() == ResourceType.Observation) {
+			if (resource.getResourceType() == ResourceTypeEnum.OBSERVATION) {
 				Observation observation = (Observation) resource;
-				Reference subject = observation.getSubject();
-				IdType refIdType = linkToPatient(subject, patientMap);
+				ResourceReferenceDt subject = observation.getSubject();
+				IdDt refIdType = linkToPatient(subject, patientMap);
 				if (refIdType == null)
 					continue;
-				observation.setSubject(new Reference(refIdType));
+				observation.setSubject(new ResourceReferenceDt(refIdType));
 
 				logger.debug("Setting patient to Obs: "+observation.getSubject().getReference());
 				Long fhirId = OmopObservation.getInstance().toDbase(observation, null);
-				BundleEntryComponent newEntry;
+				Entry newEntry;
 				if (fhirId == null || fhirId == 0L) {
 					newEntry = addResponseEntry("400 Bad Request", null);
 					newEntry.setResource(observation);

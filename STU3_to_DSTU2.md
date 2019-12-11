@@ -31,8 +31,12 @@
 `import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;`
 `import org.hl7.fhir.dstu3.model.Identifier; becomes import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;`
 `import org.hl7.fhir.dstu3.model.Organization; becomes import ca.uhn.fhir.model.dstu2.resource.Organization;`
-`//import org.hl7.fhir.dstu3.model.Address; becomes import ca.uhn.fhir.model.dstu2.composite.AddressDt;`
-`//import org.hl7.fhir.dstu3.model.Address.AddressUse; becomes import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;`
+`import org.hl7.fhir.dstu3.model.Address; becomes import ca.uhn.fhir.model.dstu2.composite.AddressDt;`
+`import org.hl7.fhir.dstu3.model.Address.AddressUse; becomes import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;`
+`import org.hl7.fhir.dstu3.model.Observation; becomes import ca.uhn.fhir.model.dstu2.resource.Observation;`
+`import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;`
+`//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryResponse;`
+
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -47,6 +51,10 @@
 `Identifier becomes IdentifierDt`
 `Address becomes AddressDt`
 `AddressUse becomes AddressUseEnum`
+`BundleEntryComponent becomes Entry`
+`BundleEntryResponseComponent becomes EntryResponse`
+`ResourceType.Patient becomes ResourceTypeEnum.PATIENT`
+`ResourceType.Observation becomes ResourceTypeEnum.OBSERVATION`
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`
@@ -63,3 +71,5 @@ any Coding instance that used the 3 parameter constructor needs changed to the 2
 	VS 
 	CodingDt tempcoding = new CodingDt(systemUriString,codeString);
 	tempcoding.setDisplay(displayString)
+
+DSTU2 doesn't have a unified version of https://www.hl7.org/fhir/v3/ActCode/cs.html

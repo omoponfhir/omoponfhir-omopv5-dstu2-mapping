@@ -1,0 +1,4 @@
+OmopDeviceUseStatement
+	Devices don't have sources in this case; so what should I do? 
+OmopMedication
+	Medications don't seem to have ingrediants in DSTU2. do I just remove everything corresponding to that? 

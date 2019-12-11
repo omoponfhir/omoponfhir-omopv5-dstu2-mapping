@@ -19,10 +19,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Medication;
-import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Medication;
+import ca.uhn.fhir.model.dstu2.resource.Medication;
+//import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent;
+import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -62,7 +66,7 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 	}
 	
 	@Override
-	public Long toDbase(Medication fhirResource, IdType fhirId) throws FHIRException {
+	public Long toDbase(Medication fhirResource, IdDt fhirId) throws FHIRException {
 		throw new FHIRException("Medication Resource is Read-Only");
 	}
 
@@ -70,8 +74,8 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 	public Medication constructFHIR(Long fhirId, Concept entity) {
 		Medication medication = new Medication();
 		
-		medication.setId(new IdType(fhirId));
-		CodeableConcept medicationCodeableConcept;
+		medication.setId(new IdDt(fhirId));
+		CodeableConceptDt medicationCodeableConcept;
 		try {
 			medicationCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(entity, fhirOmopVocabularyMap);
 		} catch (FHIRException e1) {
@@ -84,12 +88,12 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 		// See if we can add ingredient version of this medication.
 		List<Concept> ingredients = getMyOmopService().getIngredient(entity);
 		if (ingredients.size() > 0) {
-			CodeableConcept ingredientCodeableConcept;
+			CodeableConceptDt ingredientCodeableConcept;
 			try {
 				for (Concept ingredient: ingredients) {
 					ingredientCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(ingredient);
 					if (!ingredientCodeableConcept.isEmpty()) {
-						MedicationIngredientComponent medIngredientComponent = new MedicationIngredientComponent();
+						ProductIngredient medIngredientComponent = new ProductIngredient();
 						medIngredientComponent.setItem(ingredientCodeableConcept);
 						medication.addIngredient(medIngredientComponent);
 					}

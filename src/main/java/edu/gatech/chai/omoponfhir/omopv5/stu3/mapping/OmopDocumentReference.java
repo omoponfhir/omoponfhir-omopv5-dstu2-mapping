@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 //import org.hl7.fhir.dstu3.model.Attachment;
+import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;
 //import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 //import org.hl7.fhir.dstu3.model.Coding;
@@ -30,11 +31,15 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 //import org.hl7.fhir.dstu3.model.DocumentReference;
 import ca.uhn.fhir.model.dstu2.resource.DocumentReference;
 //import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContentComponent;
+import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Content;
 //import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContextComponent;
+import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Context;
 //import org.hl7.fhir.dstu3.model.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
 //import org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus;
+import ca.uhn.fhir.model.dstu2.valueset.DocumentReferenceStatusEnum;
 //import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 //import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
@@ -370,7 +375,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		}
 		
 		// get encounter.
-		DocumentReferenceContextComponent context = fhirResource.getContext();
+		Context context = fhirResource.getContext();
 		if (context != null && !context.isEmpty()) {
 			ResourceReferenceDt encounterReference = context.getEncounter();
 			if (encounterReference != null && !encounterReference.isEmpty()) {
@@ -387,9 +392,9 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		
 		// get content.
 		String note_text = new String();
-		List<DocumentReferenceContentComponent> contents = fhirResource.getContent();
-		for (DocumentReferenceContentComponent content: contents) {
-			Attachment attachment = content.getAttachment();
+		List<Content> contents = fhirResource.getContent();
+		for (Content content: contents) {
+			AttachmentDt attachment = content.getAttachment();
 			if (attachment == null || attachment.isEmpty()) {
 				ThrowFHIRExceptions.unprocessableEntityException("content.attachment cannot be empty");
 			}
@@ -440,7 +445,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 			}
 			if (includes.contains("DocumentReference:encounter")) {
 				if (documentReference.hasContext()) {
-					DocumentReferenceContextComponent documentContext = documentReference.getContext();
+					Context documentContext = documentReference.getContext();
 					if (documentContext.hasEncounter()) {
 						Long encounterFhirId = documentContext.getEncounter().getReferenceElement().getIdPartAsLong();
 						Encounter encounter = OmopEncounter.getInstance().constructFHIR(encounterFhirId, entity.getVisitOccurrence());
@@ -460,7 +465,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		documentReference.setId(new IdDt(fhirId));
 
 		// status: hard code to current.
-		documentReference.setStatus(DocumentReferenceStatus.CURRENT);
+		documentReference.setStatus(DocumentReferenceStatusEnum.CURRENT);
 
 		// type: map OMOP's Note Type concept to LOINC code if possible.
 		Concept omopTypeConcept = entity.getType();
@@ -505,7 +510,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		// Set created time
 		Date createdDate = entity.getDate();
 		String createdTime = entity.getTime();
-		Date createdDateTime = null;
+		DateTimeDt createdDateTime = null;
 		if (createdDate != null) {
 			if (createdTime != null)
 				createdDateTime = DateUtil.constructDateTime(createdDate, createdTime);
@@ -529,14 +534,14 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		// Set content now.
 		String noteText = entity.getNoteText();
 		if (noteText != null && !noteText.isEmpty()) {
-			Attachment attachment = new Attachment();
+			AttachmentDt attachment = new AttachmentDt();
 			attachment.setContentType("text/plain");
 			attachment.setLanguage("en-US");
 			
 			// Convert data to base64
 			attachment.setData(noteText.getBytes());
 			
-			DocumentReferenceContentComponent documentReferenceContentComponent = new DocumentReferenceContentComponent(attachment);
+			Content documentReferenceContentComponent = new Content(attachment);
 			documentReference.addContent(documentReferenceContentComponent);
 		}
 		
@@ -544,7 +549,7 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		VisitOccurrence visitOccurrence = entity.getVisitOccurrence();
 		if (visitOccurrence != null) {
 			ResourceReferenceDt encounterReference = new ResourceReferenceDt(new IdDt(EncounterResourceProvider.getType(), IdMapping.getFHIRfromOMOP(visitOccurrence.getId(), EncounterResourceProvider.getType())));
-			DocumentReferenceContextComponent documentReferenceContextComponent = new DocumentReferenceContextComponent();
+			Context documentReferenceContextComponent = new Context();
 			documentReferenceContextComponent.setEncounter(encounterReference);
 			documentReferenceContextComponent.setSourcePatientInfo(patientReference);
 			

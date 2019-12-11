@@ -29,6 +29,7 @@ import ca.uhn.fhir.model.dstu2.resource.Device;
 //import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
 //import org.hl7.fhir.dstu3.model.Identifier;
+import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 //import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 //import org.hl7.fhir.dstu3.model.Reference;

@@ -28,7 +28,9 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.resource.Device;
 //import org.hl7.fhir.dstu3.model.Device.DeviceUdiComponent;
 //import org.hl7.fhir.dstu3.model.DeviceUseStatement;
+import ca.uhn.fhir.model.dstu2.resource.DeviceUseStatement;
 //import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 //import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
@@ -39,6 +41,7 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 //import org.hl7.fhir.dstu3.model.Resource;
 import ca.uhn.fhir.model.dstu2.resource.BaseResource;
 //import org.hl7.fhir.dstu3.model.ResourceType;
+import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IIdType;
@@ -141,10 +144,10 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		
 		// set when this device is used.
 		PeriodDt whenUsedPeriod = new PeriodDt();
-		Date startDate = entity.getDeviceExposureStartDate();
+		DateTimeDt startDate = new DateTimeDt(entity.getDeviceExposureStartDate());
 		whenUsedPeriod.setStart(startDate);
-		
-		Date endDate = entity.getDeviceExposureEndDate();
+
+		DateTimeDt endDate = new DateTimeDt(entity.getDeviceExposureEndDate());
 		if (endDate != null) {
 			whenUsedPeriod.setEnd(endDate);
 		}
@@ -259,7 +262,7 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 			// Check contained section.
 			List<BaseResource> containeds = deviceUseStatement.getContained();
 			for (BaseResource contained: containeds) {
-				if (contained.getResourceType()==ResourceType.Device &&
+				if (contained.getResourceType()==ResourceTypeEnum.DEVICE &&
 						contained.getId().equals(idType.getIdPart())) {
 					device = (Device) contained;
 				}
@@ -361,7 +364,9 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 			}
 			
 			// set device UDI
-			DeviceUdiComponent udi = device.getUdi();
+//			in DSTU2, UDI is returned as a string
+//			DeviceUdiComponent udi = device.getUdi();
+			String udi = device.getUdi();
 			if (udi != null && !udi.isEmpty()) {
 				String deviceIdentifier = udi.getDeviceIdentifier();
 				if (deviceIdentifier != null && !deviceIdentifier.isEmpty()) {

@@ -20,6 +20,13 @@
 `//import org.hl7.fhir.dstu3.model.DeviceUseStatement; becomes import ca.uhn.fhir.model.dstu2.resource.DeviceUseStatement;`
 `//import org.hl7.fhir.dstu3.model.DocumentReference; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference;`
 `//import org.hl7.fhir.dstu3.model.Encounter; becomes import ca.uhn.fhir.model.dstu2.resource.Encounter;`
+`//import org.hl7.fhir.dstu3.model.Identifier; becomes import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;`
+`//import org.hl7.fhir.dstu3.model.ResourceType; becomes import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;`
+`//import org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus; becomes import ca.uhn.fhir.model.dstu2.valueset.DocumentReferenceStatusEnum;`
+`//import org.hl7.fhir.dstu3.model.Attachment; becomes import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;`
+`//import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContentComponent; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Content;`
+`//import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContextComponent; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Context;`
+
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -29,6 +36,8 @@
 `Period becomes PeriodDt`
 `Type becomes IDatatype`
 `Reference becomes ResourceReferenceDt`
+`DocumentReferenceContentComponent becomes Content`
+`DocumentReferenceContextComponent becomes Context`
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`
@@ -37,3 +46,5 @@ In the condition class, there is no "Subject" type, but there is a "Patient" typ
 In the condition class, there is no "Context" type, but there is an "Encounter" type. they are equivalent
 	`.setContext becomes .setEncounter`
 	`.getContext becomes .getEncounter`
+
+This that were previously Date Type, need to be converted over to DateTimeDt

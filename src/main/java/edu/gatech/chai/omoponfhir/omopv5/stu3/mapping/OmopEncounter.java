@@ -23,16 +23,22 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.Encounter;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Period;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
-import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
-import org.hl7.fhir.dstu3.model.Encounter.EncounterStatus;
-import org.hl7.fhir.dstu3.model.codesystems.V3ActCode;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.Encounter;
+import ca.uhn.fhir.model.dstu2.resource.Encounter;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+//import org.hl7.fhir.dstu3.model.Period;
+import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
+//import org.hl7.fhir.dstu3.model.Reference;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
+//import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
+//import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
+//import org.hl7.fhir.dstu3.model.Encounter.EncounterStatus;
+//import org.hl7.fhir.dstu3.model.codesystems.V3ActCode;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.springframework.web.context.ContextLoaderListener;
@@ -92,11 +98,11 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 	@Override
 	public Encounter constructFHIR(Long fhirId, VisitOccurrence visitOccurrence) {
 		Encounter encounter = new Encounter();
-		encounter.setId(new IdType(fhirId));
+		encounter.setId(new IdDt(fhirId));
 
 		if (visitOccurrence.getVisitConcept() != null) {
 			String visitString = visitOccurrence.getVisitConcept().getName().toLowerCase();
-			Coding coding = new Coding();
+			CodingDt coding = new CodingDt();
 			if (visitString.contains("inpatient")) {
 				coding.setSystem(V3ActCode.IMP.getSystem());
 				coding.setCode(V3ActCode.IMP.toCode());
@@ -142,13 +148,13 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		encounter.setStatus(EncounterStatus.FINISHED);
 
 		// set Patient Reference
-		Reference patientReference = new Reference(
-				new IdType(PatientResourceProvider.getType(), visitOccurrence.getFPerson().getId()));
+		ResourceReferenceDt patientReference = new ResourceReferenceDt(
+				new IdDt(PatientResourceProvider.getType(), visitOccurrence.getFPerson().getId()));
 		patientReference.setDisplay(visitOccurrence.getFPerson().getNameAsSingleString());
 		encounter.setSubject(patientReference);
 
 		// set Period
-		Period visitPeriod = new Period();
+		PeriodDt visitPeriod = new PeriodDt();
 		DateFormat dateOnlyFormat = new SimpleDateFormat("yyyy/MM/dd");
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
 		try {
@@ -178,16 +184,16 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		encounter.setPeriod(visitPeriod);
 
 		if (visitOccurrence.getCareSite() != null) {
-			Reference serviceProviderReference = new Reference(
-				new IdType(OrganizationResourceProvider.getType(), 
+			ResourceReferenceDt serviceProviderReference = new ResourceReferenceDt(
+				new IdDt(OrganizationResourceProvider.getType(),
 					IdMapping.getFHIRfromOMOP(visitOccurrence.getCareSite().getId(), OrganizationResourceProvider.getType())));
 			serviceProviderReference.setDisplay(visitOccurrence.getCareSite().getCareSiteName());
 			encounter.setServiceProvider(serviceProviderReference);
 		}
 
 		if (visitOccurrence.getProvider() != null) {
-			Reference individualReference = new Reference(
-				new IdType(PractitionerResourceProvider.getType(), 
+			ResourceReferenceDt individualReference = new ResourceReferenceDt(
+				new IdDt(PractitionerResourceProvider.getType(),
 					IdMapping.getFHIRfromOMOP(visitOccurrence.getProvider().getId(), PractitionerResourceProvider.getType())));
 			individualReference.setDisplay(visitOccurrence.getProvider().getProviderName());
 			EncounterParticipantComponent participate = new EncounterParticipantComponent();
@@ -205,7 +211,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 //		List<ConditionOccurrence> conditions = conditionOccurrenceService.searchWithParams(0, 0, params, null);
 		List<ConditionOccurrence> conditions = conditionOccurrenceService.searchByColumnString("visitOccurrence.id", visitOccurrence.getId());
 		for (ConditionOccurrence condition : conditions) {
-			Reference conditionReference = new Reference(new IdType(ConditionResourceProvider.getType(), condition.getId()));
+			ResourceReferenceDt conditionReference = new ResourceReferenceDt(new IdDt(ConditionResourceProvider.getType(), condition.getId()));
 			DiagnosisComponent diagnosisComponent = new DiagnosisComponent();
 			diagnosisComponent.setCondition(conditionReference);
 			encounter.addDiagnosis(diagnosisComponent);
@@ -215,7 +221,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 	}
 
 	@Override
-	public Long toDbase(Encounter fhirResource, IdType fhirId) throws FHIRException {
+	public Long toDbase(Encounter fhirResource, IdDt fhirId) throws FHIRException {
 		Long retval;
 		Long omopId = null;
 		if (fhirId != null) {
@@ -278,7 +284,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 			visitOccurrence = new VisitOccurrence();				
 		}
 
-		Reference patientReference = encounter.getSubject();
+		ResourceReferenceDt patientReference = encounter.getSubject();
 		if (patientReference == null || patientReference.isEmpty())
 			return null; // We have to have a patient
 
@@ -312,7 +318,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 
 		/* Set Period */
 		SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss");
-		Period tempPeriod = encounter.getPeriod();
+		PeriodDt tempPeriod = encounter.getPeriod();
 		if (tempPeriod != null) {
 			Date tempDate = tempPeriod.getStart();
 			if (tempDate != null) {
@@ -335,7 +341,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		 * Set Class - IP: Inpatient Visit - OP: Outpient Visit - ER: Emergency
 		 * Room Visit - LTCP: Long Term Care Visit -
 		 */
-		Coding classCoding = encounter.getClass_();
+		CodingDt classCoding = encounter.getClass_();
 		String code = classCoding.getCode();
 
 		Long omopConceptCode;
@@ -357,7 +363,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		/* Set provider, which is practitioner in FHIR */
 		EncounterParticipantComponent participant = encounter.getParticipantFirstRep();
 		if (participant != null && !participant.isEmpty()) {
-			 Reference individualRef = participant.getIndividual();
+			ResourceReferenceDt individualRef = participant.getIndividual();
 			if (individualRef != null) {
 				if (individualRef.getReferenceElement().getResourceType().equals(PractitionerResourceProvider.getType())) {
 					Long providerId = IdMapping.getOMOPfromFHIR(individualRef.getReferenceElement().getIdPartAsLong(), PractitionerResourceProvider.getType());
@@ -370,7 +376,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		}
 		
 		// Set care site, which is organization in FHIR
-		Reference serviceProvider = encounter.getServiceProvider();
+		ResourceReferenceDt serviceProvider = encounter.getServiceProvider();
 		if (serviceProvider != null && !serviceProvider.isEmpty()) {
 			// service provider is Organization in Omop on FHIR.
 			if (serviceProvider.getReferenceElement().getResourceType().equals(OrganizationResourceProvider.getType())) {

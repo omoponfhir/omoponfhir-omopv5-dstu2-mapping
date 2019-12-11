@@ -26,7 +26,7 @@
 `//import org.hl7.fhir.dstu3.model.Attachment; becomes import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;`
 `//import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContentComponent; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Content;`
 `//import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContextComponent; becomes import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Context;`
-
+`//import org.hl7.fhir.dstu3.model.Encounter; becomes import ca.uhn.fhir.model.dstu2.resource.Encounter;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`

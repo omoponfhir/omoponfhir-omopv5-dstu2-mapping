@@ -35,7 +35,8 @@
 `import org.hl7.fhir.dstu3.model.Address.AddressUse; becomes import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;`
 `import org.hl7.fhir.dstu3.model.Observation; becomes import ca.uhn.fhir.model.dstu2.resource.Observation;`
 `import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;`
-`//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryResponse;`
+`import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryResponse;`
+`import org.hl7.fhir.dstu3.model.Bundle; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle;`
 
 
 `IdType becomes IdDt`

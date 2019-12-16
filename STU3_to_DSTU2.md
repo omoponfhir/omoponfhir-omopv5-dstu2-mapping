@@ -42,7 +42,9 @@
 `import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem; becomes import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;`
 `import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointUse; becomes import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;`
 `import org.hl7.fhir.dstu3.model.Practitioner; becomes import ca.uhn.fhir.model.dstu2.resource.Practitioner;`
-`//import org.hl7.fhir.dstu3.model.Patient.PatientLinkComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Patient.Link;`
+`import org.hl7.fhir.dstu3.model.Patient.PatientLinkComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Patient.Link;`
+`import org.hl7.fhir.dstu3.model.HumanName; becomes import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;`
+`import org.hl7.fhir.dstu3.model.codesystems.V3MaritalStatus; becomes import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -62,6 +64,8 @@
 `ResourceType.Patient becomes ResourceTypeEnum.PATIENT`
 `ResourceType.Observation becomes ResourceTypeEnum.OBSERVATION`
 `PatientLinkComponent becomes Link`
+`HumanName becomes HumanNameDt`
+`ContactPoint becomes ContactPointDt`
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`
@@ -86,6 +90,12 @@ EntryResponse type doesn't have a constructor that takes in the status
 	responseComponent.setStatus(new StringDt("201 Created"));
 
 DSTU2 doesn't have a unified version of https://www.hl7.org/fhir/v3/ActCode/cs.html
+
+DSTU2 uses careProvider, STU3 uses generalPracticioner
+
+for AdministrativeGenderEnum
+	`AdministrativeGender.toCode becomes AdministrativeGenderEnum.forCode`
+	this might have issues with capitalizatino. 
 
 useful sites for completing the work. 
 https://hapifhir.io/apidocs-dstu2/index.html

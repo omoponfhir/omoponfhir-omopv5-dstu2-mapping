@@ -37,7 +37,8 @@
 `import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;`
 `import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryResponse;`
 `import org.hl7.fhir.dstu3.model.Bundle; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle;`
-
+`//import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb; becomes import ca.uhn.fhir.model.dstu2.valueset.HTTPVerbEnum;`
+`//import org.hl7.fhir.dstu3.model.StringType; becomes import ca.uhn.fhir.model.primitive.StringDt;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -73,4 +74,15 @@ any Coding instance that used the 3 parameter constructor needs changed to the 2
 	CodingDt tempcoding = new CodingDt(systemUriString,codeString);
 	tempcoding.setDisplay(displayString)
 
+EntryResponse type doesn't have a constructor that takes in the status
+	EntryResponse responseComponent = new EntryResponse(new StringType("201 Created"));
+	VS
+	EntryResponse responseComponent = new EntryResponse();
+	responseComponent.setStatus(new StringDt("201 Created"));
+
 DSTU2 doesn't have a unified version of https://www.hl7.org/fhir/v3/ActCode/cs.html
+
+useful sites for completing the work. 
+https://hapifhir.io/apidocs-dstu2/index.html
+https://hapifhir.io/apidocs-dstu3/org/hl7/fhir/dstu3/model/package-summary.html
+https://hapifhir.io/apidocs/index.html

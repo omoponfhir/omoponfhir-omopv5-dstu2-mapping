@@ -22,25 +22,39 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.Address;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.ContactPoint;
-import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
-import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointUse;
-import org.hl7.fhir.dstu3.model.Encounter;
-import org.hl7.fhir.dstu3.model.HumanName;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Identifier;
-import org.hl7.fhir.dstu3.model.Organization;
+//import org.hl7.fhir.dstu3.model.Address;
+import ca.uhn.fhir.model.dstu2.composite.AddressDt;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.ContactPoint;
+import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
+//import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
+import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
+//import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointUse;
+import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
+//import org.hl7.fhir.dstu3.model.Encounter;
+import ca.uhn.fhir.model.dstu2.resource.Encounter;
+//import org.hl7.fhir.dstu3.model.HumanName;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Identifier;
+import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
+//import org.hl7.fhir.dstu3.model.Organization;
+import ca.uhn.fhir.model.dstu2.resource.Organization;
 //import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-import org.hl7.fhir.dstu3.model.Patient.PatientLinkComponent;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.hl7.fhir.dstu3.model.Address.AddressUse;
-import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
-import org.hl7.fhir.dstu3.model.codesystems.V3MaritalStatus;
+//import org.hl7.fhir.dstu3.model.Patient.PatientLinkComponent;
+import ca.uhn.fhir.model.dstu2.resource.Patient.Link;
+//import org.hl7.fhir.dstu3.model.Practitioner;
+import ca.uhn.fhir.model.dstu2.resource.Practitioner;
+//import org.hl7.fhir.dstu3.model.Reference;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
+//import org.hl7.fhir.dstu3.model.Address.AddressUse;
+import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
+//import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
+//import org.hl7.fhir.dstu3.model.codesystems.V3MaritalStatus;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -126,8 +140,8 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		if (!includes.isEmpty()) {
 			if (includes.contains("Patient:general-practitioner")) {
 				if (patient.hasGeneralPractitioner()) {
-					List<Reference> generalPractitioners = patient.getGeneralPractitioner();
-					for (Reference generalPractitioner : generalPractitioners) {
+					List<ResourceReferenceDt> generalPractitioners = patient.getGeneralPractitioner();
+					for (ResourceReferenceDt generalPractitioner : generalPractitioners) {
 						if (generalPractitioner.fhirType().equals(PractitionerResourceProvider.getType())) {
 							// We map generalPractitioner to Provider, which is
 							// Practitioner.
@@ -143,7 +157,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 
 			if (includes.contains("Patient:organization")) {
 				if (patient.hasManagingOrganization()) {
-					Reference managingOrganization = patient.getManagingOrganization();
+					ResourceReferenceDt managingOrganization = patient.getManagingOrganization();
 					IIdType managingOrganizationId = managingOrganization.getReferenceElement();
 					Long manageOrgFhirId = managingOrganizationId.getIdPartAsLong();
 					Organization organization = OmopOrganization.getInstance().constructFHIR(manageOrgFhirId,
@@ -157,10 +171,10 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 			// table.
 			if (includes.contains("Patient:link")) {
 				if (patient.hasLink()) {
-					List<PatientLinkComponent> patientLinks = patient.getLink();
-					for (PatientLinkComponent patientLink : patientLinks) {
+					List<Link> patientLinks = patient.getLink();
+					for (Link patientLink : patientLinks) {
 						if (patientLink.hasOther()) {
-							Reference patientLinkOther = patientLink.getOther();
+							ResourceReferenceDt patientLinkOther = patientLink.getOther();
 							IIdType patientLinkOtherId = patientLinkOther.getReferenceElement();
 							Patient linkedPatient;
 							if (patientLinkOther.fhirType().equals(PatientResourceProvider.getType())) {
@@ -182,12 +196,12 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 	@Override
 	public USCorePatient constructFHIR(Long fhirId, FPerson fPerson) {
 		USCorePatient patient = new USCorePatient();
-		patient.setId(new IdType(fhirId));
+		patient.setId(new IdDt(fhirId));
 
 		// if source column is not empty, add it to identifier.
 		String personSourceValue = fPerson.getPersonSourceValue();
 		if (personSourceValue != null && !personSourceValue.isEmpty() && personSourceValue.trim() != "") {
-			Identifier identifier = new Identifier();
+			IdentifierDt identifier = new IdentifierDt();
 			String[] personIdentifier = personSourceValue.trim().split("\\^");
 			if (personIdentifier.length == 1) {
 				// There is no ^ delimiter found from string. First one is just value.
@@ -200,8 +214,8 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 				if (personIdentifier.length > 2) {
 					// if the length is more than 2, it means we have to set type not system.
 					String code = personIdentifier[1];
-					CodeableConcept typeCodeable = new CodeableConcept();
-					Coding typeCoding = new Coding();
+					CodeableConceptDt typeCodeable = new CodeableConceptDt();
+					CodingDt typeCoding = new CodingDt();
 					if (!"None".equals(system)) {
 						typeCoding.setSystem(system);
 					}
@@ -248,7 +262,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 
 		if (fPerson.getLocation() != null && fPerson.getLocation().getId() != 0L) {
 			// WARNING check if mapping for lines are correct
-			patient.addAddress().setUse(AddressUse.HOME).addLine(fPerson.getLocation().getAddress1())
+			patient.addAddress().setUse(AddressUseEnum.HOME).addLine(fPerson.getLocation().getAddress1())
 					.addLine(fPerson.getLocation().getAddress2()).setCity(fPerson.getLocation().getCity())
 					.setPostalCode(fPerson.getLocation().getZipCode()).setState(fPerson.getLocation().getState());
 		}
@@ -278,10 +292,10 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		if (fPerson.getProvider() != null && fPerson.getProvider().getId() != 0L) {
 			Long genPracFhirId = IdMapping.getFHIRfromOMOP(fPerson.getProvider().getId(),
 					PractitionerResourceProvider.getType());
-			Reference generalPractitioner = new Reference(
-					new IdType(PractitionerResourceProvider.getType(), genPracFhirId));
+			ResourceReferenceDt generalPractitioner = new ResourceReferenceDt(
+					new IdDt(PractitionerResourceProvider.getType(), genPracFhirId));
 			generalPractitioner.setDisplay(fPerson.getProvider().getProviderName());
-			List<Reference> generalPractitioners = new ArrayList<Reference>();
+			List<ResourceReferenceDt> generalPractitioners = new ArrayList<ResourceReferenceDt>();
 			generalPractitioners.add(generalPractitioner);
 			patient.setGeneralPractitioner(generalPractitioners);
 		}
@@ -289,8 +303,8 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		if (fPerson.getCareSite() != null && fPerson.getCareSite().getId() != 0L) {
 			Long manageOrgFhirId = IdMapping.getFHIRfromOMOP(fPerson.getCareSite().getId(),
 					OrganizationResourceProvider.getType());
-			Reference managingOrganization = new Reference(
-					new IdType(OrganizationResourceProvider.getType(), manageOrgFhirId));
+			ResourceReferenceDt managingOrganization = new ResourceReferenceDt(
+					new IdDt(OrganizationResourceProvider.getType(), manageOrgFhirId));
 			managingOrganization.setDisplay(fPerson.getCareSite().getCareSiteName());
 			patient.setManagingOrganization(managingOrganization);
 		}
@@ -311,7 +325,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 			V3MaritalStatus maritalStatus;
 			try {
 				maritalStatus = V3MaritalStatus.fromCode(fPerson.getMaritalStatus().toUpperCase());
-				Coding coding = new Coding(maritalStatus.getSystem(), maritalStatus.toCode(),
+				CodingDt coding = new CodingDt(maritalStatus.getSystem(), maritalStatus.toCode(),
 						maritalStatus.getDisplay());
 				maritalStatusCode.addCoding(coding);
 				patient.setMaritalStatus(maritalStatusCode);
@@ -359,7 +373,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		// Race
 		Concept raceConcept = fPerson.getRaceConcept();
 		String raceSourceString = fPerson.getRaceSourceValue();
-		Coding raceCoding = null;
+		CodingDt raceCoding = null;
 		if (raceConcept == null) {
 			if (raceSourceString != null && !raceSourceString.isEmpty()) {
 				raceCoding = fhirOmopCodeMap.getFhirCodingFromOmopSourceString(raceSourceString);
@@ -380,7 +394,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		// Ethnicity
 		Concept ethnicityConcept = fPerson.getEthnicityConcept();
 		String ethnicitySourceString = fPerson.getEthnicitySourceValue();
-		Coding ethnicityCoding = null;
+		CodingDt ethnicityCoding = null;
 		if (ethnicityConcept == null) {
 			if (ethnicitySourceString != null && !ethnicitySourceString.isEmpty()) {
 				ethnicityCoding = fhirOmopCodeMap.getFhirCodingFromOmopSourceString(ethnicitySourceString);
@@ -401,7 +415,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		return patient;
 	}
 
-	private String getPersonSourceValue(Identifier identifier) {
+	private String getPersonSourceValue(IdentifierDt identifier) {
 		String value = identifier.getValue();
 		String system = identifier.getSystem();
 
@@ -415,9 +429,9 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		} else {
 			// if system is null or empty, then we check type.
 			// type is codeable concept. We put systemUri and code with ^ delimiter
-			CodeableConcept typeCodeableConcept = identifier.getType();
+			CodeableConceptDt typeCodeableConcept = identifier.getType();
 			if (typeCodeableConcept != null && !typeCodeableConcept.isEmpty()) {
-				for (Coding coding : typeCodeableConcept.getCoding()) {
+				for (CodingDt coding : typeCodeableConcept.getCoding()) {
 					if (coding != null && !coding.isEmpty()) {
 						String systemUri = coding.getSystem();
 						String code = coding.getCode();
@@ -445,7 +459,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 	 *         refer this resource.
 	 */
 	@Override
-	public Long toDbase(USCorePatient patient, IdType fhirId) throws FHIRException {
+	public Long toDbase(USCorePatient patient, IdDt fhirId) throws FHIRException {
 		Long omopId = null, fhirIdLong = null;
 
 		if (fhirId != null) {
@@ -528,7 +542,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 	 * @param generalPractitioner
 	 * @return
 	 */
-	public Provider searchAndUpdate(Reference generalPractitioner) {
+	public Provider searchAndUpdate(ResourceReferenceDt generalPractitioner) {
 		if (generalPractitioner == null)
 			return null;
 
@@ -878,9 +892,9 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		FPerson fperson = null;
 		String personSourceValue = null;
 
-		List<Identifier> identifiers = patient.getIdentifier();
+		List<IdentifierDt> identifiers = patient.getIdentifier();
 		boolean first = true;
-		for (Identifier identifier : identifiers) {
+		for (IdentifierDt identifier : identifiers) {
 			if (identifier.getValue().isEmpty() == false) {
 				String personSourceValueTemp = getPersonSourceValue(identifier);
 				if (first) {
@@ -945,10 +959,10 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 
 		// Search Location entity to see if we have this address available.
 		// If not, create this one.
-		List<Address> addresses = patient.getAddress();
+		List<AddressDt> addresses = patient.getAddress();
 		Location retLocation = null;
 		if (addresses != null && addresses.size() > 0) {
-			Address address = addresses.get(0);
+			AddressDt address = addresses.get(0);
 			retLocation = AddressUtil.searchAndUpdate(locationService, address, null);
 			if (retLocation != null) {
 				fperson.setLocation(retLocation);
@@ -996,7 +1010,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 			e.printStackTrace();
 		}
 
-		List<Reference> generalPractitioners = patient.getGeneralPractitioner();
+		List<ResourceReferenceDt> generalPractitioners = patient.getGeneralPractitioner();
 		if (generalPractitioners.size() > 0) {
 			// We can handle only one provider.
 			Provider retProvider = searchAndUpdate(generalPractitioners.get(0));
@@ -1013,9 +1027,9 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		else
 			fperson.setActive((short) 0);
 
-		CodeableConcept maritalStat = patient.getMaritalStatus();
+		CodeableConceptDt maritalStat = patient.getMaritalStatus();
 		if (maritalStat != null && !maritalStat.isEmpty()) {
-			Coding coding = maritalStat.getCodingFirstRep();
+			CodingDt coding = maritalStat.getCodingFirstRep();
 			if (coding != null && !coding.isEmpty()) {
 				System.out.println("MARITAL STATUS:" + coding.getCode());
 				fperson.setMaritalStatus(coding.getCode());
@@ -1051,7 +1065,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		Race myRace = patient.getRace();
 		Concept omopRaceConcept = new Concept(8552L);
 		if (!myRace.isEmpty()) {
-			for (Coding myCategory : myRace.getCategory()) {
+			for (CodingDt myCategory : myRace.getCategory()) {
 				Long omopRaceConceptId = fhirOmopCodeMap.getOmopCodeFromFhirCoding(myCategory);
 				fperson.setRaceSourceValue(myCategory.getDisplay());
 				if (omopRaceConceptId != 0L) {
@@ -1066,7 +1080,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		Ethnicity myEthnicity = patient.getEthnicity();
 		Concept omopEthnicityConcept = new Concept(0L);
 		if (!myEthnicity.isEmpty()) {
-			for (Coding myCategory : myEthnicity.getCategory()) {
+			for (CodingDt myCategory : myEthnicity.getCategory()) {
 				Long omopEthnicityConceptId = fhirOmopCodeMap.getOmopCodeFromFhirCoding(myCategory);
 				fperson.setEthnicitySourceValue(myCategory.getDisplay());
 				if (omopEthnicityConceptId != 0L) {

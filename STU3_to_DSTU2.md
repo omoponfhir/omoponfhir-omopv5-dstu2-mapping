@@ -29,7 +29,6 @@
 `import org.hl7.fhir.dstu3.model.Encounter; becomes import ca.uhn.fhir.model.dstu2.resource.Encounter;`
 `import org.hl7.fhir.dstu3.model.Medication; becomes import ca.uhn.fhir.model.dstu2.resource.Medication;`
 `import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;`
-`import org.hl7.fhir.dstu3.model.Identifier; becomes import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;`
 `import org.hl7.fhir.dstu3.model.Organization; becomes import ca.uhn.fhir.model.dstu2.resource.Organization;`
 `import org.hl7.fhir.dstu3.model.Address; becomes import ca.uhn.fhir.model.dstu2.composite.AddressDt;`
 `import org.hl7.fhir.dstu3.model.Address.AddressUse; becomes import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;`
@@ -37,8 +36,13 @@
 `import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;`
 `import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryResponse;`
 `import org.hl7.fhir.dstu3.model.Bundle; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle;`
-`//import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb; becomes import ca.uhn.fhir.model.dstu2.valueset.HTTPVerbEnum;`
-`//import org.hl7.fhir.dstu3.model.StringType; becomes import ca.uhn.fhir.model.primitive.StringDt;`
+`import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb; becomes import ca.uhn.fhir.model.dstu2.valueset.HTTPVerbEnum;`
+`import org.hl7.fhir.dstu3.model.StringType; becomes import ca.uhn.fhir.model.primitive.StringDt;`
+`import org.hl7.fhir.dstu3.model.ContactPoint; becomes import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;`
+`import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem; becomes import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;`
+`import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointUse; becomes import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;`
+`import org.hl7.fhir.dstu3.model.Practitioner; becomes import ca.uhn.fhir.model.dstu2.resource.Practitioner;`
+`//import org.hl7.fhir.dstu3.model.Patient.PatientLinkComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Patient.Link;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -57,6 +61,7 @@
 `BundleEntryResponseComponent becomes EntryResponse`
 `ResourceType.Patient becomes ResourceTypeEnum.PATIENT`
 `ResourceType.Observation becomes ResourceTypeEnum.OBSERVATION`
+`PatientLinkComponent becomes Link`
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`

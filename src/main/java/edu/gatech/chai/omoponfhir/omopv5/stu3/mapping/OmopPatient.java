@@ -330,8 +330,8 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 			CodeableConceptDt maritalStatusCode = new CodeableConceptDt();
 			MaritalStatusCodesEnum maritalStatus;
 			try {
-				maritalStatus = MaritalStatusCodesEnum.fromCode(fPerson.getMaritalStatus().toUpperCase());
-				CodingDt coding = new CodingDt(maritalStatus.getSystem(), maritalStatus.toCode(),
+				maritalStatus = MaritalStatusCodesEnum.forCode(fPerson.getMaritalStatus().toUpperCase());
+				CodingDt coding = new CodingDt(maritalStatus.getSystem(), maritalStatus.getCode(),
 						maritalStatus.getDisplay());
 				maritalStatusCode.addCoding(coding);
 				patient.setMaritalStatus(maritalStatusCode);
@@ -1006,9 +1006,12 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		fperson.setGenderConcept(new Concept());
 		String genderCode;
 		if (patient.getGender() != null) {
-			genderCode = patient.getGender().toCode();
+//			genderCode = patient.getGender().getCode();
+			genderCode = patient.getGender();
 		} else {
-			genderCode = AdministrativeGenderEnum.NULL.toString();
+//			genderCode = AdministrativeGenderEnum.NULL.toString();
+//			This might need to be null or "?" instead
+			genderCode = "";
 		}
 		try {
 			fperson.getGenderConcept().setId(OmopConceptMapping.omopForAdministrativeGenderCode(genderCode));
@@ -1046,15 +1049,15 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		List<ContactPointDt> contactPoints = patient.getTelecom();
 		int index = 0;
 		for (ContactPointDt contactPoint : contactPoints) {
-			ContactPointSystem contactSystem = contactPoint.getSystem();
-			String system = new String();
-			if (contactSystem != null)
-				system = contactSystem.toCode();
+//			ContactPointSystem contactSystem = contactPoint.getSystem();
+			String system = contactPoint.getSystem();
+//			if (contactSystem != null)
+//				system = contactSystem.toCode();
 
-			String use = new String();
-			ContactPointUse contactUse = contactPoint.getUse();
-			if (contactUse != null)
-				use = contactUse.toCode();
+			String use = contactPoint.getUse();
+//			ContactPointUse contactUse = contactPoint.getUse();
+//			if (contactUse != null)
+//				use = contactUse.toCode();
 			String value = contactPoint.getValue();
 			if (index == 0) {
 				fperson.setContactPoint1(system + ":" + use + ":" + value);

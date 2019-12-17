@@ -66,6 +66,7 @@
 `PatientLinkComponent becomes Link`
 `HumanName becomes HumanNameDt`
 `ContactPoint becomes ContactPointDt`
+`V3MaritalStatus.fromCode becomes MaritalStatusCodesEnum.forCode`
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`
@@ -98,6 +99,8 @@ for AdministrativeGenderEnum
 	this might have issues with capitalizatino. 
 
 useful sites for completing the work. 
-https://hapifhir.io/apidocs-dstu2/index.html
-https://hapifhir.io/apidocs-dstu3/org/hl7/fhir/dstu3/model/package-summary.html
-https://hapifhir.io/apidocs/index.html
+https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu2/
+https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu3/
+https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-base/
+http://hl7.org/fhir/DSTU2/resourcelist.html
+http://hl7.org/fhir/STU3/resourcelist.html

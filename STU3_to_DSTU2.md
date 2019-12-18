@@ -45,6 +45,11 @@
 `import org.hl7.fhir.dstu3.model.Patient.PatientLinkComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Patient.Link;`
 `import org.hl7.fhir.dstu3.model.HumanName; becomes import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;`
 `import org.hl7.fhir.dstu3.model.codesystems.V3MaritalStatus; becomes import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;`
+`import org.hl7.fhir.dstu3.model.codesystems.V3ActCode; becomes import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.V3ActCode;`
+`import org.hl7.fhir.dstu3.model.codesystems.OrganizationType; becomes import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.OrganizationType;`
+`import org.hl7.fhir.dstu3.model.codesystems.ObservationCategory; becomes import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.ObservationCategory;`
+`import org.hl7.fhir.dstu3.model.codesystems.ConditionCategory; becomes import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.ConditionCategory;`
+
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -95,7 +100,7 @@ DSTU2 doesn't have a unified version of https://www.hl7.org/fhir/v3/ActCode/cs.h
 DSTU2 uses careProvider, STU3 uses generalPracticioner
 
 for AdministrativeGenderEnum
-	`AdministrativeGender.toCode becomes AdministrativeGenderEnum.forCode`
+	`AdministrativeGender.toCode becomes AdministrativeGenderEnum.forCode or AdministrativeGenderEnum.getCode `
 	this might have issues with capitalizatino. 
 
 useful sites for completing the work. 

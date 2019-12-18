@@ -15,11 +15,16 @@
  *******************************************************************************/
 package edu.gatech.chai.omoponfhir.omopv5.stu3.mapping;
 
-import org.hl7.fhir.dstu3.model.codesystems.AdministrativeGender;
-import org.hl7.fhir.dstu3.model.codesystems.OrganizationType;
-import org.hl7.fhir.dstu3.model.codesystems.V3ActCode;
-import org.hl7.fhir.dstu3.model.codesystems.ObservationCategory;
-import org.hl7.fhir.dstu3.model.codesystems.ConditionCategory;
+//import org.hl7.fhir.dstu3.model.codesystems.AdministrativeGender;
+import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
+//import org.hl7.fhir.dstu3.model.codesystems.OrganizationType;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.OrganizationType;
+//import org.hl7.fhir.dstu3.model.codesystems.V3ActCode;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.V3ActCode;
+//import org.hl7.fhir.dstu3.model.codesystems.ObservationCategory;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.ObservationCategory;
+//import org.hl7.fhir.dstu3.model.codesystems.ConditionCategory;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.ConditionCategory;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 public enum OmopConceptMapping {
@@ -27,11 +32,11 @@ public enum OmopConceptMapping {
 	/**
 	 * AdministrativeGender Mapping to OMOP Gender Concept ID.
 	 */
-	MALE(AdministrativeGender.MALE.toCode(), 8507L),
-	FEMALE(AdministrativeGender.FEMALE.toCode(), 8532L),
-	UNKNOWN(AdministrativeGender.UNKNOWN.toCode(), 8551L),
-	ADMIN_OTHER(AdministrativeGender.OTHER.toCode(), 8521L),
-	ADMIN_NULL(AdministrativeGender.NULL.toCode(),8570L),
+	MALE(AdministrativeGenderEnum.MALE.getCode(), 8507L),
+	FEMALE(AdministrativeGenderEnum.FEMALE.getCode(), 8532L),
+	UNKNOWN(AdministrativeGenderEnum.UNKNOWN.getCode(), 8551L),
+	ADMIN_OTHER(AdministrativeGenderEnum.OTHER.getCode(), 8521L),
+//	ADMIN_NULL(AdministrativeGenderEnum.NULL.toCode(),8570L),
 
 	/**
 	 * OrganizationType Mapping
@@ -97,11 +102,12 @@ public enum OmopConceptMapping {
 		if (UNKNOWN.getFhirCode().equals(administrativeGenderCode)) {
 			return UNKNOWN.getOmopConceptId();
 		}
-		if (ADMIN_OTHER.getFhirCode().equals(administrativeGenderCode)) {
+		else (ADMIN_OTHER.getFhirCode().equals(administrativeGenderCode)) {
 			return ADMIN_OTHER.getOmopConceptId();
-		} else {
-			return ADMIN_NULL.getOmopConceptId();
 		}
+//		else {
+//			return ADMIN_NULL.getOmopConceptId();
+//		}
 	}
 
 	public static Long omopForOrganizationTypeCode(String organizationTypeCode) throws FHIRException {

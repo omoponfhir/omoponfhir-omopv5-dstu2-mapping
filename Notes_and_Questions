@@ -5,3 +5,6 @@ OmopMedication
 
 OmopPatient
 	line 1014, genderCode might need to be null or "?" instead of ""
+
+OmopConceptMapping
+	line 39, Gender type NULL doesn't exist in DSTU2, 

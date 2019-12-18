@@ -39,6 +39,7 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 //import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 //import org.hl7.fhir.dstu3.model.Encounter.EncounterStatus;
 //import org.hl7.fhir.dstu3.model.codesystems.V3ActCode;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.V3ActCode;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.springframework.web.context.ContextLoaderListener;

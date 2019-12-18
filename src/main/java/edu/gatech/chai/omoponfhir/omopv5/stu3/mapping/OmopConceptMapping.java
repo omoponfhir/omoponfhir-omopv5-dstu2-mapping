@@ -102,12 +102,14 @@ public enum OmopConceptMapping {
 		if (UNKNOWN.getFhirCode().equals(administrativeGenderCode)) {
 			return UNKNOWN.getOmopConceptId();
 		}
-		else (ADMIN_OTHER.getFhirCode().equals(administrativeGenderCode)) {
+//		else (ADMIN_OTHER.getFhirCode().equals(administrativeGenderCode)) {
+		else {
 			return ADMIN_OTHER.getOmopConceptId();
 		}
 //		else {
 //			return ADMIN_NULL.getOmopConceptId();
 //		}
+
 	}
 
 	public static Long omopForOrganizationTypeCode(String organizationTypeCode) throws FHIRException {

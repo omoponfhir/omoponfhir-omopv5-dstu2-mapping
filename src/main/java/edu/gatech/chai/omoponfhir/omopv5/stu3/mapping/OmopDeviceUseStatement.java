@@ -21,9 +21,9 @@ import java.util.Date;
 import java.util.List;
 
 //import org.hl7.fhir.dstu3.model.CodeableConcept;
-import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+import ca.uhn.fhir.model.api.IResource;
+import ca.uhn.fhir.model.dstu2.composite.*;
 //import org.hl7.fhir.dstu3.model.Coding;
-import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 //import org.hl7.fhir.dstu3.model.Device;
 import ca.uhn.fhir.model.dstu2.resource.Device;
 //import org.hl7.fhir.dstu3.model.Device.DeviceUdiComponent;
@@ -35,9 +35,7 @@ import ca.uhn.fhir.model.primitive.IdDt;
 //import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 //import org.hl7.fhir.dstu3.model.Period;
-import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 //import org.hl7.fhir.dstu3.model.Reference;
-import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 //import org.hl7.fhir.dstu3.model.Resource;
 import ca.uhn.fhir.model.dstu2.resource.BaseResource;
 //import org.hl7.fhir.dstu3.model.ResourceType;
@@ -103,7 +101,8 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		
 		if (!includes.isEmpty()) {
 			if (includes.contains("DeviceUseStatement:device")) {
-				if (deviceUseStatement.hasDevice()) {
+				if (!deviceUseStatement.getDevice().isEmpty()) {
+//				if (deviceUseStatement.hasDevice()) {
 					ResourceReferenceDt deviceReference = deviceUseStatement.getDevice();
 					IIdType deviceReferenceId = deviceReference.getReferenceElement();
 					Long deviceReferenceFhirId = deviceReferenceId.getIdPartAsLong();
@@ -127,8 +126,13 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		// it would be easier for user to have a direct access to the device.
 		// So, we contain the device rather than reference it.
 		MyDevice myDevice = OmopDevice.getInstance().constructFHIR(fhirId, entity);
-		myDeviceUseStatement.addContained(myDevice);
-		
+//		myDeviceUseStatement.addContained(myDevice);
+		List<IResource> tempList = myDeviceUseStatement.getContained().getContainedResources();
+		tempList.add(myDevice);
+		ContainedDt tempContained = new ContainedDt();
+		tempContained.setContainedResources(tempList);
+		myDeviceUseStatement.setContained(tempContained);
+
 		// Set the Id as a local id.
 		myDeviceUseStatement.setDevice(new ResourceReferenceDt("#"+String.valueOf(fhirId)));
 		
@@ -154,14 +158,15 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		
 		myDeviceUseStatement.setWhenUsed(whenUsedPeriod);
 		
-		// set source with Practitioner.
-		Provider provider = entity.getProvider();
-		if (provider != null) {
-			Long providerOmopId = provider.getId();
-			Long practitionerFhirId = IdMapping.getFHIRfromOMOP(providerOmopId, PractitionerResourceProvider.getType());
-			myDeviceUseStatement.setSource(new ResourceReferenceDt(new IdDt(PractitionerResourceProvider.getType(),practitionerFhirId)));
-		}
-		
+//		// set source with Practitioner.
+//		Provider provider = entity.getProvider();
+//		if (provider != null) {
+//			Long providerOmopId = provider.getId();
+//			Long practitionerFhirId = IdMapping.getFHIRfromOMOP(providerOmopId, PractitionerResourceProvider.getType());
+//			myDeviceUseStatement.setSource(new ResourceReferenceDt(new IdDt(PractitionerResourceProvider.getType(),practitionerFhirId)));
+//		}
+//		DSTU2 doesn't have sources; just take this out
+
 		return myDeviceUseStatement;
 	}
 	
@@ -260,9 +265,11 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		IIdType idType = deviceReference.getReferenceElement();
 		if (idType.isLocal()) {
 			// Check contained section.
-			List<BaseResource> containeds = deviceUseStatement.getContained();
-			for (BaseResource contained: containeds) {
-				if (contained.getResourceType()==ResourceTypeEnum.DEVICE &&
+//			List<BaseResource> containeds = deviceUseStatement.getContained();
+			List<IResource> containeds = deviceUseStatement.getContained().getContainedResources();
+			for (IResource contained: containeds) {
+//				if (contained.getResourceType()==ResourceTypeEnum.DEVICE &&
+				if (contained instanceof Device &&
 						contained.getId().equals(idType.getIdPart())) {
 					device = (Device) contained;
 				}
@@ -323,24 +330,25 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 		}
 		
 		// source(Practitioner)
-		ResourceReferenceDt practitionerSource = deviceUseStatement.getSource();
-		if (practitionerSource != null && !practitionerSource.isEmpty()) {
-			IIdType practitionerReference = practitionerSource.getReferenceElement();
-			Long practitionerId = practitionerReference.getIdPartAsLong();
-			Long omopProviderId = IdMapping.getOMOPfromFHIR(practitionerId, PractitionerResourceProvider.getType());
-			Provider provider = providerService.findById(omopProviderId);
-			if (provider == null) {
-				try {
-					throw new FHIRException("DeviceUseStatement.source(Practitioner) does not exist");
-				} catch (FHIRException e) {
-					e.printStackTrace();
-				}
-				
-				return null;
-			}
-			
-			deviceExposure.setProvider(provider);
-		}
+//		ResourceReferenceDt practitionerSource = deviceUseStatement.getSource();
+//		if (practitionerSource != null && !practitionerSource.isEmpty()) {
+//			IIdType practitionerReference = practitionerSource.getReferenceElement();
+//			Long practitionerId = practitionerReference.getIdPartAsLong();
+//			Long omopProviderId = IdMapping.getOMOPfromFHIR(practitionerId, PractitionerResourceProvider.getType());
+//			Provider provider = providerService.findById(omopProviderId);
+//			if (provider == null) {
+//				try {
+//					throw new FHIRException("DeviceUseStatement.source(Practitioner) does not exist");
+//				} catch (FHIRException e) {
+//					e.printStackTrace();
+//				}
+//
+//				return null;
+//			}
+//
+//			deviceExposure.setProvider(provider);
+//		}
+//		we don't have sources; so just wipe this out?
 		
 		// check Device parameters.
 		if (device != null) {
@@ -364,14 +372,17 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 			}
 			
 			// set device UDI
-//			in DSTU2, UDI is returned as a string
 //			DeviceUdiComponent udi = device.getUdi();
+//			if (udi != null && !udi.isEmpty()) {
+//				String deviceIdentifier = udi.getDeviceIdentifier();
+//				if (deviceIdentifier != null && !deviceIdentifier.isEmpty()) {
+//					deviceExposure.setUniqueDeviceId(deviceIdentifier);
+//				}
+//			}
+//			in DSTU2, UDI is returned as a string
 			String udi = device.getUdi();
 			if (udi != null && !udi.isEmpty()) {
-				String deviceIdentifier = udi.getDeviceIdentifier();
-				if (deviceIdentifier != null && !deviceIdentifier.isEmpty()) {
-					deviceExposure.setUniqueDeviceId(deviceIdentifier);
-				}
+				deviceExposure.setUniqueDeviceId(udi);
 			}
 		}
 		

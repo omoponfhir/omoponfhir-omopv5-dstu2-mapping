@@ -1,10 +1,16 @@
 OmopDeviceUseStatement
 	Devices don't have sources in this case; so what should I do? 
 OmopMedication
-	Medications don't seem to have ingrediants in DSTU2. do I just remove everything corresponding to that? 
+	Medications don't seem to have ingredients in DSTU2. do I just remove everything corresponding to that? 
 
 OmopPatient
 	line 1014, genderCode might need to be null or "?" instead of ""
 
 OmopConceptMapping
 	line 39, Gender type NULL doesn't exist in DSTU2, 
+
+
+For Medication: in DSTU2, the Ingredient is at a lower level (product backbone element)
+
+for DeviceUseStatement:
+	in STU3, it extends a DomainResource, but in DSTU2, we only extend "BaseResource"

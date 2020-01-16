@@ -103,6 +103,17 @@ for AdministrativeGenderEnum
 	`AdministrativeGender.toCode becomes AdministrativeGenderEnum.forCode or AdministrativeGenderEnum.getCode `
 	this might have issues with capitalizatino. 
 
+DSTU2 doesn't have addContained in BaseResource, so instead you must convert it to be compatible with setcontained ex:
+
+`myDeviceUseStatement.addContained(myDevice);` becomes 
+```	
+List<IResource> tempList = myDeviceUseStatement.getContained().getContainedResources();
+tempList.add(myDevice);
+ContainedDt tempContained = new ContainedDt();
+tempContained.setContainedResources(tempList);
+myDeviceUseStatement.setContained(tempContained);	
+```
+
 useful sites for completing the work. 
 https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu2/
 https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu3/

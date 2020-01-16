@@ -72,6 +72,8 @@
 `HumanName becomes HumanNameDt`
 `ContactPoint becomes ContactPointDt`
 `V3MaritalStatus.fromCode becomes MaritalStatusCodesEnum.forCode`
+`AdministrativeGender becomes AdministrativeGenderEnum`
+`StringType becomes StringDt`
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`
@@ -101,7 +103,8 @@ DSTU2 uses careProvider, STU3 uses generalPracticioner
 
 for AdministrativeGenderEnum
 	`AdministrativeGender.toCode becomes AdministrativeGenderEnum.forCode or AdministrativeGenderEnum.getCode `
-	this might have issues with capitalizatino. 
+	`AdministrativeGender.fromCode becomes AdministrativeGenderEnum.forCode`
+	this might have issues with capitalization. 
 
 DSTU2 doesn't have addContained in BaseResource, so instead you must convert it to be compatible with setcontained ex:
 
@@ -113,6 +116,9 @@ ContainedDt tempContained = new ContainedDt();
 tempContained.setContainedResources(tempList);
 myDeviceUseStatement.setContained(tempContained);	
 ```
+
+There isn't a 
+
 
 useful sites for completing the work. 
 https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu2/

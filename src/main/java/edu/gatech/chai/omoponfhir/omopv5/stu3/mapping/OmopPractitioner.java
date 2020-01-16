@@ -20,15 +20,24 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.Address;
-import org.hl7.fhir.dstu3.model.HumanName;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Identifier;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.StringType;
-import org.hl7.fhir.dstu3.model.Address.AddressUse;
-import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
+//import org.hl7.fhir.dstu3.model.Address;
+import ca.uhn.fhir.model.dstu2.composite.AddressDt;
+//import org.hl7.fhir.dstu3.model.HumanName;
+import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Identifier;
+import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+//import org.hl7.fhir.dstu3.model.Practitioner;
+import ca.uhn.fhir.model.dstu2.resource.Practitioner;
+//import org.hl7.fhir.dstu3.model.StringType;
+import ca.uhn.fhir.model.primitive.StringDt;
+//import org.hl7.fhir.dstu3.model.Address.AddressUse;
+import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
+//import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
+import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.springframework.web.context.ContextLoaderListener;
@@ -97,23 +106,24 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 	@Override
 	public Practitioner constructFHIR(Long fhirId, Provider omopProvider) {
 		Practitioner practitioner = new Practitioner(); //Assuming default active state
-		practitioner.setId(new IdType(fhirId));
+		practitioner.setId(new IdDt(fhirId));
 
 		CareSite omopCareSite = omopProvider.getCareSite();
 
 		if(omopProvider.getProviderName() != null && !omopProvider.getProviderName().isEmpty()) {
-			HumanName fhirName = new HumanName();
+			HumanNameDt fhirName = new HumanNameDt();
 			fhirName.setText(omopProvider.getProviderName());
-			List<HumanName> fhirNameList = new ArrayList<HumanName>();
-			fhirNameList.add(fhirName);
-			practitioner.setName(fhirNameList);
+//			List<HumanNameDt> fhirNameList = new ArrayList<HumanNameDt>();
+//			fhirNameList.add(fhirName);
+//			practitioner.setName(fhirNameList);
+			practitioner.setName(fhirName);
 		}
 
 		//TODO: Need practictioner telecom information
 		//Set address
 		if(omopCareSite != null && omopCareSite.getLocation() != null && omopCareSite.getLocation().getId() != 0L) {
 			practitioner.addAddress()
-					.setUse(AddressUse.WORK)
+					.setUse(AddressUseEnum.WORK)
 					.addLine(omopCareSite.getLocation().getAddress1())
 					.addLine(omopCareSite.getLocation().getAddress2())//WARNING check if mapping for lines are correct
 					.setCity(omopCareSite.getLocation().getCity())
@@ -123,9 +133,9 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		//Set gender
 		if (omopProvider.getGenderConcept() != null) {
 			String gName = omopProvider.getGenderConcept().getName().toLowerCase();
-			AdministrativeGender gender;
+			AdministrativeGenderEnum gender;
 			try {
-				gender = AdministrativeGender.fromCode(gName);
+				gender = AdministrativeGenderEnum.forCode(gName);
 				practitioner.setGender(gender);
 			} catch (FHIRException e) {
 				e.printStackTrace();
@@ -135,7 +145,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 	}
 
 	@Override
-	public Long toDbase(Practitioner practitioner, IdType fhirId) throws FHIRException {
+	public Long toDbase(Practitioner practitioner, IdDt fhirId) throws FHIRException {
 
 		// If we have match in identifier, then we can update or create since
 		// we have the patient. If we have no match, but fhirId is not null,
@@ -146,9 +156,9 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 			omopId = IdMapping.getOMOPfromFHIR(fhirId.getIdPartAsLong(), PractitionerResourceProvider.getType());
 		}
 
-		List<Identifier> identifiers = practitioner.getIdentifier();
+		List<IdentifierDt> identifiers = practitioner.getIdentifier();
 		Provider allreadyIdentifiedProvider = null;
-		for (Identifier identifier : identifiers) {
+		for (IdentifierDt identifier : identifiers) {
 			if (identifier.getValue().isEmpty() == false) {
 				String providerSourceValue = identifier.getValue();
 
@@ -182,10 +192,10 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 //		return providerService.getSize(Provider.class, map);
 //	}
 
-	public Location searchAndUpdateLocation (Address address, Location location) {
+	public Location searchAndUpdateLocation (AddressDt address, Location location) {
 		if (address == null) return null;
 
-		List<StringType> addressLines = address.getLine();
+		List<StringDt> addressLines = address.getLine();
 		if (addressLines.size() > 0) {
 			String line1 = addressLines.get(0).getValue();
 			String line2 = null;
@@ -217,7 +227,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		return null;
 	}
 
-	public CareSite searchAndUpdateCareSite(Address address) {
+	public CareSite searchAndUpdateCareSite(AddressDt address) {
 		Location location = AddressUtil.searchAndUpdate(locationService, address, null);
 		if(location == null) return null;
 		CareSite careSite = careSiteService.searchByLocation(location);
@@ -292,7 +302,8 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 				try {
 					genderLongCode = OmopConceptMapping.omopForAdministrativeGenderCode(genderValue);
 				} catch (FHIRException e) {
-					genderLongCode = OmopConceptMapping.ADMIN_NULL.getOmopConceptId();
+//					genderLongCode = OmopConceptMapping.ADMIN_NULL.getOmopConceptId();
+					genderLongCode = OmopConceptMapping.ADMIN_OTHER.getOmopConceptId();
 				}
 				paramWrapper.setParameterType("Long");
 				paramWrapper.setParameters(Arrays.asList("gender_source_concept_id", "gender_source_value"));
@@ -328,17 +339,17 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		CareSite omopCareSite = new CareSite();
 
 		//Set name
-		Iterator<HumanName> practitionerIterator = practitioner.getName().iterator();
-		if(practitionerIterator.hasNext()) {
-			HumanName next = practitionerIterator.next();
-			omopProvider.setProviderName(next.getText());
-		}
-
+//		Iterator<HumanNameDt> practitionerIterator = practitioner.getName().iterator();
+//		if(practitionerIterator.hasNext()) {
+//			HumanNameDt next = practitionerIterator.next();
+//			omopProvider.setProviderName(next.getText());
+//		}
+	omopProvider.setProviderName(practitioner.getName().getFamilyAsSingleString());
 		//Set address
-		List<Address> addresses = practitioner.getAddress();
+		List<AddressDt> addresses = practitioner.getAddress();
 		Location retLocation = null;
 		if (addresses != null && addresses.size() > 0) {
-			Address address = addresses.get(0);
+			AddressDt address = addresses.get(0);
 			retLocation = AddressUtil.searchAndUpdate(locationService, address, null);
 			if (retLocation != null) {
 				omopCareSite.setLocation(retLocation);
@@ -347,7 +358,8 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 
 		//Set gender concept
 		omopProvider.setGenderConcept(new Concept());
-		String genderCode = practitioner.getGender().toCode();
+//		String genderCode = practitioner.getGender().toCode();
+		String genderCode = practitioner.getGender();
 		try {
 			omopProvider.getGenderConcept().setId(OmopConceptMapping.omopForAdministrativeGenderCode(genderCode));
 		} catch (FHIRException e) {
@@ -365,7 +377,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 			}
 		}
 
-		Identifier identifier = practitioner.getIdentifierFirstRep();
+		IdentifierDt identifier = practitioner.getIdentifierFirstRep();
 		if (identifier.getValue().isEmpty() == false) {
 			providerSourceValue = identifier.getValue();
 			omopProvider.setProviderSourceValue(providerSourceValue);

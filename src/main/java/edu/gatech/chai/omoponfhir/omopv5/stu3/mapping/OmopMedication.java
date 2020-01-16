@@ -88,6 +88,11 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 		medication.setCode(medicationCodeableConcept);
 
 		// See if we can add ingredient version of this medication.
+//		FIXME
+//		UNSURE how to construct FHIR medication from this omop concept in order to create reference to it.
+//		possible hackaround: seachwithParameter, search with the given concept to get an ID
+
+//		in this case; just adding "Medication/" to the top may be just FINE. will have to evaluate after built.
 		List<Concept> ingredients = getMyOmopService().getIngredient(entity);
 		if (ingredients.size() > 0) {
 			CodeableConceptDt ingredientCodeableConcept;
@@ -97,7 +102,8 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 					ingredientCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(ingredient);
 					if (!ingredientCodeableConcept.isEmpty()) {
 						ProductIngredient medIngredientComponent = new ProductIngredient();
-						ResourceReferenceDt tempReference = new ResourceReferenceDt(new IdDt(ingredient.getId()));
+						String temp = ingredient.getId().toString();
+						ResourceReferenceDt tempReference = new ResourceReferenceDt("Medication/"+temp);
 						medIngredientComponent.setItem(tempReference);
 						tempProduct.addIngredient(medIngredientComponent);
 					}

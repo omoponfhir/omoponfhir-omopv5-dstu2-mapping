@@ -12,8 +12,8 @@
 `import org.hl7.fhir.dstu3.model.Reference becomes import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt
 ;`
 `import org.hl7.fhir.dstu3.model.Resource; becomes import ca.uhn.fhir.model.dstu2.resource.BaseResource;`
-` becomes import ca.uhn.fhir.model.primitive.DateTimeDt;`
-` becomes import ca.uhn.fhir.model.api.IDatatype;`
+`import org.hl7.fhir.dstu3.model.DateTimeType; becomes import ca.uhn.fhir.model.primitive.DateTimeDt;`
+`import org.hl7.fhir.dstu3.model.Type; becomes import ca.uhn.fhir.model.api.IDatatype;`
 `import org.hl7.fhir.dstu3.model.codesystems.ConditionCategory; becomes import ca.uhn.fhir.model.dstu2.valueset.ConditionCategoryCodesEnum;`
 `import org.hl7.fhir.dstu3.model.Device; becomes import ca.uhn.fhir.model.dstu2.resource.Device;`
 `import org.hl7.fhir.dstu3.model.Period; becomes import ca.uhn.fhir.model.dstu2.composite.PeriodDt;`
@@ -49,7 +49,8 @@
 `import org.hl7.fhir.dstu3.model.codesystems.OrganizationType; becomes import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.OrganizationType;`
 `import org.hl7.fhir.dstu3.model.codesystems.ObservationCategory; becomes import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.ObservationCategory;`
 `import org.hl7.fhir.dstu3.model.codesystems.ConditionCategory; becomes import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.ConditionCategory;`
-
+`import org.hl7.fhir.dstu3.model.Procedure; becomes import ca.uhn.fhir.model.dstu2.resource.Procedure;`
+`import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -74,6 +75,7 @@
 `V3MaritalStatus.fromCode becomes MaritalStatusCodesEnum.forCode`
 `AdministrativeGender becomes AdministrativeGenderEnum`
 `StringType becomes StringDt`
+`ProcedurePerformerComponent becomes Performer`
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`

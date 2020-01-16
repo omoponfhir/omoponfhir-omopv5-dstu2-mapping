@@ -20,19 +20,31 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.DateTimeType;
-import org.hl7.fhir.dstu3.model.Encounter;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.Procedure;
-import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.hl7.fhir.dstu3.model.Type;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.DateTimeType;
+import ca.uhn.fhir.model.primitive.DateTimeDt;
+//import org.hl7.fhir.dstu3.model.Encounter;
+import ca.uhn.fhir.model.dstu2.resource.Encounter;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+//import org.hl7.fhir.dstu3.model.Practitioner;
+import ca.uhn.fhir.model.dstu2.resource.Practitioner;
+//import org.hl7.fhir.dstu3.model.Procedure;
+import ca.uhn.fhir.model.dstu2.resource.Procedure;
+//import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
+import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
+//import org.hl7.fhir.dstu3.model.Reference;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
+//import org.hl7.fhir.dstu3.model.Type;
+import ca.uhn.fhir.model.api.IDatatype;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
+import jdk.internal.perf.Perf;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -90,7 +102,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 	}
 	
 	@Override
-	public Long toDbase(Procedure fhirResource, IdType fhirId) throws FHIRException {
+	public Long toDbase(Procedure fhirResource, IdDt fhirId) throws FHIRException {
 		Long omopId = null;
 		if (fhirId != null) {
 			// Update
@@ -116,7 +128,8 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		
 		if (!includes.isEmpty()) {
 			if (includes.contains("Procedure:patient")) {
-				if (procedure.hasSubject()) {
+//				if (procedure.hasSubject()) {
+				if (!procedure.getSubject().isEmpty()) {
 					Long patientFhirId = procedure.getSubject().getReferenceElement().getIdPartAsLong();
 					Patient patient = OmopPatient.getInstance().constructFHIR(patientFhirId, entity.getFPerson());
 					procedure.getSubject().setResource(patient);
@@ -125,8 +138,8 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 			
 			if (includes.contains("Procedure:performer")) {
 				if (procedure.hasPerformer()) {
-					List<ProcedurePerformerComponent> performers = procedure.getPerformer();
-					for (ProcedurePerformerComponent performer: performers) {
+					List<Performer> performers = procedure.getPerformer();
+					for (Performer performer: performers) {
 						if (!performer.isEmpty()) {
 							Long practitionerFhirId = performer.getActor().getReferenceElement().getIdPartAsLong();
 							Practitioner practitioner = OmopPractitioner.getInstance().constructFHIR(practitionerFhirId, entity.getProvider());
@@ -152,10 +165,10 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 	@Override
 	public Procedure constructFHIR(Long fhirId, ProcedureOccurrence entity) {
 		Procedure procedure = new Procedure(); //Assuming default active state
-		procedure.setId(new IdType(fhirId));
+		procedure.setId(new IdDt(fhirId));
 
 		// Set subject 
-		Reference patientReference = new Reference(new IdType(PatientResourceProvider.getType(), entity.getFPerson().getId()));
+		ResourceReferenceDt patientReference = new ResourceReferenceDt(new IdDt(PatientResourceProvider.getType(), entity.getFPerson().getId()));
 		patientReference.setDisplay(entity.getFPerson().getNameAsSingleString());
 		procedure.setSubject(patientReference);
 		
@@ -164,7 +177,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		
 		// Procedure code concept mapping
 		Concept procedureConcept = entity.getProcedureConcept();
-		CodeableConcept procedureCodeableConcept = null;
+		CodeableConceptDt procedureCodeableConcept = null;
 		try {
 			procedureCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(procedureConcept);
 		} catch (FHIRException e) {
@@ -191,24 +204,24 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		// Context mapping
 		VisitOccurrence visitOccurrence = entity.getVisitOccurrence();
 		if (visitOccurrence != null) {
-			Reference contextReference = new Reference(new IdType(EncounterResourceProvider.getType(), visitOccurrence.getId())); 
+			ResourceReferenceDt contextReference = new ResourceReferenceDt(new IdDt(EncounterResourceProvider.getType(), visitOccurrence.getId()));
 			procedure.setContext(contextReference);
 		}
 		
 		// Performer mapping
 		Provider provider = entity.getProvider();
 		if (provider != null && provider.getId() != 0L) {
-			ProcedurePerformerComponent performer = new ProcedurePerformerComponent();
+			Performer performer = new Performer();
 			
 			// actor mapping
 			Long providerFhirId = IdMapping.getFHIRfromOMOP(provider.getId(), PractitionerResourceProvider.getType());
-			Reference actorReference = new Reference(new IdType(PractitionerResourceProvider.getType(), providerFhirId));
+			ResourceReferenceDt actorReference = new ResourceReferenceDt(new IdDt(PractitionerResourceProvider.getType(), providerFhirId));
 			performer.setActor(actorReference);
 			
 			// role mapping
 			Concept providerSpecialtyConcept = provider.getSpecialtyConcept();
 			if (providerSpecialtyConcept != null && providerSpecialtyConcept.getId() != 0L) {
-				CodeableConcept performerRoleCodeableConcept = null;
+				CodeableConceptDt performerRoleCodeableConcept = null;
 				try {
 					performerRoleCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(providerSpecialtyConcept);
 				} catch (FHIRException e) {
@@ -226,7 +239,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		// TODO: Add location after Location mapping is done.
 		
 		// Performed DateTime mapping
-		DateTimeType date = new DateTimeType(entity.getProcedureDate());
+		DateTimeDt date = new DateTimeDt(entity.getProcedureDate());
 		procedure.setPerformed(date);
 		
 		return procedure;
@@ -399,11 +412,11 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		procedureOccurrence.setProcedureTypeConcept(new Concept(OMOP_PROCEDURE_TYPE_DEFAULT));
 		
 		// Procedure concept mapping
-		CodeableConcept codeCodeableConcept = fhirResource.getCode();
+		CodeableConceptDt codeCodeableConcept = fhirResource.getCode();
 		Concept procedureConcept = null;
 		if (!codeCodeableConcept.isEmpty()) {
-			List<Coding> codings = codeCodeableConcept.getCoding();
-			for (Coding coding: codings) {
+			List<CodingDt> codings = codeCodeableConcept.getCoding();
+			for (CodingDt coding: codings) {
 				try {
 					procedureConcept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService, coding);
 					if (procedureConcept != null) break;
@@ -419,7 +432,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		
 		// Person mapping
 		try {
-		Reference patientReference = fhirResource.getSubject();
+			ResourceReferenceDt patientReference = fhirResource.getSubject();
 		if (patientReference.getReferenceElement().getResourceType().equals(PatientResourceProvider.getType())) {
 			Long patientFhirId = patientReference.getReferenceElement().getIdPartAsLong();
 			Long omopFPersonId = IdMapping.getOMOPfromFHIR(patientFhirId, PatientResourceProvider.getType());
@@ -438,7 +451,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		}
 
 		// Visit Occurrence mapping
-		Reference encounterReference = fhirResource.getContext();
+		ResourceReferenceDt encounterReference = fhirResource.getContext();
 		if (encounterReference.getReferenceElement().getResourceType().equals(EncounterResourceProvider.getType())) {
 			Long encounterFhirId = encounterReference.getReferenceElement().getIdPartAsLong();
 			Long omopVisitOccurrenceId = IdMapping.getOMOPfromFHIR(encounterFhirId, EncounterResourceProvider.getType());
@@ -461,8 +474,8 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		}
 
 		// Provider mapping
-		List<ProcedurePerformerComponent> performers = fhirResource.getPerformer();
-		for (ProcedurePerformerComponent performer: performers) {
+		List<Performer> performers = fhirResource.getPerformer();
+		for (Performer performer: performers) {
 			if (performer.getActor().getReferenceElement().getResourceType().equals(PractitionerResourceProvider.getType())) {
 				Long performerFhirId = performer.getActor().getReferenceElement().getIdPartAsLong();
 				Long omopProviderId = IdMapping.getOMOPfromFHIR(performerFhirId, PractitionerResourceProvider.getType());
@@ -471,11 +484,11 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 				if (provider == null || provider.getId() == 0L) continue;
 				
 				// specialty mapping
-				CodeableConcept roleCodeableConcept = performer.getRole();
+				CodeableConceptDt roleCodeableConcept = performer.getRole();
 				Concept specialtyConcept = null;
 				if (!roleCodeableConcept.isEmpty()) {
-					List<Coding> codings = roleCodeableConcept.getCoding();
-					for (Coding coding: codings) {
+					List<CodingDt> codings = roleCodeableConcept.getCoding();
+					for (CodingDt coding: codings) {
 						if (!coding.isEmpty()) {
 							try {
 								specialtyConcept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService, coding);
@@ -505,7 +518,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		Type performedType = fhirResource.getPerformed();
 		if (!performedType.isEmpty()) {
 			Date performedDate = null;
-			if (performedType instanceof DateTimeType) {
+			if (performedType instanceof DateTimeDt) {
 				// PerformedDateTime
 				performedDate = performedType.castToDateTime(performedType).getValue();
 			} else {

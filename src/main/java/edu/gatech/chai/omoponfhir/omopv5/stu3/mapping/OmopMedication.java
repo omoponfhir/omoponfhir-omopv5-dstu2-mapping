@@ -22,9 +22,11 @@ import java.util.List;
 //import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 //import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 //import org.hl7.fhir.dstu3.model.Medication;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
+
 //import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent;
 import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;
 //import org.hl7.fhir.exceptions.FHIRException;
@@ -94,16 +96,19 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 					ingredientCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(ingredient);
 					if (!ingredientCodeableConcept.isEmpty()) {
 						ProductIngredient medIngredientComponent = new ProductIngredient();
-						medIngredientComponent.setItem(ingredientCodeableConcept);
-						medication.addIngredient(medIngredientComponent);
+						ResourceReferenceDt tempReference = new ResourceReferenceDt(new IdDt(ingredient.getId()));
+						medIngredientComponent.setItem(tempReference);
+						Medication.Product tempProduct = new Medication.Product();
+						tempProduct.addIngredient(medIngredientComponent);
+						medication.setProduct(tempProduct);
 					}
 				}
 			} catch (FHIRException e) {
 				e.printStackTrace();
 				return null;
 			}
-		} 
-		
+		}
+
 		return medication;
 	}
 	

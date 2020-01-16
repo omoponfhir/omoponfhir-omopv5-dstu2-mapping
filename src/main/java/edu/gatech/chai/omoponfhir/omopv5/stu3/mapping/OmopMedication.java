@@ -92,17 +92,17 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 		if (ingredients.size() > 0) {
 			CodeableConceptDt ingredientCodeableConcept;
 			try {
+				Medication.Product tempProduct = new Medication.Product();
 				for (Concept ingredient: ingredients) {
 					ingredientCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(ingredient);
 					if (!ingredientCodeableConcept.isEmpty()) {
 						ProductIngredient medIngredientComponent = new ProductIngredient();
 						ResourceReferenceDt tempReference = new ResourceReferenceDt(new IdDt(ingredient.getId()));
 						medIngredientComponent.setItem(tempReference);
-						Medication.Product tempProduct = new Medication.Product();
 						tempProduct.addIngredient(medIngredientComponent);
-						medication.setProduct(tempProduct);
 					}
 				}
+				medication.setProduct(tempProduct);
 			} catch (FHIRException e) {
 				e.printStackTrace();
 				return null;

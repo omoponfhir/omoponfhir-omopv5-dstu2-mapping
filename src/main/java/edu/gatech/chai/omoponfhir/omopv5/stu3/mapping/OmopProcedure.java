@@ -44,6 +44,7 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.api.IDatatype;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
+import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
 import jdk.internal.perf.Perf;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
@@ -137,7 +138,14 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 			}
 			
 			if (includes.contains("Procedure:performer")) {
-				if (procedure.hasPerformer()) {
+				Boolean tempBool= false;
+				List<Performer> tempList = procedure.getPerformer();
+				for (Performer item : tempList) {
+					if (!item.isEmpty())
+						tempBool = true;
+				}
+//				if (procedure.hasPerformer()) {
+				if (tempBool) {
 					List<Performer> performers = procedure.getPerformer();
 					for (Performer performer: performers) {
 						if (!performer.isEmpty()) {
@@ -150,10 +158,11 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 			}
 
 			if (includes.contains("Procedure:context")) {
-				if (procedure.hasContext()) {
-					Long encounterFhirId = procedure.getContext().getReferenceElement().getIdPartAsLong();
+//				if (procedure.hasContext()) {
+				if (procedure.getEncounter().isEmpty()) {
+					Long encounterFhirId = procedure.getEncounter().getReferenceElement().getIdPartAsLong();
 					Encounter encounter = OmopEncounter.getInstance().constructFHIR(encounterFhirId, entity.getVisitOccurrence());
-					procedure.getContext().setResource(encounter);
+					procedure.getEncounter().setResource(encounter);
 				}
 			}
 
@@ -173,7 +182,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		procedure.setSubject(patientReference);
 		
 		// TODO: We put completed as a default. Revisit this
-		procedure.setStatus(Procedure.ProcedureStatus.COMPLETED);
+		procedure.setStatus(ProcedureStatusEnum.COMPLETED);
 		
 		// Procedure code concept mapping
 		Concept procedureConcept = entity.getProcedureConcept();
@@ -205,7 +214,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		VisitOccurrence visitOccurrence = entity.getVisitOccurrence();
 		if (visitOccurrence != null) {
 			ResourceReferenceDt contextReference = new ResourceReferenceDt(new IdDt(EncounterResourceProvider.getType(), visitOccurrence.getId()));
-			procedure.setContext(contextReference);
+			procedure.setEncounter(contextReference);
 		}
 		
 		// Performer mapping
@@ -295,7 +304,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 			paramWrapper.setRelationship("and");
 			mapList.add(paramWrapper);
 			break;
-		case Procedure.SP_CONTEXT:
+//		case Procedure.SP_CONTEXT:
 		case Procedure.SP_ENCOUNTER:
 			Long fhirEncounterId = ((ReferenceParam) value).getIdPartAsLong();
 			Long omopVisitOccurrenceId = IdMapping.getOMOPfromFHIR(fhirEncounterId, EncounterResourceProvider.getType());
@@ -451,7 +460,8 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		}
 
 		// Visit Occurrence mapping
-		ResourceReferenceDt encounterReference = fhirResource.getContext();
+//		ResourceReferenceDt encounterReference = fhirResource.getContext();
+    	ResourceReferenceDt encounterReference = fhirResource.getEncounter();
 		if (encounterReference.getReferenceElement().getResourceType().equals(EncounterResourceProvider.getType())) {
 			Long encounterFhirId = encounterReference.getReferenceElement().getIdPartAsLong();
 			Long omopVisitOccurrenceId = IdMapping.getOMOPfromFHIR(encounterFhirId, EncounterResourceProvider.getType());
@@ -515,11 +525,12 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		
 		// Procedure Date mapping. Use start date for Period.
 		try {
-		Type performedType = fhirResource.getPerformed();
+			IDatatype performedType = fhirResource.getPerformed();
 		if (!performedType.isEmpty()) {
 			Date performedDate = null;
 			if (performedType instanceof DateTimeDt) {
 				// PerformedDateTime
+				((DateTimeDt) performedType).getValue();
 				performedDate = performedType.castToDateTime(performedType).getValue();
 			} else {
 				// PerformedPeriod

@@ -51,6 +51,7 @@
 `import org.hl7.fhir.dstu3.model.codesystems.ConditionCategory; becomes import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.ConditionCategory;`
 `import org.hl7.fhir.dstu3.model.Procedure; becomes import ca.uhn.fhir.model.dstu2.resource.Procedure;`
 `import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;`
+` becomes import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -119,7 +120,9 @@ tempContained.setContainedResources(tempList);
 myDeviceUseStatement.setContained(tempContained);	
 ```
 
-There isn't a 
+In the Procdure class, there is no "Context" type, but there is an "Encounter" type. they are equivalent
+	`.setContext becomes .setEncounter`
+	`.getContext becomes .getEncounter`
 
 
 useful sites for completing the work. 

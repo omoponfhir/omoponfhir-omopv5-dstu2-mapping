@@ -52,6 +52,11 @@
 `import org.hl7.fhir.dstu3.model.Procedure; becomes import ca.uhn.fhir.model.dstu2.resource.Procedure;`
 `import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;`
 ` becomes import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;`
+`import org.hl7.fhir.dstu3.model.Quantity; becomes import ca.uhn.fhir.model.dstu2.composite.QuantityDt;`
+`import org.hl7.fhir.dstu3.model.SimpleQuantity; becomes import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;`
+`import org.hl7.fhir.dstu3.model.Observation.ObservationStatus; become import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;`
+`import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Observation.ReferenceRange;`
+`import org.hl7.fhir.dstu3.model.Observation.ObservationComponentComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Observation.Component;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -77,6 +82,10 @@
 `AdministrativeGender becomes AdministrativeGenderEnum`
 `StringType becomes StringDt`
 `ProcedurePerformerComponent becomes Performer`
+`Procedure.ProcedureStatus becomes ProcedureStatusEnum`
+`ObservationComponentComponent becomes Component`
+`ObservationStatus becomes ObservationStatusEnum`
+`ObservationReferenceRangeComponent becomes ReferenceRange`
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`

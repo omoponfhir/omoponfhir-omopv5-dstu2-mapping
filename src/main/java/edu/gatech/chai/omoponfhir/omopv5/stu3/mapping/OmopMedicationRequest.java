@@ -20,9 +20,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import ca.uhn.fhir.model.dstu2.composite.ContainedDt;
+import ca.uhn.fhir.model.api.IResource;
 //import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-import org.hl7.fhir.dstu3.model.Dosage;
+import ca.uhn.fhir.model.primitive.DateTimeDt;
+//import org.hl7.fhir.dstu3.model.Dosage;
+import ca.uhn.fhir.model.dstu2.resource.MedicationOrder.DosageInstruction;
 //import org.hl7.fhir.dstu3.model.Duration;
 import ca.uhn.fhir.model.dstu2.composite.DurationDt;
 //import org.hl7.fhir.dstu3.model.IdType;
@@ -168,7 +172,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		Date startDate = entity.getDrugExposureStartDate();
 //		Date endDate = entity.getDrugExposureEndDate();
 		if (startDate != null)
-			medicationRequest.setAuthoredOn(startDate);
+			medicationRequest.setDateWritten(new DateTimeDt(startDate));
 		
 		// See what type of Medication info we want to return
 		String medType = System.getenv("MEDICATION_TYPE");			
@@ -181,7 +185,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 				List<Concept> ingredients = conceptService.getIngredient(entity.getDrugConcept());
 				for (Concept ingredient: ingredients) {
 					ingredientCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(ingredient);
-					MedicationIngredientComponent medIngredientComponent = new MedicationIngredientComponent();
+					ProductIngredient medIngredientComponent = new ProductIngredient();
 					medIngredientComponent.setItem(ingredientCodeableConcept);
 					medicationResource.addIngredient(medIngredientComponent);					
 				}
@@ -191,7 +195,12 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 			}
 			medicationResource.setCode(medicationCodeableConcept);
 			medicationResource.setId("med1");
-			medicationRequest.addContained(medicationResource);
+			List<IResource> tempList = medicationRequest.getContained().getContainedResources();
+			tempList.add(medicationResource);
+			ContainedDt tempContained = new ContainedDt();
+			tempContained.setContainedResources(tempList);
+			medicationRequest.setContained(tempContained);
+//			medicationRequest.addContained(medicationResource);
 			medicationRequest.setMedication(new ResourceReferenceDt("#med1"));
 		} else if (medType != null && !medType.isEmpty() && "link".equalsIgnoreCase(medType)) {
 			// Get Medication in a reference. 
@@ -244,15 +253,15 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 			doseQuantity.setUnit(unitUnit);
 			doseQuantity.setCode(unitCode);
 			doseQuantity.setSystem(unitSystem);
-			
-			Dosage dosage = new Dosage();
+
+			DosageInstruction dosage = new DosageInstruction();
 			dosage.setDose(doseQuantity);
 			medicationRequest.addDosageInstruction(dosage);
 		}
 
 		// dispense request mapping.
 		Integer refills = entity.getRefills();
-		MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
+		DispenseRequest dispenseRequest = new DispenseRequest();
 		if (refills != null) {
 			dispenseRequest.setNumberOfRepeatsAllowed(refills);
 		}
@@ -269,7 +278,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		
 		Integer daysSupply = entity.getDaysSupply();
 		if (daysSupply != null) {
-			Duration qty = new Duration();
+			DurationDt qty = new DurationDt();
 			qty.setValue(daysSupply);
 			// Set the UCUM unit to day.
 			String fhirUri = OmopCodeableConceptMapping.UCUM.getFhirUri();
@@ -289,7 +298,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 			ResourceReferenceDt recorderReference =
 					new ResourceReferenceDt(new IdDt(PractitionerResourceProvider.getType(), provider.getId()));
 			recorderReference.setDisplay(provider.getProviderName());
-			medicationRequest.setRecorder(recorderReference);
+//			medicationRequest.setRecorder(recorderReference);
 		}
 		
 		// Context mapping
@@ -297,7 +306,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		if (visitOccurrence != null) {
 			ResourceReferenceDt contextReference =
 					new ResourceReferenceDt(new IdDt(EncounterResourceProvider.getType(), visitOccurrence.getId()));
-			medicationRequest.setContext(contextReference);
+			medicationRequest.setEncounter(contextReference);
 		}
 		
 		return medicationRequest;
@@ -358,7 +367,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 			}
 			mapList.add(paramWrapper);
 			break;
-		case MedicationOrder.SP_CONTEXT:
+		case MedicationOrder.SP_ENCOUNTER:
 			Long fhirEncounterId = ((ReferenceParam) value).getIdPartAsLong();
 			Long omopVisitOccurrenceId = IdMapping.getOMOPfromFHIR(fhirEncounterId, EncounterResourceProvider.getType());
 //			String resourceName = ((ReferenceParam) value).getResourceType();
@@ -373,32 +382,32 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 				mapList.add(paramWrapper);
 			}
 			break;
-		case MedicationOrder.SP_AUTHOREDON:
-			DateParam authoredOnDataParam = ((DateParam) value);
-			ParamPrefixEnum apiOperator = authoredOnDataParam.getPrefix();
-			String sqlOperator = null;
-			if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN)) {
-				sqlOperator = ">";
-			} else if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN_OR_EQUALS)) {
-				sqlOperator = ">=";
-			} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN)) {
-				sqlOperator = "<";
-			} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN_OR_EQUALS)) {
-				sqlOperator = "<=";
-			} else if (apiOperator.equals(ParamPrefixEnum.NOT_EQUAL)) {
-				sqlOperator = "!=";
-			} else {
-				sqlOperator = "=";
-			}
-			Date authoredOnDate = authoredOnDataParam.getValue();
-			
-			paramWrapper.setParameterType("Date");
-			paramWrapper.setParameters(Arrays.asList("drugExposureStartDate"));
-			paramWrapper.setOperators(Arrays.asList(sqlOperator));
-			paramWrapper.setValues(Arrays.asList(String.valueOf(authoredOnDate.getTime())));
-			paramWrapper.setRelationship("or");
-			mapList.add(paramWrapper);
-			break;
+//		case MedicationOrder.SP_AUTHOREDON:
+//			DateParam authoredOnDataParam = ((DateParam) value);
+//			ParamPrefixEnum apiOperator = authoredOnDataParam.getPrefix();
+//			String sqlOperator = null;
+//			if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN)) {
+//				sqlOperator = ">";
+//			} else if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN_OR_EQUALS)) {
+//				sqlOperator = ">=";
+//			} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN)) {
+//				sqlOperator = "<";
+//			} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN_OR_EQUALS)) {
+//				sqlOperator = "<=";
+//			} else if (apiOperator.equals(ParamPrefixEnum.NOT_EQUAL)) {
+//				sqlOperator = "!=";
+//			} else {
+//				sqlOperator = "=";
+//			}
+//			Date authoredOnDate = authoredOnDataParam.getValue();
+//
+//			paramWrapper.setParameterType("Date");
+//			paramWrapper.setParameters(Arrays.asList("drugExposureStartDate"));
+//			paramWrapper.setOperators(Arrays.asList(sqlOperator));
+//			paramWrapper.setValues(Arrays.asList(String.valueOf(authoredOnDate.getTime())));
+//			paramWrapper.setRelationship("or");
+//			mapList.add(paramWrapper);
+//			break;
 		case MedicationOrder.SP_PATIENT:
 //		case MedicationOrder.SP_SUBJECT:
 			ReferenceParam patientReference = ((ReferenceParam) value);
@@ -520,7 +529,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		}
 				
 		// Set patient.
-		 ResourceReferenceDt patientReference = fhirResource.getSubject();
+		 ResourceReferenceDt patientReference = fhirResource.getPatient();
 		if (patientReference == null)
 			try {
 				throw new FHIRException("Patient must exist.");
@@ -551,7 +560,8 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 			// We may have reference.
 			ResourceReferenceDt medicationReference;
 			try {
-				medicationReference = fhirResource.getMedicationReference();
+//				medicationReference = fhirResource.getMedicationReference();
+				medicationReference = fhirResource.getMedication();
 				if (medicationReference.isEmpty()) {
 					// This is an error. We require this.
 					throw new FHIRException("Medication[CodeableConcept or Reference] is missing");
@@ -613,11 +623,12 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		drugExposure.setDrugTypeConcept(drugExposureType);
 				
 		// Set start date from authored on date 
-		Date authoredDate = fhirResource.getAuthoredOn();
+//		Date authoredDate = fhirResource.getAuthoredOn();
+		Date authoredDate = fhirResource.getDateWritten();
 		drugExposure.setDrugExposureStartDate(authoredDate);
 
 		// Set VisitOccurrence 
-		ResourceReferenceDt encounterReference = fhirResource.getContext();
+		ResourceReferenceDt encounterReference = fhirResource.getEncounter();
 		if (encounterReference != null && !encounterReference.isEmpty()) {
 			if (EncounterResourceProvider.getType()
 					.equals(encounterReference.getReferenceElement().getResourceType())) {
@@ -640,8 +651,8 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		}		
 
 		// dosageInstruction
-		List<Dosage> dosageInstructions = fhirResource.getDosageInstruction();
-		for (Dosage dosageInstruction: dosageInstructions) {
+		List<DosageInstruction> dosageInstructions = fhirResource.getDosageInstruction();
+		for (DosageInstruction dosageInstruction: dosageInstructions) {
 			SimpleQuantityDt doseQty;
 			try {
 				doseQty = dosageInstruction.getDoseSimpleQuantity();
@@ -661,7 +672,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		}
 		
 		// dispense request 
-		MedicationRequestDispenseRequestComponent dispenseRequest = fhirResource.getDispenseRequest();
+		DispenseRequest dispenseRequest = fhirResource.getDispenseRequest();
 		if (dispenseRequest != null && !dispenseRequest.isEmpty()) {
 			Integer refills = dispenseRequest.getNumberOfRepeatsAllowed();
 			if (refills != null) {
@@ -686,16 +697,16 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 			}
 		}
 		
-		ResourceReferenceDt practitionerRef = fhirResource.getRecorder();
-		if (practitionerRef != null && !practitionerRef.isEmpty()) {
-			Long fhirPractitionerIdLong = 
-					practitionerRef.getReferenceElement().getIdPartAsLong();
-			Long omopProviderId = IdMapping.getOMOPfromFHIR(fhirPractitionerIdLong, PractitionerResourceProvider.getType());
-			Provider provider = providerService.findById(omopProviderId);
-			if (provider != null) {
-				drugExposure.setProvider(provider);
-			}			
-		}
+//		ResourceReferenceDt practitionerRef = fhirResource.getRecorder();
+//		if (practitionerRef != null && !practitionerRef.isEmpty()) {
+//			Long fhirPractitionerIdLong =
+//					practitionerRef.getReferenceElement().getIdPartAsLong();
+//			Long omopProviderId = IdMapping.getOMOPfromFHIR(fhirPractitionerIdLong, PractitionerResourceProvider.getType());
+//			Provider provider = providerService.findById(omopProviderId);
+//			if (provider != null) {
+//				drugExposure.setProvider(provider);
+//			}
+//		}
 		
 		return drugExposure;
 	}

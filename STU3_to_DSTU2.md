@@ -61,6 +61,7 @@
 import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `import org.hl7.fhir.dstu3.model.MedicationRequest; becomes import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;`
 `import import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestDispenseRequestComponent; becomes import ca.uhn.fhir.model.dstu2.resource.MedicationOrder.DispenseRequest;`
+`import org.hl7.fhir.dstu3.model.Dosage; becomes import ca.uhn.fhir.model.dstu2.resource.MedicationOrder.DosageInstruction;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -90,6 +91,8 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `ObservationComponentComponent becomes Component`
 `ObservationStatus becomes ObservationStatusEnum`
 `ObservationReferenceRangeComponent becomes ReferenceRange`
+`MedicationRequestDispenseRequestComponent becomes DispenseRequest`
+`MedicationIngredientComponent becomes ProductIngredient`
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`
@@ -132,6 +135,7 @@ ContainedDt tempContained = new ContainedDt();
 tempContained.setContainedResources(tempList);
 myDeviceUseStatement.setContained(tempContained);	
 ```
+	This was necessary in OmopMedicationRequest as well
 
 In the Procdure class, there is no "Context" type, but there is an "Encounter" type. they are equivalent
 	`.setContext becomes .setEncounter`
@@ -155,6 +159,7 @@ In the Observation Class, the "comment" field used to be "comments"
 		```
 
 In MedicationRequest, in DSTU2, it was all called MedicationOrder instead.  
+	Subject doesn't exist as a type, instead we have Patient
 
 In the Encoutner Class, the "reference" field is slightly changed
 	`.setReferenceElement becomes .setReference`

@@ -16,6 +16,9 @@ for DeviceUseStatement:
 	in STU3, it extends a DomainResource, but in DSTU2, we only extend "BaseResource"
 
 OmopPractitioner:
-	line 119
+	line 119, using fhirName as setName instead of fhirNameList
 	line 306, setting ADMIN_OTHER as we don't have ADMIN_NULL 
 	line 347, I'm just setting the family name as the practitioner name. Is that correct? 
+
+OmopMedicationRequest
+	line 624/625, is GetDateWritten equivalent to getAuthoredOn

@@ -134,6 +134,26 @@ In the Procdure class, there is no "Context" type, but there is an "Encounter" t
 	`.getContext becomes .getEncounter`
 
 
+In the Observation Class, the "comment" field used to be "comments"
+	`.getComment();` becomes `getComments();`
+	there is no "Context" type, but there is an "Encounter" type. they are equivalent
+		`.setContext becomes .setEncounter`
+		`.getContext becomes .getEncounter`
+	The category field can only hold 1 at a time in DSTU2, not multiple like in STU3
+		`.addCategory cebomes .setCategory`
+	there is no addPerformer method
+		`observation.addPerformer(performerRef);` becomes
+		
+		```
+		List<ResourceReferenceDt> tempList= observation.getPerformer();
+		tempList.add(performerRef);
+		observation.setPerformer(tempList);
+		```
+
+
+
+In the Encoutner Class, the "reference" field is slightly changed
+	`.setReferenceElement becomes .setReference`
 useful sites for completing the work. 
 https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu2/
 https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu3/

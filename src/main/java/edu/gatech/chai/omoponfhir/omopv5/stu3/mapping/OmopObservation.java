@@ -383,7 +383,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		System.out.println("personTS: at "+Long.toString(personTS)+" duration: "+Long.toString(personTS-directFieldTS));
 
 		if (fObservationView.getVisitOccurrence() != null)
-			observation.getContext().setReferenceElement(
+			observation.getEncounter().setReference(
 					new IdDt(EncounterResourceProvider.getType(), fObservationView.getVisitOccurrence().getId()));
 
 		long visitTS = System.currentTimeMillis()-start;
@@ -397,7 +397,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				CodingDt typeCoding = new CodingDt("http://hl7.org/fhir/observation-category", "exam");
 				typeCoding.setDisplay("");
 				typeConcept.addCoding(typeCoding);
-				observation.addCategory(typeConcept);
+				observation.setCategory(typeConcept);
 			} else if (fObservationView.getTypeConcept().getId() == 44818702L
 					|| fObservationView.getTypeConcept().getId() == 44791245L) {
 				CodeableConceptDt typeConcept = new CodeableConceptDt();
@@ -405,14 +405,14 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				CodingDt typeCoding = new CodingDt("http://hl7.org/fhir/observation-category", "laboratory");
 				typeCoding.setDisplay("");
 				typeConcept.addCoding(typeCoding);
-				observation.addCategory(typeConcept);
+				observation.setCategory(typeConcept);
 			} else if (fObservationView.getTypeConcept().getId() == 45905771L) {
 				CodeableConceptDt typeConcept = new CodeableConceptDt();
 				// This is Lab result
 				CodingDt typeCoding = new CodingDt("http://hl7.org/fhir/observation-category", "survey");
 				typeCoding.setDisplay("");
 				typeConcept.addCoding(typeCoding);
-				observation.addCategory(typeConcept);
+				observation.setCategory(typeConcept);
 			} else if (fObservationView.getTypeConcept().getId() == 38000277L
 					|| fObservationView.getTypeConcept().getId() == 38000278L) {
 				CodeableConceptDt typeConcept = new CodeableConceptDt();
@@ -420,7 +420,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				CodingDt typeCoding = new CodingDt("http://hl7.org/fhir/observation-category", "laboratory");
 				typeCoding.setDisplay("");
 				typeConcept.addCoding(typeCoding);
-				observation.addCategory(typeConcept);
+				observation.setCategory(typeConcept);
 			} else if (fObservationView.getTypeConcept().getId() == 38000280L
 					|| fObservationView.getTypeConcept().getId() == 38000281L) {
 				CodeableConceptDt typeConcept = new CodeableConceptDt();
@@ -428,7 +428,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				CodingDt typeCoding = new CodingDt("http://hl7.org/fhir/observation-category", "exam");
 				typeCoding.setDisplay("");
 				typeConcept.addCoding(typeCoding);
-				observation.addCategory(typeConcept);
+				observation.setCategory(typeConcept);
 			}
 		}
 
@@ -441,7 +441,10 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			String providerName = fObservationView.getProvider().getProviderName();
 			if (providerName != null && !providerName.isEmpty())
 				performerRef.setDisplay(providerName);
-			observation.addPerformer(performerRef);
+			List<ResourceReferenceDt> tempList= observation.getPerformer();
+			tempList.add(performerRef);
+			observation.setPerformer(tempList);
+//			observation.addPerformer(performerRef);
 		}
 
 		long providerTS = System.currentTimeMillis()-start;
@@ -485,7 +488,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				comments = comments.concat(noteService.findById(note.getId()).getNoteText());
 			}
 			if (!comments.isEmpty()) {
-				observation.setComment(comments);
+				observation.setComments(comments);
 			}
 		}
 
@@ -516,7 +519,8 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			if (measurement == null) {
 				try {
 					throw new FHIRException(
-							"Couldn't find the matching resource, " + fhirResource.getIdElement().asStringValue());
+//							"Couldn't find the matching resource, " + fhirResource.getIdElement().asStringValue());
+							"Couldn't find the matching resource, " + fhirResource.getIdElement().getValue());
 				} catch (FHIRException e) {
 					e.printStackTrace();
 				}
@@ -837,7 +841,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		}
 
 		/* Set visit occurrence */
-		ResourceReferenceDt contextReference = fhirResource.getContext();
+		ResourceReferenceDt contextReference = fhirResource.getEncounter();
 		VisitOccurrence visitOccurrence = null;
 		if (contextReference != null && !contextReference.isEmpty()) {
 			if (contextReference.getReferenceElement().getResourceType().equals(EncounterResourceProvider.getType())) {
@@ -869,9 +873,9 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			}
 		}
 
-		List<CodeableConceptDt> categories = fhirResource.getCategory();
+		CodeableConceptDt category = fhirResource.getCategory();
 		Long typeConceptId = 0L;
-		for (CodeableConceptDt category : categories) {
+//		for (CodeableConceptDt category : categories) {
 			codings = category.getCoding();
 			for (CodingDt coding : codings) {
 				String fhirSystem = coding.getSystem();
@@ -887,9 +891,9 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				if (typeConceptId > 0L)
 					break;
 			}
-			if (typeConceptId > 0L)
-				break;
-		}
+//			if (typeConceptId > 0L)
+//				break;
+//		}
 
 		Concept typeConcept = new Concept();
 		typeConcept.setId(typeConceptId);
@@ -1265,7 +1269,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			}
 		}
 		/* Set visit occurrence */
-		ResourceReferenceDt contextReference = fhirResource.getContext();
+		ResourceReferenceDt contextReference = fhirResource.getEncounter();
 		VisitOccurrence visitOccurrence = fhirContext2OmopVisitOccurrence(visitOccurrenceService, contextReference);
 		if (visitOccurrence != null) {
 			measurement.setVisitOccurrence(visitOccurrence);
@@ -1297,9 +1301,9 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 //			}
 //		}
 
-		List<CodeableConceptDt> categories = fhirResource.getCategory();
+		CodeableConceptDt category = fhirResource.getCategory();
 		Long typeConceptId = 0L;
-		for (CodeableConceptDt category : categories) {
+//		for (CodeableConceptDt category : categories) {
 			codings = category.getCoding();
 			for (CodingDt coding : codings) {
 				String fhirSystem = coding.getSystem();
@@ -1315,9 +1319,9 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				if (typeConceptId > 0L)
 					break;
 			}
-			if (typeConceptId > 0L)
-				break;
-		}
+//			if (typeConceptId > 0L)
+//				break;
+//		}
 
 		concept = new Concept();
 		concept.setId(typeConceptId);
@@ -1539,7 +1543,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			}
 		}
 		/* Set visit occurrence */
-		ResourceReferenceDt contextReference = fhirResource.getContext();
+		ResourceReferenceDt contextReference = fhirResource.getEncounter();
 		VisitOccurrence visitOccurrence = null;
 		if (contextReference != null && !contextReference.isEmpty()) {
 			if (contextReference.getReferenceElement().getResourceType().equals(EncounterResourceProvider.getType())) {
@@ -1566,9 +1570,9 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			}
 		}
 
-		List<CodeableConceptDt> categories = fhirResource.getCategory();
+		CodeableConceptDt category = fhirResource.getCategory();
 		Long typeConceptId = 0L;
-		for (CodeableConceptDt category : categories) {
+//		for (CodeableConceptDt category : categories) {
 			codings = category.getCoding();
 			for (CodingDt coding : codings) {
 				String fhirSystem = coding.getSystem();
@@ -1584,9 +1588,9 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				if (typeConceptId > 0L)
 					break;
 			}
-			if (typeConceptId > 0L)
-				break;
-		}
+//			if (typeConceptId > 0L)
+//				break;
+//		}
 
 		concept = new Concept();
 		concept.setId(typeConceptId);
@@ -1940,7 +1944,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 
 		// Check comments. If exists, put them in note table. And create relationship
 		// entry.
-		String comment = fhirResource.getComment();
+		String comment = fhirResource.getComments();
 		if (comment != null && !comment.isEmpty()) {
 			createFactRelationship(date, fPerson, comment, domainConceptId, 26L, 44818721L, retId, null);
 //			Note methodNote = new Note();

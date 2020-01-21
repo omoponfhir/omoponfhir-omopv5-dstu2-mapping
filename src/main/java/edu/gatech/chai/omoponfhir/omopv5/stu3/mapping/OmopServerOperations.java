@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 
 //import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.primitive.IdDt;
 //import org.hl7.fhir.dstu3.model.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
@@ -136,8 +137,8 @@ public class OmopServerOperations {
 
 		// do patient first.
 		for (BaseResource resource : resources) {
-			if (resource.getResourceType() == ResourceTypeEnum.PATIENT) {
-				String originalId = resource.getId();
+			if (resource instanceof Patient) {
+				String originalId = resource.getId().getValue();
 				Long fhirId = OmopPatient.getInstance().toDbase(ExtensionUtil.usCorePatientFromResource(resource),
 						null);
 				patientMap.put(originalId, fhirId);
@@ -148,12 +149,12 @@ public class OmopServerOperations {
 
 		// Now process the rest.
 		for (BaseResource resource : resources) {
-			if (resource.getResourceType() == ResourceTypeEnum.PATIENT) {
+			if (resource instanceof Patient) {
 				// already done.
 				continue;
 			}
 
-			if (resource.getResourceType() == ResourceTypeEnum.OBSERVATION) {
+			if (resource instanceof Observation) {
 				Observation observation = (Observation) resource;
 				ResourceReferenceDt subject = observation.getSubject();
 				IdDt refIdType = linkToPatient(subject, patientMap);

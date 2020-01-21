@@ -57,6 +57,10 @@
 `import org.hl7.fhir.dstu3.model.Observation.ObservationStatus; become import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;`
 `import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Observation.ReferenceRange;`
 `import org.hl7.fhir.dstu3.model.Observation.ObservationComponentComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Observation.Component;`
+`import org.hl7.fhir.dstu3.model.Duration; becomes
+import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
+`import org.hl7.fhir.dstu3.model.MedicationRequest; becomes import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;`
+`import import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestDispenseRequestComponent; becomes import ca.uhn.fhir.model.dstu2.resource.MedicationOrder.DispenseRequest;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -143,14 +147,14 @@ In the Observation Class, the "comment" field used to be "comments"
 		`.addCategory cebomes .setCategory`
 	there is no addPerformer method
 		`observation.addPerformer(performerRef);` becomes
-		
+
 		```
 		List<ResourceReferenceDt> tempList= observation.getPerformer();
 		tempList.add(performerRef);
 		observation.setPerformer(tempList);
 		```
 
-
+In MedicationRequest, in DSTU2, it was all called MedicationOrder instead.  
 
 In the Encoutner Class, the "reference" field is slightly changed
 	`.setReferenceElement becomes .setReference`

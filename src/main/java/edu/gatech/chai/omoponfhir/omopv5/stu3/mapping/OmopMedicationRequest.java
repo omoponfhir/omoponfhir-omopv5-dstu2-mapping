@@ -568,8 +568,9 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 				} else {
 					String medicationReferenceId = ((ResourceReferenceDt)medicationType).getReferenceElement().getIdPart();
 					if (((ResourceReferenceDt)medicationType).getReferenceElement().isLocal()) {
-						List<ResourceReferenceDt> contains = fhirResource.getContained();
-						for (ResourceReferenceDt resource: contains) {
+//						List<ResourceReferenceDt> contains = fhirResource.getContained();
+						List<IResource> contains = fhirResource.getContained().getContainedResources();
+						for (IResource resource: contains) {
 							if (!resource.isEmpty() &&
 								resource.getIdElement().getIdPart().equals(medicationReferenceId)) {
 
@@ -589,7 +590,10 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 
 		} else {
 			try {
-				medicationCodeableConcept = fhirResource.getMedicationCodeableConcept();
+//				medicationCodeableConcept = fhirResource.getMedicationCodeableConcept();
+				if (!(fhirResource.getMedication() instanceof CodeableConceptDt))
+					throw new FHIRException("Type mismatch: the type CodeableConcept was expected, but "+fhirResource.getMedication().getClass().getName()+" was encountered");
+				medicationCodeableConcept= (CodeableConceptDt) fhirResource.getMedication();
 			} catch (FHIRException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

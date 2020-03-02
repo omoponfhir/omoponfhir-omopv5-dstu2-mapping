@@ -358,7 +358,11 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		}
 		
 		// get author.
-		ResourceReferenceDt authorReference = fhirResource.getAuthorFirstRep();
+//		ResourceReferenceDt authorReference = fhirResource.getAuthorFirstRep();
+		if (fhirResource.getAuthor().isEmpty()) {
+			fhirResource.addAuthor();
+		}
+		ResourceReferenceDt authorReference = fhirResource.getAuthor().get(0);
 		if (authorReference != null && !authorReference.isEmpty()) {
 			if (authorReference.getReferenceElement().getResourceType().equals(PractitionerResourceProvider.getType())) {
 				Long practitionerId = authorReference.getReferenceElement().getIdPartAsLong();
@@ -437,16 +441,19 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		
 		if (!includes.isEmpty()) {
 			if (includes.contains("DocumentReference:patient") || includes.contains("DocumentReference:subject")) {
-				if (documentReference.hasSubject()) {
+//				if (documentReference.hasSubject()) {
+				if (!documentReference.getSubject().isEmpty()) {
 					Long patientFhirId = documentReference.getSubject().getReferenceElement().getIdPartAsLong();
 					Patient patient = OmopPatient.getInstance().constructFHIR(patientFhirId, entity.getFPerson());
 					documentReference.getSubject().setResource(patient);
 				}
 			}
 			if (includes.contains("DocumentReference:encounter")) {
-				if (documentReference.hasContext()) {
+//				if (documentReference.hasContext()) {
+				if (documentReference.getContent().isEmpty()) {
 					Context documentContext = documentReference.getContext();
-					if (documentContext.hasEncounter()) {
+//					if (documentContext.hasEncounter()) {
+					if (documentContext.getEncounter().isEmpty()) {
 						Long encounterFhirId = documentContext.getEncounter().getReferenceElement().getIdPartAsLong();
 						Encounter encounter = OmopEncounter.getInstance().constructFHIR(encounterFhirId, entity.getVisitOccurrence());
 						documentContext.getEncounter().setResource(encounter);
@@ -513,14 +520,17 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		DateTimeDt createdDateTime = null;
 		if (createdDate != null) {
 			if (createdTime != null)
-				createdDateTime = DateUtil.constructDateTime(createdDate, createdTime);
+//				createdDateTime = DateUtil.constructDateTime(createdDate, createdTime);
+				createdDateTime = new DateTimeDt(DateUtil.constructDateTime(createdDate, createdTime));
 			else
-				createdDateTime = DateUtil.constructDateTime(createdDate, null);
+//				createdDateTime = DateUtil.constructDateTime(createdDate, null);
+				createdDateTime = new DateTimeDt(DateUtil.constructDateTime(createdDate, null));
 		}
 		
 		if (createdDateTime != null) {
 			documentReference.setCreated(createdDateTime);
-			documentReference.setIndexed(createdDateTime);
+//			documentReference.setIndexed(createdDateTime);
+			documentReference.setIndexedWithMillisPrecision(createdDate);
 		}
 		
 		// Set author 
@@ -528,7 +538,10 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		if (provider != null) {
 			ResourceReferenceDt practitionerReference = new ResourceReferenceDt (new IdDt(PractitionerResourceProvider.getType(), IdMapping.getFHIRfromOMOP(provider.getId(), PractitionerResourceProvider.getType())));
 			practitionerReference.setDisplay(provider.getProviderName());
-			documentReference.addAuthor(practitionerReference);
+//			documentReference.addAuthor(practitionerReference);
+			List<ResourceReferenceDt> tempList = documentReference.getAuthor();
+			tempList.add(practitionerReference);
+			documentReference.setAuthor(tempList);
 		}
 		
 		// Set content now.
@@ -541,7 +554,9 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 			// Convert data to base64
 			attachment.setData(noteText.getBytes());
 			
-			Content documentReferenceContentComponent = new Content(attachment);
+//			Content documentReferenceContentComponent = new Content(attachment);
+			Content documentReferenceContentComponent = new Content();
+			documentReferenceContentComponent.setAttachment(attachment);
 			documentReference.addContent(documentReferenceContentComponent);
 		}
 		

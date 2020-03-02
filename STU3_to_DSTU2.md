@@ -93,6 +93,17 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `ObservationReferenceRangeComponent becomes ReferenceRange`
 `MedicationRequestDispenseRequestComponent becomes DispenseRequest`
 `MedicationIngredientComponent becomes ProductIngredient`
+`toCalendar becomes getValueAsCalendar`
+
+```
+getAuthorFirstRep method doesn't exist, but you can impplement it via the following (by example)
+
+//		ResourceReferenceDt authorReference = fhirResource.getAuthorFirstRep();
+		if (fhirResource.getAuthor().isEmpty()) {
+			fhirResource.addAuthor();
+		}
+		ResourceReferenceDt authorReference = fhirResource.getAuthor().get(0);
+```
 
 In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
 	`.setSubject becomes .setPatient`
@@ -148,7 +159,7 @@ In the Observation Class, the "comment" field used to be "comments"
 		`.setContext becomes .setEncounter`
 		`.getContext becomes .getEncounter`
 	The category field can only hold 1 at a time in DSTU2, not multiple like in STU3
-		`.addCategory cebomes .setCategory`
+		`.addCategory becomes .setCategory`
 	there is no addPerformer method
 		`observation.addPerformer(performerRef);` becomes
 
@@ -163,6 +174,21 @@ In MedicationRequest, in DSTU2, it was all called MedicationOrder instead.
 
 In the Encoutner Class, the "reference" field is slightly changed
 	`.setReferenceElement becomes .setReference`
+
+In the DocumentReference class:
+	add author doesn't work the way we think it does. Instead, we should set and get as in the Observation class with addPerformer
+	```
+//			documentReference.addAuthor(practitionerReference);
+			List<ResourceReferenceDt> tempList = documentReference.getAuthor();
+			tempList.add(practitionerReference);
+			documentReference.setAuthor(tempList);
+	```
+	Content doesn't take anything for the constructor, you have to add an attachment after the fact
+	```
+//			Content documentReferenceContentComponent = new Content(attachment);
+			Content documentReferenceContentComponent = new Content();
+			documentReferenceContentComponent.setAttachment(attachment);
+	```
 useful sites for completing the work. 
 https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu2/
 https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu3/

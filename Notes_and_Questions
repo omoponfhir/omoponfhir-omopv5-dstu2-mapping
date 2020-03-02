@@ -22,3 +22,6 @@ OmopPractitioner:
 
 OmopMedicationRequest
 	line 624/625, is GetDateWritten equivalent to getAuthoredOn
+
+OmopCondition
+	line 418 condition.setCategory; I might not have chose the best method

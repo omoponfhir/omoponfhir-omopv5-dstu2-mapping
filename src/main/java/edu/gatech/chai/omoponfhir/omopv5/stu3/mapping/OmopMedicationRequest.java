@@ -561,13 +561,13 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 			ResourceReferenceDt medicationReference;
 			try {
 //				medicationReference = fhirResource.getMedicationReference();
-				medicationReference = fhirResource.getMedication();
-				if (medicationReference.isEmpty()) {
+//				medicationReference = fhirResource.getMedication();
+				if (medicationType.isEmpty()) {
 					// This is an error. We require this.
 					throw new FHIRException("Medication[CodeableConcept or Reference] is missing");
 				} else {
-					String medicationReferenceId = medicationReference.getReferenceElement().getIdPart();
-					if (medicationReference.getReferenceElement().isLocal()) {
+					String medicationReferenceId = ((ResourceReferenceDt)medicationType).getReferenceElement().getIdPart();
+					if (((ResourceReferenceDt)medicationType).getReferenceElement().isLocal()) {
 						List<ResourceReferenceDt> contains = fhirResource.getContained();
 						for (ResourceReferenceDt resource: contains) {
 							if (!resource.isEmpty() &&
@@ -655,7 +655,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		for (DosageInstruction dosageInstruction: dosageInstructions) {
 			SimpleQuantityDt doseQty;
 			try {
-				doseQty = dosageInstruction.getDoseSimpleQuantity();
+				doseQty = (SimpleQuantityDt)dosageInstruction.getDose();
 				if (doseQty.isEmpty()) continue;
 				drugExposure.setEffectiveDrugDose(doseQty.getValue().doubleValue());
 				String doseCode = doseQty.getCode();

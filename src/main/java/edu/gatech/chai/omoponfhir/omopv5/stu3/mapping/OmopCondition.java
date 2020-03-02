@@ -36,6 +36,7 @@ import ca.uhn.fhir.model.dstu2.valueset.*;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 //import org.hl7.fhir.dstu3.model.codesystems.ConditionCategory;
+import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.ConditionCategory;
 import ca.uhn.fhir.model.dstu2.valueset.ConditionCategoryCodesEnum;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
@@ -397,7 +398,8 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		// Condition.category
 		Concept typeConceptId = conditionOccurrence.getTypeConceptId();
 		if (typeConceptId != null) {
-			String systemUri = ConditionCategoryCodesEnum.PROBLEMLISTITEM.getSystem();
+//			String systemUri = ConditionCategoryCodesEnum.PROBLEMLISTITEM.getSystem();
+			String systemUri = "http://hl7.org/fhir/condition-category";
 			String code = null;
 
 			String fhirCategoryCode = OmopConceptMapping.fhirForConditionTypeConcept(typeConceptId.getId());
@@ -414,7 +416,7 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 			typeCoding.setCode(code);
 			CodeableConceptDt typeCodeableConcept = new CodeableConceptDt();
 			typeCodeableConcept.addCoding(typeCoding);
-			condition.addCategory(typeCodeableConcept);
+			condition.setCategory((BoundCodeableConceptDt<ConditionCategoryCodesEnum>) typeCodeableConcept);
 //			if (typeCodeableConcept != null) {
 //				List<CodeableConcept> typeList = new ArrayList<CodeableConcept>();
 //				typeList.add(typeCodeableConcept);
@@ -523,7 +525,7 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		// get the start and end date. We are expecting both to be of type DateTimeType
 		IDatatype onSet = fhirResource.getOnset();
 		if (onSet != null && onSet instanceof DateTimeDt) {
-			conditionOccurrence.setStartDate(((DateTimeDt) fhirResource.getOnset()).toCalendar().getTime());
+			conditionOccurrence.setStartDate(((DateTimeDt) fhirResource.getOnset()).getValueAsCalendar().getTime());
 		} if (onSet != null && onSet instanceof PeriodDt) {
 			PeriodDt period = (PeriodDt)onSet;
 			Date start = period.getStart();
@@ -533,13 +535,15 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		}
 
 		if (fhirResource.getAbatement() != null && fhirResource.getAbatement() instanceof DateTimeDt) {
-			conditionOccurrence.setEndDate(((DateTimeDt) fhirResource.getAbatement()).toCalendar().getTime());
+//			conditionOccurrence.setEndDate(((DateTimeDt) fhirResource.getAbatement()).toCalendar().getTime());
+			conditionOccurrence.setEndDate(((DateTimeDt) fhirResource.getAbatement()).getValueAsCalendar().getTime());
 		} else {
 			// leave alone, end date not required
 		}
 
 		// set the category
-		List<CodeableConceptDt> categories = fhirResource.getCategory();
+//		List<CodeableConceptDt> categories = fhirResource.getCategory();
+		BoundCodeableConceptDt<ConditionCategoryCodesEnum> categories= fhirResource.getCategory();
 		Long typeConceptId = 0L;
 		for (CodeableConceptDt category : categories) {
 			List<CodingDt> codings = category.getCoding();

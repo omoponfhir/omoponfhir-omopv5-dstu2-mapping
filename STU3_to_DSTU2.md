@@ -62,6 +62,15 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `import org.hl7.fhir.dstu3.model.MedicationRequest; becomes import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;`
 `import import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestDispenseRequestComponent; becomes import ca.uhn.fhir.model.dstu2.resource.MedicationOrder.DispenseRequest;`
 `import org.hl7.fhir.dstu3.model.Dosage; becomes import ca.uhn.fhir.model.dstu2.resource.MedicationOrder.DosageInstruction;`
+`import org.hl7.fhir.dstu3.model.Dosage; becomes import ca.uhn.fhir.model.dstu2.resource.MedicationStatement.Dosage;`
+`import org.hl7.fhir.dstu3.model.Encounter.EncounterStatus; becomes import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;`
+`import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Encounter.Participant;`
+`import org.hl7.fhir.dstu3.model.MedicationStatement; becomes import ca.uhn.fhir.model.dstu2.resource.MedicationStatement;`
+`import org.hl7.fhir.dstu3.model.Annotation; becomes import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;`
+`import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus; becomes import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;`
+`import org.hl7.fhir.dstu3.model.ValueSet.ConceptSetComponent; becomes import ca.uhn.fhir.model.dstu2.resource.ValueSet.CodeSystemConcept;`
+`import org.hl7.fhir.dstu3.model.UriType; becomes import ca.uhn.fhir.model.primitive.UriDt;`
+`import org.hl7.fhir.dstu3.model.Parameters; becomes import ca.uhn.fhir.model.dstu2.resource.Parameters;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -94,6 +103,9 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `MedicationRequestDispenseRequestComponent becomes DispenseRequest`
 `MedicationIngredientComponent becomes ProductIngredient`
 `toCalendar becomes getValueAsCalendar`
+`EncounterStatus becomes EncounterStateEnum`
+`EncounterParticipantComponent becomes Participant`
+`Annotation becomes AnnotationDt`
 
 ```
 getAuthorFirstRep method doesn't exist, but you can impplement it via the following (by example)
@@ -105,13 +117,13 @@ getAuthorFirstRep method doesn't exist, but you can impplement it via the follow
 		ResourceReferenceDt authorReference = fhirResource.getAuthor().get(0);
 ```
 
-In the condition class, there is no "Subject" type, but there is a "Patient" type. They are equivalent
-	`.setSubject becomes .setPatient`
-	`.getSubject becomes .getPatient`
-
-In the condition class, there is no "Context" type, but there is an "Encounter" type. they are equivalent
-	`.setContext becomes .setEncounter`
-	`.getContext becomes .getEncounter`
+In the Condiditon class:
+	there is no "Subject" type, but there is a "Patient" type. They are equivalent
+		`.setSubject becomes .setPatient`
+		`.getSubject becomes .getPatient`
+	there is no "Context" type, but there is an "Encounter" type. they are equivalent
+		`.setContext becomes .setEncounter`
+		`.getContext becomes .getEncounter`
 
 This that were previously Date Type, need to be converted over to DateTimeDt
 
@@ -162,12 +174,13 @@ In the Observation Class, the "comment" field used to be "comments"
 		`.addCategory becomes .setCategory`
 	there is no addPerformer method
 		`observation.addPerformer(performerRef);` becomes
-
 		```
 		List<ResourceReferenceDt> tempList= observation.getPerformer();
 		tempList.add(performerRef);
 		observation.setPerformer(tempList);
 		```
+	getAppliesTo doesn't exist as far as far as ranges are concerned.
+		the only thing that could potentially apply is the "meaning"
 
 In MedicationRequest, in DSTU2, it was all called MedicationOrder instead.  
 	Subject doesn't exist as a type, instead we have Patient
@@ -189,6 +202,35 @@ In the DocumentReference class:
 			Content documentReferenceContentComponent = new Content();
 			documentReferenceContentComponent.setAttachment(attachment);
 	```
+
+in the Enocunter class:
+	there is no "Subject" type, but there is a "Patient" type. They are equivalent
+		`.setSubject becomes .setPatient`
+		`.getSubject becomes .getPatient`
+	Diagnosis aren't in existance, but an equivalent is "Indication"
+		```
+			DiagnosisComponent diagnosisComponent = new DiagnosisComponent();
+			diagnosisComponent.setCondition(conditionReference);
+			encounter.addDiagnosis(diagnosisComponent);
+			List<ResourceReferenceDt> tempList=encounter.getIndication();
+			tempList.add(conditionReference);
+			encounter.setIndication(tempList);
+		```
+
+in the OmopPatient class:
+	Identifier types aren't of the CodeableConceptDt type; instead they are IdentifierTypeCodesEnum
+
+in the MedicationStatement class:
+	there is no "Subject" type, but there is a "Patient" type. They are equivalent
+		`.setSubject becomes .setPatient`
+		`.getSubject becomes .getPatient`
+	there is no "Context" type, but there is an "Encounter" type. they are equivalent
+		`.setContext becomes .setEncounter`
+		`.getContext becomes .getEncounter`
+	there is no setDose Method, but instead setQuantity
+		`.setDose becomes .setQuantity`
+	BasedOn and PartOf don't exist in this class
+
 useful sites for completing the work. 
 https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu2/
 https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-dstu3/

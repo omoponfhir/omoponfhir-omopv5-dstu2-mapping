@@ -5,6 +5,7 @@ OmopMedication
 
 OmopPatient
 	line 1014, genderCode might need to be null or "?" instead of ""
+	line 231, not exactly sure what to set the identifiertype to. 
 
 OmopConceptMapping
 	line 39, Gender type NULL doesn't exist in DSTU2, 
@@ -25,3 +26,10 @@ OmopMedicationRequest
 
 OmopCondition
 	line 418 condition.setCategory; I might not have chose the best method
+
+OmopMedicationStatement
+	looks like BasedOn doesn't exist in DSTU2 (line 384)
+	same for PartOf (line 966)
+	Notes aren't on MedicationStatements. (line 188)
+	Encounters aren't on MedicationStatments (line239)
+		also applies for line (706)

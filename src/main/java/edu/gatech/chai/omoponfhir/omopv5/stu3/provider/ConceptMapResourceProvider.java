@@ -5,14 +5,22 @@ import java.net.URLDecoder;
 import java.util.Base64;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.BooleanType;
-import org.hl7.fhir.dstu3.model.CodeType;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.ConceptMap;
-import org.hl7.fhir.dstu3.model.Parameters;
-import org.hl7.fhir.dstu3.model.StringType;
-import org.hl7.fhir.dstu3.model.UriType;
+//import org.hl7.fhir.dstu3.model.BooleanType;
+import ca.uhn.fhir.model.primitive.BooleanDt;
+//import org.hl7.fhir.dstu3.model.CodeType;
+import ca.uhn.fhir.model.primitive.CodeDt;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.ConceptMap;
+import ca.uhn.fhir.model.dstu2.resource.ConceptMap;
+//import org.hl7.fhir.dstu3.model.Parameters;
+import ca.uhn.fhir.model.dstu2.resource.Parameters;
+//import org.hl7.fhir.dstu3.model.StringType;
+import ca.uhn.fhir.model.primitive.StringDt;
+//import org.hl7.fhir.dstu3.model.UriType;
+import ca.uhn.fhir.model.primitive.UriDt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -80,13 +88,13 @@ public class ConceptMapResourceProvider implements IResourceProvider {
 	 */
 	@Operation(name = "$translate", idempotent = true)
 	public Parameters translateOperation(RequestDetails theRequestDetails,
-			@OperationParam(name = "code") CodeType theCode, @OperationParam(name = "system") UriType theSystem,
-			@OperationParam(name = "version") StringType theVersion, @OperationParam(name = "source") UriType theSource,
-			@OperationParam(name = "coding") Coding theCoding,
-			@OperationParam(name = "codeableConcept") CodeableConcept theCodeableConcept,
-			@OperationParam(name = "target") UriType theTarget,
-			@OperationParam(name = "targetsystem") UriType theTargetSystem,
-			@OperationParam(name = "reverse") BooleanType theReverse) {
+			@OperationParam(name = "code") CodeDt theCode, @OperationParam(name = "system") UriDt theSystem,
+			@OperationParam(name = "version") StringDt theVersion, @OperationParam(name = "source") UriDt theSource,
+			@OperationParam(name = "coding") CodingDt theCoding,
+			@OperationParam(name = "codeableConcept") CodeableConceptDt theCodeableConcept,
+			@OperationParam(name = "target") UriDt theTarget,
+			@OperationParam(name = "targetsystem") UriDt theTargetSystem,
+			@OperationParam(name = "reverse") BooleanDt theReverse) {
 
 		Parameters retVal = new Parameters();
 
@@ -170,8 +178,8 @@ public class ConceptMapResourceProvider implements IResourceProvider {
 			// If codeableconcept exists, use this.
 			// If we have multiple codings, run them until we have a matching
 			// translation.
-			List<Coding> codings = theCodeableConcept.getCoding();
-			for (Coding coding : codings) {
+			List<CodingDt> codings = theCodeableConcept.getCoding();
+			for (CodingDt coding : codings) {
 				String code = coding.getCode();
 				String system = coding.getSystem();
 

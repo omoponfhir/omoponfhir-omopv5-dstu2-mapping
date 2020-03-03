@@ -770,8 +770,9 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			}
 
 			// Check the all the included FHIR concept codes.
-			List<CodeableConceptDt> rangeConceptCodes = range.getAppliesTo();
-			for (CodeableConceptDt rangeConceptCode : rangeConceptCodes) {
+//			List<CodeableConceptDt> rangeConceptCodes = range.getAppliesTo();
+			CodeableConceptDt rangeConceptCode = range.getMeaning();
+//			for (CodeableConceptDt rangeConceptCode : rangeConceptCodes) {
 				codings = rangeConceptCode.getCoding();
 				for (CodingDt coding : codings) {
 					try {
@@ -810,7 +811,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 						e.printStackTrace();
 					}
 				}
-			}
+//			}
 		}
 
 		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");

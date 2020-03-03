@@ -543,9 +543,9 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 
 		// set the category
 //		List<CodeableConceptDt> categories = fhirResource.getCategory();
-		BoundCodeableConceptDt<ConditionCategoryCodesEnum> categories= fhirResource.getCategory();
+		BoundCodeableConceptDt<ConditionCategoryCodesEnum> category= fhirResource.getCategory();
 		Long typeConceptId = 0L;
-		for (CodeableConceptDt category : categories) {
+//		for (CodeableConceptDt category : categories) {
 			List<CodingDt> codings = category.getCoding();
 			for (CodingDt coding : codings) {
 				String fhirSystem = coding.getSystem();
@@ -562,8 +562,8 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 					break;
 			}
 			if (typeConceptId > 0L)
-				break;
-		}
+//				break;
+//		}
 
 		concept = conceptService.findById(typeConceptId);
 		conditionOccurrence.setTypeConceptId(concept);

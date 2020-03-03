@@ -71,6 +71,8 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `import org.hl7.fhir.dstu3.model.ValueSet.ConceptSetComponent; becomes import ca.uhn.fhir.model.dstu2.resource.ValueSet.CodeSystemConcept;`
 `import org.hl7.fhir.dstu3.model.UriType; becomes import ca.uhn.fhir.model.primitive.UriDt;`
 `import org.hl7.fhir.dstu3.model.Parameters; becomes import ca.uhn.fhir.model.dstu2.resource.Parameters;`
+`import org.hl7.fhir.dstu3.model.Condition; becomes import ca.uhn.fhir.model.dstu2.resource.Condition;`
+
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`

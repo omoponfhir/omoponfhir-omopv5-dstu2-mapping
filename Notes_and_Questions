@@ -33,3 +33,6 @@ OmopMedicationStatement
 	Notes aren't on MedicationStatements. (line 188)
 	Encounters aren't on MedicationStatments (line239)
 		also applies for line (706)
+
+provider/ConditionResourceProvider
+	line 184, set theSubjectId to SP_PATIENT as well, as it should be equivalent to SP_SUBJECT

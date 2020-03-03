@@ -22,8 +22,10 @@ import edu.gatech.chai.omoponfhir.omopv5.stu3.mapping.OmopCondition;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.ThrowFHIRExceptions;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 
-import org.hl7.fhir.dstu3.model.Condition;
-import org.hl7.fhir.dstu3.model.IdType;
+//import org.hl7.fhir.dstu3.model.Condition;
+import ca.uhn.fhir.model.dstu2.resource.Condition;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -131,7 +133,7 @@ public class ConditionResourceProvider implements IResourceProvider {
 	}
 
 	@Delete()
-	public void deleteCondition(@IdParam IdType theId) {
+	public void deleteCondition(@IdParam IdDt theId) {
 		if (myMapper.removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -149,7 +151,7 @@ public class ConditionResourceProvider implements IResourceProvider {
 	 *         exists.
 	 */
 	@Read()
-	public Condition getResourceById(@IdParam IdType theId) {
+	public Condition getResourceById(@IdParam IdDt theId) {
 		Condition retVal = (Condition) myMapper.toFHIR(theId);
 		if (retVal == null) {
 			throw new ResourceNotFoundException(theId);
@@ -178,7 +180,8 @@ public class ConditionResourceProvider implements IResourceProvider {
 	@Search()
 	public IBundleProvider findConditionByParams(
 			@OptionalParam(name = Condition.SP_CODE) TokenOrListParam theOrCodes,
-			@OptionalParam(name = Condition.SP_SUBJECT) ReferenceParam theSubjectId,
+//			@OptionalParam(name = Condition.SP_SUBJECT) ReferenceParam theSubjectId,
+			@OptionalParam(name = Condition.SP_PATIENT) ReferenceParam theSubjectId,
 			@OptionalParam(name = Condition.SP_PATIENT) ReferenceParam thePatientId) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper>();
 
@@ -226,7 +229,7 @@ public class ConditionResourceProvider implements IResourceProvider {
 	 *         exists.
 	 */
 	@Read()
-	public Condition readCondition(@IdParam IdType theId) {
+	public Condition readCondition(@IdParam IdDt theId) {
 		Condition retval = (Condition) myMapper.toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -246,7 +249,7 @@ public class ConditionResourceProvider implements IResourceProvider {
 	 * @return This method returns a "MethodOutcome"
 	 */
 	@Update()
-	public MethodOutcome updateCondition(@IdParam IdType theId, @ResourceParam Condition theCondition) {
+	public MethodOutcome updateCondition(@IdParam IdDt theId, @ResourceParam Condition theCondition) {
 		validateResource(theCondition);
 
 		Long fhirId = null;

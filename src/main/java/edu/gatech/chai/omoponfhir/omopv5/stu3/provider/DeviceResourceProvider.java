@@ -18,9 +18,12 @@ package edu.gatech.chai.omoponfhir.omopv5.stu3.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.Device;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Patient;
+//import org.hl7.fhir.dstu3.model.Device;
+import ca.uhn.fhir.model.dstu2.resource.Device;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -113,7 +116,7 @@ public class DeviceResourceProvider implements IResourceProvider {
 //	}
 
 	@Delete()
-	public void deleteDevice(@IdParam IdType theId) {
+	public void deleteDevice(@IdParam IdDt theId) {
 		if (getMyMapper().removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -175,7 +178,7 @@ public class DeviceResourceProvider implements IResourceProvider {
 	}
 	
 	@Read()
-	public MyDevice readPatient(@IdParam IdType theId) {
+	public MyDevice readPatient(@IdParam IdDt theId) {
 		MyDevice retval = (MyDevice) getMyMapper().toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -185,7 +188,7 @@ public class DeviceResourceProvider implements IResourceProvider {
 	}
 	
 	@Update()
-	public MethodOutcome updateDevice(@IdParam IdType theId, @ResourceParam MyDevice theDevice) {
+	public MethodOutcome updateDevice(@IdParam IdDt theId, @ResourceParam MyDevice theDevice) {
 		validateResource(theDevice);
 
 		Long fhirId = null;

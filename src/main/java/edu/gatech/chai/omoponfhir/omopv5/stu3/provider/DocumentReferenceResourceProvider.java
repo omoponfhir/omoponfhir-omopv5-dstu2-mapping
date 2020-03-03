@@ -19,9 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.hl7.fhir.dstu3.model.DocumentReference;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Patient;
+//import org.hl7.fhir.dstu3.model.DocumentReference;
+import ca.uhn.fhir.model.dstu2.resource.DocumentReference;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -117,14 +120,14 @@ public class DocumentReferenceResourceProvider implements IResourceProvider {
 	}
 	
 	@Delete()
-	public void deleteDocumentReference(@IdParam IdType theId) {
+	public void deleteDocumentReference(@IdParam IdDt theId) {
 		if (getMyMapper().removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
 	}
 	
 	@Read()
-	public DocumentReference readDocumentReference(@IdParam IdType theId) {
+	public DocumentReference readDocumentReference(@IdParam IdDt theId) {
 		DocumentReference retval = (DocumentReference) getMyMapper().toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -134,7 +137,7 @@ public class DocumentReferenceResourceProvider implements IResourceProvider {
 	}
 
 	@Update()
-	public MethodOutcome updateDocumentReference(@IdParam IdType theId, @ResourceParam DocumentReference theDocumentReference) {
+	public MethodOutcome updateDocumentReference(@IdParam IdDt theId, @ResourceParam DocumentReference theDocumentReference) {
 		validateResource(theDocumentReference);
 
 		Long fhirId = null;

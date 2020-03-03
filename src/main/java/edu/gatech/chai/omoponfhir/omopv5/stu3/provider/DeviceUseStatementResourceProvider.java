@@ -19,15 +19,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.DeviceUseStatement;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.OperationOutcome;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.hl7.fhir.dstu3.model.Resource;
-import org.hl7.fhir.dstu3.model.ResourceType;
-import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.DeviceUseStatement;
+import ca.uhn.fhir.model.dstu2.resource.DeviceUseStatement;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.OperationOutcome;
+import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+//import org.hl7.fhir.dstu3.model.Reference;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
+//import org.hl7.fhir.dstu3.model.Resource;
+import ca.uhn.fhir.model.dstu2.resource.BaseResource;
+//import org.hl7.fhir.dstu3.model.ResourceType;
+import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;
+//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -139,7 +148,7 @@ public class DeviceUseStatementResourceProvider implements IResourceProvider {
 	}
 	
 	@Delete()
-	public void deleteDeviceUseStatement(@IdParam IdType theId) {
+	public void deleteDeviceUseStatement(@IdParam IdDt theId) {
 		if (getMyMapper().removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -199,7 +208,7 @@ public class DeviceUseStatementResourceProvider implements IResourceProvider {
 	}
 	
 	@Read()
-	public MyDeviceUseStatement readPatient(@IdParam IdType theId) {
+	public MyDeviceUseStatement readPatient(@IdParam IdDt theId) {
 		MyDeviceUseStatement retval = (MyDeviceUseStatement) getMyMapper().toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -209,7 +218,7 @@ public class DeviceUseStatementResourceProvider implements IResourceProvider {
 	}
 	
 	@Update()
-	public MethodOutcome updateDeviceUseStatement(@IdParam IdType theId, @ResourceParam MyDeviceUseStatement theDeviceUseStatement) {
+	public MethodOutcome updateDeviceUseStatement(@IdParam IdDt theId, @ResourceParam MyDeviceUseStatement theDeviceUseStatement) {
 		validateResource(theDeviceUseStatement);
 
 		Long fhirId = null;
@@ -236,9 +245,9 @@ public class DeviceUseStatementResourceProvider implements IResourceProvider {
 	
 	private void errorProcessing(String msg) {
 		OperationOutcome outcome = new OperationOutcome();
-		CodeableConcept detailCode = new CodeableConcept();
+		CodeableConceptDt detailCode = new CodeableConceptDt();
 		detailCode.setText(msg);
-		outcome.addIssue().setSeverity(IssueSeverity.FATAL).setDetails(detailCode);
+		outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
 		throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);		
 	}
 

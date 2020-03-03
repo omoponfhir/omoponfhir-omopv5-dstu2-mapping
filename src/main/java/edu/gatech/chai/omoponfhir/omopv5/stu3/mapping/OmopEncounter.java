@@ -356,8 +356,9 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		 * Room Visit - LTCP: Long Term Care Visit -
 		 */
 //		CodingDt classCoding = encounter.getClass_();
-		CodingDt classCoding = new CodingDt("http://hl7.org/fhir/v3/ActCode",encounter.getClassElement());
-		String code = classCoding.getCode();
+//		CodingDt classCoding = new CodingDt("http://hl7.org/fhir/v3/ActCode",encounter.getClassElement());
+//		String code = classCoding.getCode();
+		String code = encounter.getClassElement();
 
 		Long omopConceptCode;
 		try {

@@ -183,12 +183,17 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 			try {
 				medicationCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(entity.getDrugConcept());
 				List<Concept> ingredients = conceptService.getIngredient(entity.getDrugConcept());
+				Medication.Product tempProduct = new Medication.Product();
 				for (Concept ingredient: ingredients) {
 					ingredientCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(ingredient);
 					ProductIngredient medIngredientComponent = new ProductIngredient();
-					medIngredientComponent.setItem(ingredientCodeableConcept);
-					medicationResource.addIngredient(medIngredientComponent);					
+					String temp = ingredient.getId().toString();
+					ResourceReferenceDt tempReference = new ResourceReferenceDt("Medication/"+temp);
+					medIngredientComponent.setItem(tempReference);
+					tempProduct.addIngredient(medIngredientComponent);
+//					medicationResource.addIngredient(medIngredientComponent);
 				}
+				medicationResource.setProduct(tempProduct);
 			} catch (FHIRException e) {
 				e.printStackTrace();
 				return null;

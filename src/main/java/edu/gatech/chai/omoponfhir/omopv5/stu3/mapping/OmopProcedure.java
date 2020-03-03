@@ -25,6 +25,7 @@ import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 //import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 //import org.hl7.fhir.dstu3.model.DateTimeType;
+import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 //import org.hl7.fhir.dstu3.model.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
@@ -530,11 +531,12 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 			Date performedDate = null;
 			if (performedType instanceof DateTimeDt) {
 				// PerformedDateTime
-				((DateTimeDt) performedType).getValue();
-				performedDate = performedType.castToDateTime(performedType).getValue();
+				performedDate= ((DateTimeDt) performedType).getValue();
+//				performedDate = performedType.castToDateTime(performedType).getValue();
 			} else {
 				// PerformedPeriod
-				performedDate = performedType.castToPeriod(performedType).getStart();
+//				performedDate = performedType.castToPeriod(performedType).getStart();
+				performedDate= ((PeriodDt) performedType).getStart();
 			}
 			
 			if (performedDate != null)

@@ -220,6 +220,8 @@ in the Enocunter class:
 			tempList.add(conditionReference);
 			encounter.setIndication(tempList);
 		```
+	SP_DIAGNOSIS becomes SP_CONDITION
+		NOTE: this might need swapped to SP_INDICATION
 
 in the OmopPatient class:
 	Identifier types aren't of the CodeableConceptDt type; instead they are IdentifierTypeCodesEnum

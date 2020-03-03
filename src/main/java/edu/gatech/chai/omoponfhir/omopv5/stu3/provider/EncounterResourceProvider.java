@@ -19,9 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.hl7.fhir.dstu3.model.Encounter;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Patient;
+//import org.hl7.fhir.dstu3.model.Encounter;
+import ca.uhn.fhir.model.dstu2.resource.Encounter;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -111,7 +114,7 @@ public class EncounterResourceProvider implements IResourceProvider {
 	}
 
 	@Delete()
-	public void deleteEncounter(@IdParam IdType theId) {
+	public void deleteEncounter(@IdParam IdDt theId) {
 		if (getMyMapper().removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -121,9 +124,11 @@ public class EncounterResourceProvider implements IResourceProvider {
 	public IBundleProvider findEncounterByParams(@OptionalParam(name = Encounter.SP_RES_ID) TokenParam theEncounterId,
 			@OptionalParam(name = Encounter.SP_PATIENT, chainWhitelist = { "",
 					Patient.SP_NAME }) ReferenceParam thePatient,
-			@OptionalParam(name = Encounter.SP_SUBJECT, chainWhitelist = { "",
+//			@OptionalParam(name = Encounter.SP_SUBJECT, chainWhitelist = { "",
+			@OptionalParam(name = Encounter.SP_PATIENT, chainWhitelist = { "",
 					Patient.SP_NAME }) ReferenceParam theSubject,
-			@OptionalParam(name = Encounter.SP_DIAGNOSIS) ReferenceParam theDiagnosis,
+//			@OptionalParam(name = Encounter.SP_DIAGNOSIS) ReferenceParam theDiagnosis,
+			@OptionalParam(name = Encounter.SP_CONDITION) ReferenceParam theDiagnosis,
 
 			@IncludeParam(allow = { "Encounter:appointment", "Encounter:diagnosis", "Encounter:episodeofcare",
 					"Encounter:incomingreferral", "Encounter:location", "Encounter:part-of", "Encounter:participant",
@@ -172,7 +177,8 @@ public class EncounterResourceProvider implements IResourceProvider {
 		}
 		
 		if (theDiagnosis != null) {
-			paramList.addAll(getMyMapper().mapParameter(Encounter.SP_DIAGNOSIS, theDiagnosis, false));
+//			paramList.addAll(getMyMapper().mapParameter(Encounter.SP_DIAGNOSIS, theDiagnosis, false));
+			paramList.addAll(getMyMapper().mapParameter(Encounter.SP_CONDITION, theDiagnosis, false));
 		}
 
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList, theIncludes, theReverseIncludes);
@@ -195,7 +201,7 @@ public class EncounterResourceProvider implements IResourceProvider {
 	 * @return Returns a resource matching this identifier, or null if none exists.
 	 */
 	@Read()
-	public Encounter readEncounter(@IdParam IdType theId) {
+	public Encounter readEncounter(@IdParam IdDt theId) {
 		Encounter retval = (Encounter) getMyMapper().toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -204,16 +210,16 @@ public class EncounterResourceProvider implements IResourceProvider {
 		return retval;
 	}
 
-	/**
-	 * The "@Update" annotation indicates that this method supports replacing an
-	 * existing resource (by ID) with a new instance of that resource.
-	 * 
-	 * @param theId      This is the ID of the patient to update
-	 * @param thePatient This is the actual resource to save
-	 * @return This method returns a "MethodOutcome"
-	 */
+//	/**
+//	 * The "@Update" annotation indicates that this method supports replacing an
+//	 * existing resource (by ID) with a new instance of that resource.
+//	 *
+//	 * @param theId      This is the ID of the patient to update
+//	 * @param thePatient This is the actual resource to save
+//	 * @return This method returns a "MethodOutcome"
+//	 */
 	@Update()
-	public MethodOutcome updateEncounter(@IdParam IdType theId, @ResourceParam Encounter theEncounter) {
+	public MethodOutcome updateEncounter(@IdParam IdDt theId, @ResourceParam Encounter theEncounter) {
 		validateResource(theEncounter);
 
 		Long fhirId = null;

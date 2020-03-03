@@ -36,3 +36,6 @@ OmopMedicationStatement
 
 provider/ConditionResourceProvider
 	line 184, set theSubjectId to SP_PATIENT as well, as it should be equivalent to SP_SUBJECT
+provider/EncounterResourceProvider
+	line 127 same as above; set theSubject equal to SP_PATIENT 
+	Should SP_DIAGNOSIS become SP_CONDITION or SP_INDICATION? 

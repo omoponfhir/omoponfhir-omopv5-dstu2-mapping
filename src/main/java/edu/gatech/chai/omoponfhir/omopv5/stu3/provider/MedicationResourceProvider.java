@@ -18,11 +18,16 @@ package edu.gatech.chai.omoponfhir.omopv5.stu3.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Medication;
-import org.hl7.fhir.dstu3.model.OperationOutcome;
-import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Medication;
+import ca.uhn.fhir.model.dstu2.resource.Medication;
+//import org.hl7.fhir.dstu3.model.OperationOutcome;
+import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
+//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
@@ -89,12 +94,12 @@ public class MedicationResourceProvider implements IResourceProvider {
 	}
 
 	@Delete()
-	public void deleteMedication(@IdParam IdType theId) {
+	public void deleteMedication(@IdParam IdDt theId) {
 		throw new MethodNotAllowedException("Medication Delete is not Allowed.");
 	}
 
 	@Read()
-	public Medication readMedication(@IdParam IdType theId) {
+	public Medication readMedication(@IdParam IdDt theId) {
 		Medication retval = (Medication) myMapper.toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -150,9 +155,9 @@ public class MedicationResourceProvider implements IResourceProvider {
 
 	private void errorProcessing(String msg) {
 		OperationOutcome outcome = new OperationOutcome();
-		CodeableConcept detailCode = new CodeableConcept();
+		CodeableConceptDt detailCode = new CodeableConceptDt();
 		detailCode.setText(msg);
-		outcome.addIssue().setSeverity(IssueSeverity.FATAL).setDetails(detailCode);
+		outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
 		throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
 	}
 

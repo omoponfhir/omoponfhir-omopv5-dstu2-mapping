@@ -20,15 +20,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.DateType;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.OperationOutcome;
-import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
-import org.hl7.fhir.dstu3.model.Organization;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.DateType;
+import ca.uhn.fhir.model.primitive.DateDt;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.OperationOutcome;
+import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
+//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
+//import org.hl7.fhir.dstu3.model.Organization;
+import ca.uhn.fhir.model.dstu2.resource.Organization;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
-import org.hl7.fhir.dstu3.model.Patient;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -138,11 +145,11 @@ public class PatientResourceProvider implements IResourceProvider {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return new MethodOutcome(new IdType(id));
+		return new MethodOutcome(new IdDt(id));
 	}
 
 	@Delete()
-	public void deletePatient(@IdParam IdType theId) {
+	public void deletePatient(@IdParam IdDt theId) {
 		if (getMyMapper().removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -308,7 +315,7 @@ public class PatientResourceProvider implements IResourceProvider {
 	 * @return Returns a resource matching this identifier, or null if none exists.
 	 */
 	@Read()
-	public Patient readPatient(@IdParam IdType theId) {
+	public Patient readPatient(@IdParam IdDt theId) {
 		Patient retval = (Patient) getMyMapper().toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -326,7 +333,7 @@ public class PatientResourceProvider implements IResourceProvider {
 	 * @return This method returns a "MethodOutcome"
 	 */
 	@Update()
-	public MethodOutcome updatePatient(@IdParam IdType theId, @ResourceParam USCorePatient thePatient) {
+	public MethodOutcome updatePatient(@IdParam IdDt theId, @ResourceParam USCorePatient thePatient) {
 		validateResource(thePatient);
 
 		Long fhirId = null;
@@ -346,8 +353,8 @@ public class PatientResourceProvider implements IResourceProvider {
 	 * $everything operation for a single patient.
 	 */
 	@Operation(name = "$everything", idempotent = true, bundleType = BundleTypeEnum.SEARCHSET)
-	public IBundleProvider patientEverythingOperation(RequestDetails theRequestDetails, @IdParam IdType thePatientId, @OperationParam(name = "start") DateType theStart,
-			@OperationParam(name = "end") DateType theEnd) {
+	public IBundleProvider patientEverythingOperation(RequestDetails theRequestDetails, @IdParam IdDt thePatientId, @OperationParam(name = "start") DateDt theStart,
+			@OperationParam(name = "end") DateDt theEnd) {
 
 		if (thePatientId == null) {
 			ThrowFHIRExceptions.unprocessableEntityException("Patient Id must be present");
@@ -412,9 +419,9 @@ public class PatientResourceProvider implements IResourceProvider {
 		 */
 		if (thePatient.getNameFirstRep().getFamily().isEmpty()) {
 			OperationOutcome outcome = new OperationOutcome();
-			CodeableConcept detailCode = new CodeableConcept();
+			CodeableConceptDt detailCode = new CodeableConceptDt();
 			detailCode.setText("No family name provided, Patient resources must have at least one family name.");
-			outcome.addIssue().setSeverity(IssueSeverity.FATAL).setDetails(detailCode);
+			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
 			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
 		}
 	}

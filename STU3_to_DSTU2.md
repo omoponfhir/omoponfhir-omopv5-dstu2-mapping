@@ -75,6 +75,7 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `import org.hl7.fhir.dstu3.model.OperationOutcome; becomes import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;`
 `import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity; becomes import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;`
 `import org.hl7.fhir.dstu3.model.InstantType; becomes import ca.uhn.fhir.model.primitive.InstantDt;`
+`import org.hl7.fhir.dstu3.model.DateType; becomes import ca.uhn.fhir.model.primitive.DateDt;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -113,6 +114,7 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `IssueSeverity becomes IssueSeverityEnum`
 `MedicationRequest becomes MedicationOrder`
 `InstantType becomes InstantDt`
+`DateType becomes DateDt`
 
 ```
 getAuthorFirstRep method doesn't exist, but you can impplement it via the following (by example)

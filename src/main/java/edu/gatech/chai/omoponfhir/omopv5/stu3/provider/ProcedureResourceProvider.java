@@ -19,8 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Procedure;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Procedure;
+import ca.uhn.fhir.model.dstu2.resource.Procedure;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -129,7 +131,7 @@ public class ProcedureResourceProvider implements IResourceProvider {
 	 * @return This method returns a "MethodOutcome"
 	 */
 	@Update()
-	public MethodOutcome updateProcedure(@IdParam IdType theId, @ResourceParam Procedure theProcedure) {
+	public MethodOutcome updateProcedure(@IdParam IdDt theId, @ResourceParam Procedure theProcedure) {
 		validateResource(theProcedure);
 
 		Long fhirId = null;
@@ -147,7 +149,7 @@ public class ProcedureResourceProvider implements IResourceProvider {
 	}
 
 	@Delete()
-	public void deleteProcedure(@IdParam IdType theId) {
+	public void deleteProcedure(@IdParam IdDt theId) {
 		if (myMapper.removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -169,7 +171,7 @@ public class ProcedureResourceProvider implements IResourceProvider {
 	 *         exists.
 	 */
 	@Read()
-	public Procedure readProcedure(@IdParam IdType theId) {
+	public Procedure readProcedure(@IdParam IdDt theId) {
 		Procedure retval = myMapper.toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -194,25 +196,26 @@ public class ProcedureResourceProvider implements IResourceProvider {
 		return myBundleProvider;
 	}
 
-	/**
-	 * The "@Search" annotation indicates that this method supports the search
-	 * operation. You may have many different method annotated with this
-	 * annotation, to support many different search criteria. This example
-	 * searches by family name.
-	 * 
-	 * @param theFamilyName
-	 *            This operation takes one parameter which is the search
-	 *            criteria. It is annotated with the "@Required" annotation.
-	 *            This annotation takes one argument, a string containing the
-	 *            name of the search criteria. The datatype here is StringParam,
-	 *            but there are other possible parameter types depending on the
-	 *            specific search criteria.
-	 * @return This method returns a list of Patients in bundle. This list may
-	 *         contain multiple matching resources, or it may also be empty.
-	 */
+//	/**
+//	 * The "@Search" annotation indicates that this method supports the search
+//	 * operation. You may have many different method annotated with this
+//	 * annotation, to support many different search criteria. This example
+//	 * searches by family name.
+//	 *
+//	 * @param theFamilyName
+//	 *            This operation takes one parameter which is the search
+//	 *            criteria. It is annotated with the "@Required" annotation.
+//	 *            This annotation takes one argument, a string containing the
+//	 *            name of the search criteria. The datatype here is StringParam,
+//	 *            but there are other possible parameter types depending on the
+//	 *            specific search criteria.
+//	 * @return This method returns a list of Patients in bundle. This list may
+//	 *         contain multiple matching resources, or it may also be empty.
+//	 */
 	@Search()
 	public IBundleProvider findProceduresByParams(@OptionalParam(name = Procedure.SP_CODE) TokenOrListParam theOrCodes,
-			@OptionalParam(name = Procedure.SP_CONTEXT) ReferenceParam theContextParam,
+//			@OptionalParam(name = Procedure.SP_CONTEXT) ReferenceParam theContextParam,
+//		This SP doesn't exist in DSTU2
 			@OptionalParam(name = Procedure.SP_DATE) DateParam theDateParm,
 			@OptionalParam(name = Procedure.SP_ENCOUNTER) ReferenceParam theEncounterParam,
 			@OptionalParam(name = Procedure.SP_SUBJECT) ReferenceParam theSubjectParam,
@@ -240,10 +243,10 @@ public class ProcedureResourceProvider implements IResourceProvider {
 				paramList.addAll(myMapper.mapParameter(Procedure.SP_CODE, code, orValue));
 			}
 		}
-
-		if (theContextParam != null) {
-			paramList.addAll(myMapper.mapParameter(Procedure.SP_CONTEXT, theContextParam, false));
-		}
+//		This SP doesn't exist in DSTU2
+//		if (theContextParam != null) {
+//			paramList.addAll(myMapper.mapParameter(Procedure.SP_CONTEXT, theContextParam, false));
+//		}
 		if (theDateParm != null) {
 			paramList.addAll(myMapper.mapParameter(Procedure.SP_DATE, theDateParm, false));
 		}
@@ -270,13 +273,13 @@ public class ProcedureResourceProvider implements IResourceProvider {
 		return myBundleProvider;
 	}
 
-	/**
-	 * This method just provides simple business validation for resources we are
-	 * storing.
-	 * 
-	 * @param thePractitioner
-	 *            The thePractitioner to validate
-	 */
+//	/**
+//	 * This method just provides simple business validation for resources we are
+//	 * storing.
+//	 *
+//	 * @param thePractitioner
+//	 *            The thePractitioner to validate
+//	 */
 	private void validateResource(Procedure theProcedure) {
 	}
 

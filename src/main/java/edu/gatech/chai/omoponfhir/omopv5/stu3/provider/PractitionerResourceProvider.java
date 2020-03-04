@@ -148,7 +148,8 @@ public class PractitionerResourceProvider implements IResourceProvider {
 	@Search()
 	public IBundleProvider findPractitionersByParams(
 			@OptionalParam(name = Practitioner.SP_RES_ID) TokenParam thePractitionerId,
-			@OptionalParam(name = Practitioner.SP_ACTIVE) TokenParam theActive,
+//			@OptionalParam(name = Practitioner.SP_ACTIVE) TokenParam theActive,
+//			this SP doesn't Exist in DSTU2
 			@OptionalParam(name = Practitioner.SP_FAMILY) StringParam theFamilyName,
 			@OptionalParam(name = Practitioner.SP_GIVEN) StringParam theGivenName,
 			@OptionalParam(name = Practitioner.SP_GENDER) StringParam theGender,
@@ -169,9 +170,10 @@ public class PractitionerResourceProvider implements IResourceProvider {
 			paramList.addAll(myMapper.mapParameter(Practitioner.SP_RES_ID, thePractitionerId, false));
 		}
 
-		if (theActive != null) {
-			paramList.addAll(myMapper.mapParameter(Practitioner.SP_ACTIVE, theActive, false));
-		}
+		//			this SP doesn't Exist in DSTU2
+//		if (theActive != null) {
+//			paramList.addAll(myMapper.mapParameter(Practitioner.SP_ACTIVE, theActive, false));
+//		}
 
 		if (theFamilyName != null) {
 			paramList.addAll(myMapper.mapParameter(Practitioner.SP_FAMILY, theFamilyName, false));

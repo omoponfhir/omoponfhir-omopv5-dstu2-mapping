@@ -181,7 +181,6 @@ public class ConditionResourceProvider implements IResourceProvider {
 	public IBundleProvider findConditionByParams(
 			@OptionalParam(name = Condition.SP_CODE) TokenOrListParam theOrCodes,
 //			@OptionalParam(name = Condition.SP_SUBJECT) ReferenceParam theSubjectId,
-			@OptionalParam(name = Condition.SP_PATIENT) ReferenceParam theSubjectId,
 			@OptionalParam(name = Condition.SP_PATIENT) ReferenceParam thePatientId) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper>();
 
@@ -195,13 +194,13 @@ public class ConditionResourceProvider implements IResourceProvider {
 			}
 		}
 
-		if (theSubjectId != null) {
-			if (theSubjectId.getResourceType().equals(PatientResourceProvider.getType())) {
-				thePatientId = theSubjectId;
-			} else {
-				ThrowFHIRExceptions.unprocessableEntityException("We only support Patient resource for subject");
-			}
-		}
+//		if (theSubjectId != null) {
+//			if (theSubjectId.getResourceType().equals(PatientResourceProvider.getType())) {
+//				thePatientId = theSubjectId;
+//			} else {
+//				ThrowFHIRExceptions.unprocessableEntityException("We only support Patient resource for subject");
+//			}
+//		}
 		if (thePatientId != null) {
 			paramList.addAll(myMapper.mapParameter(Condition.SP_PATIENT, thePatientId, false));
 		}

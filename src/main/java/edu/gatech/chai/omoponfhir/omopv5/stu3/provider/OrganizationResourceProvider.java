@@ -19,8 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Organization;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Organization;
+import ca.uhn.fhir.model.dstu2.resource.Organization;
 //import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointUse;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
@@ -121,7 +123,7 @@ public class OrganizationResourceProvider implements IResourceProvider {
 	}
 
 	@Delete()
-	public void deleteOrganization(@IdParam IdType theId) {
+	public void deleteOrganization(@IdParam IdDt theId) {
 		if (myMapper.removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -148,7 +150,7 @@ public class OrganizationResourceProvider implements IResourceProvider {
 	 *         exists.
 	 */
 	@Read()
-	public Organization getResourceById(@IdParam IdType theId) {
+	public Organization getResourceById(@IdParam IdDt theId) {
 		Organization retVal = myMapper.toFHIR(theId);
 		if (retVal == null) {
 			throw new ResourceNotFoundException(theId);
@@ -191,7 +193,7 @@ public class OrganizationResourceProvider implements IResourceProvider {
 	 * @return Returns a resource matching this identifier, or null if none exists.
 	 */
 	@Read()
-	public Organization readOrganization(@IdParam IdType theId) {
+	public Organization readOrganization(@IdParam IdDt theId) {
 		Organization retval = myMapper.toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -200,18 +202,18 @@ public class OrganizationResourceProvider implements IResourceProvider {
 		return retval;
 	}
 
-	/**
-	 * The "@Update" annotation indicates that this method supports replacing an existing 
-	 * resource (by ID) with a new instance of that resource.
-	 * 
-	 * @param theId
-	 *            This is the ID of the patient to update
-	 * @param thePatient
-	 *            This is the actual resource to save
-	 * @return This method returns a "MethodOutcome"
-	 */
+//	/**
+//	 * The "@Update" annotation indicates that this method supports replacing an existing
+//	 * resource (by ID) with a new instance of that resource.
+//	 *
+//	 * @param theId
+//	 *            This is the ID of the patient to update
+//	 * @param thePatient
+//	 *            This is the actual resource to save
+//	 * @return This method returns a "MethodOutcome"
+//	 */
 	@Update()
-	public MethodOutcome updateOrganization(@IdParam IdType theId, @ResourceParam Organization theOrganization) {
+	public MethodOutcome updateOrganization(@IdParam IdDt theId, @ResourceParam Organization theOrganization) {
 		validateResource(theOrganization);
 
 		Long fhirId=null;

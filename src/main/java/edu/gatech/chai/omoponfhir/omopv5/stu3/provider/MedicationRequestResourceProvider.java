@@ -18,12 +18,18 @@ package edu.gatech.chai.omoponfhir.omopv5.stu3.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Medication;
-import org.hl7.fhir.dstu3.model.MedicationRequest;
-import org.hl7.fhir.dstu3.model.OperationOutcome;
-import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Medication;
+import ca.uhn.fhir.model.dstu2.resource.Medication;
+//import org.hl7.fhir.dstu3.model.MedicationRequest;
+import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
+//import org.hl7.fhir.dstu3.model.OperationOutcome;
+import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
+//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -100,7 +106,7 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 
 	@Override
 	public Class<? extends IBaseResource> getResourceType() {
-		return MedicationRequest.class;
+		return MedicationOrder.class;
 	}
 
 	/**
@@ -108,7 +114,7 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 	 * new instance of a resource to the server.
 	 */
 	@Create()
-	public MethodOutcome createMedicationRequest(@ResourceParam MedicationRequest theMedicationRequest) {
+	public MethodOutcome createMedicationRequest(@ResourceParam MedicationOrder theMedicationRequest) {
 		validateResource(theMedicationRequest);
 		
 		Long id=null;
@@ -120,9 +126,9 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 		
 		if (id == null) {
 			OperationOutcome outcome = new OperationOutcome();
-			CodeableConcept detailCode = new CodeableConcept();
+			CodeableConceptDt detailCode = new CodeableConceptDt();
 			detailCode.setText("Failed to create entity.");
-			outcome.addIssue().setSeverity(IssueSeverity.FATAL).setDetails(detailCode);
+			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
 			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
 		}
 
@@ -130,14 +136,14 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 	}
 
 	@Delete()
-	public void deleteMedicationRequest(@IdParam IdType theId) {
+	public void deleteMedicationRequest(@IdParam IdDt theId) {
 		if (myMapper.removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
 	}
 
 	@Update()
-	public MethodOutcome updateMedicationRequest(@IdParam IdType theId, @ResourceParam MedicationRequest theMedicationRequest) {
+	public MethodOutcome updateMedicationRequest(@IdParam IdDt theId, @ResourceParam MedicationOrder theMedicationRequest) {
 		validateResource(theMedicationRequest);
 		
 		Long fhirId=null;
@@ -155,8 +161,8 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 	}
 
 	@Read()
-	public MedicationRequest readMedicationRequest(@IdParam IdType theId) {
-		MedicationRequest retval = (MedicationRequest) myMapper.toFHIR(theId);
+	public MedicationOrder readMedicationRequest(@IdParam IdDt theId) {
+		MedicationOrder retval = (MedicationOrder) myMapper.toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -166,12 +172,12 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 	
 	@Search()
 	public IBundleProvider findMedicationRequetsById(
-			@RequiredParam(name = MedicationRequest.SP_RES_ID) TokenParam theMedicationRequestId
+			@RequiredParam(name = MedicationOrder.SP_RES_ID) TokenParam theMedicationRequestId
 			) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
 
 		if (theMedicationRequestId != null) {
-			paramList.addAll(myMapper.mapParameter (MedicationRequest.SP_RES_ID, theMedicationRequestId, false));
+			paramList.addAll(myMapper.mapParameter (MedicationOrder.SP_RES_ID, theMedicationRequestId, false));
 		}
 				
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);
@@ -183,13 +189,15 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 
 	@Search()
 	public IBundleProvider findMedicationRequestsByParams(
-			@OptionalParam(name = MedicationRequest.SP_CODE) TokenOrListParam theOrCodes,
-			@OptionalParam(name = MedicationRequest.SP_MEDICATION+"."+Medication.SP_CODE) TokenOrListParam theMedicationOrCodes,
-			@OptionalParam(name = MedicationRequest.SP_MEDICATION, chainWhitelist={""}) ReferenceParam theMedication,
-			@OptionalParam(name = MedicationRequest.SP_CONTEXT) ReferenceParam theContext,
-			@OptionalParam(name = MedicationRequest.SP_AUTHOREDON) DateParam theDate,
-			@OptionalParam(name = MedicationRequest.SP_PATIENT) ReferenceParam thePatient,
-			@OptionalParam(name = MedicationRequest.SP_SUBJECT) ReferenceParam theSubject
+			@OptionalParam(name = MedicationOrder.SP_CODE) TokenOrListParam theOrCodes,
+			@OptionalParam(name = MedicationOrder.SP_MEDICATION+"."+Medication.SP_CODE) TokenOrListParam theMedicationOrCodes,
+			@OptionalParam(name = MedicationOrder.SP_MEDICATION, chainWhitelist={""}) ReferenceParam theMedication,
+//			@OptionalParam(name = MedicationOrder.SP_CONTEXT) ReferenceParam theContext,
+//			@OptionalParam(name = MedicationOrder.SP_AUTHOREDON) DateParam theDate,
+//			SP Doesn't Exist in DSTU2
+			@OptionalParam(name = MedicationOrder.SP_PATIENT) ReferenceParam thePatient
+//			@OptionalParam(name = MedicationOrder.SP_SUBJECT) ReferenceParam theSubject
+// 			SP Doesn't Exist in DSTU2
 			) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
 		
@@ -199,17 +207,17 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 			if (codes.size() <= 1)
 				orValue = false;
 			for (TokenParam code : codes) {
-				paramList.addAll(myMapper.mapParameter(MedicationRequest.SP_CODE, code, orValue));
+				paramList.addAll(myMapper.mapParameter(MedicationOrder.SP_CODE, code, orValue));
 			}
 		}
-
-		if (theContext != null) {
-			paramList.addAll(myMapper.mapParameter (MedicationRequest.SP_CONTEXT, theContext, false));
-		}
-
-		if (theDate != null) {
-			paramList.addAll(myMapper.mapParameter (MedicationRequest.SP_AUTHOREDON, theDate, false));
-		}
+//			SP Doesn't Exist in DSTU2
+//		if (theContext != null) {
+//			paramList.addAll(myMapper.mapParameter (MedicationOrder.SP_CONTEXT, theContext, false));
+//		}
+//
+//		if (theDate != null) {
+//			paramList.addAll(myMapper.mapParameter (MedicationOrder.SP_AUTHOREDON, theDate, false));
+//		}
 
 		if (theMedicationOrCodes != null) {
 			List<TokenParam> codes = theMedicationOrCodes.getValuesAsQueryTokens();
@@ -229,15 +237,16 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 			}
 		}
 		
-		if (theSubject != null) {
-			if (theSubject.getResourceType().equals(PatientResourceProvider.getType())) {
-				thePatient = theSubject;
-			} else {
-				ThrowFHIRExceptions.unprocessableEntityException("We only support Patient resource for subject");
-			}
-		}
+//			SP Doesn't Exist in DSTU2
+//		if (theSubject != null) {
+//			if (theSubject.getResourceType().equals(PatientResourceProvider.getType())) {
+//				thePatient = theSubject;
+//			} else {
+//				ThrowFHIRExceptions.unprocessableEntityException("We only support Patient resource for subject");
+//			}
+//		}
 		if (thePatient != null) {
-			paramList.addAll(myMapper.mapParameter(MedicationRequest.SP_PATIENT, thePatient, false));
+			paramList.addAll(myMapper.mapParameter(MedicationOrder.SP_PATIENT, thePatient, false));
 		}
 
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);
@@ -254,7 +263,7 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 //		}
 //	}
 
-	private void validateResource(MedicationRequest theMedication) {
+	private void validateResource(MedicationOrder theMedication) {
 		// TODO: implement validation method
 	}
 	

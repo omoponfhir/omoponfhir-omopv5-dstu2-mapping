@@ -15,14 +15,15 @@
  *******************************************************************************/
 package edu.gatech.chai.omoponfhir.omopv5.stu3.provider;
 
-import org.hl7.fhir.dstu3.model.Resource;
+//import org.hl7.fhir.dstu3.model.Resource;
+import ca.uhn.fhir.model.dstu2.resource.BaseResource;
 
 import edu.gatech.chai.omoponfhir.omopv5.stu3.mapping.BaseOmopResource;
 import edu.gatech.chai.omopv5.dba.service.IService;
 import edu.gatech.chai.omopv5.model.entity.BaseEntity;
 
 public class GtFhirBaseResourceProvider
-	<v extends Resource, t extends BaseEntity, p extends IService<t>, x extends BaseOmopResource<v, t, p>> {
+	<v extends BaseResource, t extends BaseEntity, p extends IService<t>, x extends BaseOmopResource<v, t, p>> {
 		private x myMapper;
 		
 		public x getMyMapper() {

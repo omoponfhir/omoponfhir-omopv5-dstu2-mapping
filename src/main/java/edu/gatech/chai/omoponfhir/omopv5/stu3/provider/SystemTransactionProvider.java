@@ -23,15 +23,24 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
-import org.hl7.fhir.dstu3.model.Bundle.BundleType;
-import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
-import org.hl7.fhir.dstu3.model.Composition;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Resource;
-import org.hl7.fhir.dstu3.model.ResourceType;
+//import org.hl7.fhir.dstu3.model.Bundle;
+import ca.uhn.fhir.model.dstu2.resource.Bundle;
+//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
+import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
+//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
+import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryRequest;
+//import org.hl7.fhir.dstu3.model.Bundle.BundleType;
+import ca.uhn.fhir.model.dstu2.valueset.BundleTypeEnum;
+//import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
+import ca.uhn.fhir.model.dstu2.valueset.HTTPVerbEnum;
+//import org.hl7.fhir.dstu3.model.Composition;
+import ca.uhn.fhir.model.dstu2.resource.Composition;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Resource;
+import ca.uhn.fhir.model.dstu2.resource.BaseResource;
+//import org.hl7.fhir.dstu3.model.ResourceType;
+import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.springframework.web.context.ContextLoaderListener;
@@ -110,29 +119,29 @@ public class SystemTransactionProvider {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void addToList(Map<HTTPVerb, Object> transactionEntries, MyBundle theBundle, HTTPVerb verb) {
-		List<Resource> postList = (List<Resource>) transactionEntries.get(HTTPVerb.POST);
-		List<Resource> putList = (List<Resource>) transactionEntries.get(HTTPVerb.PUT);
-		List<String> deleteList = (List<String>) transactionEntries.get(HTTPVerb.DELETE);
-		List<ParameterWrapper> getList = (List<ParameterWrapper>) transactionEntries.get(HTTPVerb.GET);
+	private void addToList(Map<HTTPVerbEnum, Object> transactionEntries, MyBundle theBundle, HTTPVerbEnum verb) {
+		List<BaseResource> postList = (List<BaseResource>) transactionEntries.get(HTTPVerbEnum.POST);
+		List<BaseResource> putList = (List<BaseResource>) transactionEntries.get(HTTPVerbEnum.PUT);
+		List<String> deleteList = (List<String>) transactionEntries.get(HTTPVerbEnum.DELETE);
+		List<ParameterWrapper> getList = (List<ParameterWrapper>) transactionEntries.get(HTTPVerbEnum.GET);
 
-		List<BundleEntryComponent> entries = theBundle.getEntry();
+		List<Entry> entries = theBundle.getEntry();
 
-		BundleEntryComponent entry = null;
+		Entry entry = null;
 
 		int sizeOfEntries = entries.size();
 		for (int i = 1; i < sizeOfEntries; i++) {
 			entry = entries.get(i);
 			if (verb != null || (entry.getRequest() != null && !entry.getRequest().isEmpty())) {
-				if (verb == HTTPVerb.POST || entry.getRequest().getMethod() == HTTPVerb.POST) {
-					postList.add(entry.getResource());
-				} else if (verb == HTTPVerb.PUT || entry.getRequest().getMethod() == HTTPVerb.PUT) {
+				if (verb == HTTPVerbEnum.POST || entry.getRequest().getMethod() == HTTPVerbEnum.POST.toString()) {
+					postList.add((BaseResource)entry.getResource());
+				} else if (verb == HTTPVerbEnum.PUT || entry.getRequest().getMethod() == HTTPVerbEnum.PUT.toString()) {
 					// This is to update. Get URL
 					String urlString = entry.getRequest().getUrl();
-					IdType idType = new IdType(urlString);
+					IdDt idType = new IdDt(urlString);
 					// We must be able to get Id as Long as OMOP only handles Long Id.
 					entry.getResource().setId(idType);
-					putList.add(entry.getResource());
+					putList.add((BaseResource) entry.getResource());
 				} else {
 					ThrowFHIRExceptions.unprocessableEntityException("We support POST and PUT for Messages");
 				}
@@ -147,24 +156,24 @@ public class SystemTransactionProvider {
 		validateResource(theBundle);
 
 		Bundle retVal = new Bundle();
-		List<Resource> postList = new ArrayList<Resource>();
-		List<Resource> putList = new ArrayList<Resource>();
+		List<BaseResource> postList = new ArrayList<BaseResource>();
+		List<BaseResource> putList = new ArrayList<BaseResource>();
 		List<String> deleteList = new ArrayList<String>();
 		List<ParameterWrapper> getList = new ArrayList<ParameterWrapper>();
 
-		Map<HTTPVerb, Object> transactionEntries = new HashMap<HTTPVerb, Object>();
-		transactionEntries.put(HTTPVerb.POST, postList);
-		transactionEntries.put(HTTPVerb.PUT, putList);
-		transactionEntries.put(HTTPVerb.DELETE, deleteList);
-		transactionEntries.put(HTTPVerb.GET, getList);
+		Map<HTTPVerbEnum, Object> transactionEntries = new HashMap<HTTPVerbEnum, Object>();
+		transactionEntries.put(HTTPVerbEnum.POST, postList);
+		transactionEntries.put(HTTPVerbEnum.PUT, putList);
+		transactionEntries.put(HTTPVerbEnum.DELETE, deleteList);
+		transactionEntries.put(HTTPVerbEnum.GET, getList);
 
 //		Resource resource = null;
 //		BundleEntryComponent entry = null;
 
 		try {
-			Resource resource;
+			BaseResource resource;
 			switch (theBundle.getType()) {
-			case DOCUMENT:
+			case "DOCUMENT":
 				// https://www.hl7.org/fhir/documents.html#bundle
 				// Ignore the fact that the bundle is a document and process all of the
 				// resources that it contains as individual resources. Clients SHOULD not expect
@@ -173,14 +182,15 @@ public class SystemTransactionProvider {
 				// the document (see below), the result cannot be expected to be in the same
 				// order, etc. Thus a document signature will very likely be invalid.)
 				
-				List<BundleEntryComponent> entries = theBundle.getEntry();
+				List<Entry> entries = theBundle.getEntry();
 				int index = 0;
-				for (BundleEntryComponent entry: entries) {
-					resource = entry.getResource();
+				for (Entry entry: entries) {
+					resource = (BaseResource) entry.getResource();
 					
 					// First entry is Composition
 					if (index == 0) {
-						if (resource.getResourceType() == ResourceType.Composition) {
+//						if (resource.getResourceType() == ResourceTypeEnum.COMPOSITION) {
+						if (resource.getResourceName() == ResourceTypeEnum.COMPOSITION.toString()) {
 							// First check the patient 
 							Composition composition = (Composition) resource;
 							
@@ -221,11 +231,11 @@ public class SystemTransactionProvider {
 //					ThrowFHIRExceptions
 //							.unprocessableEntityException("First entry in Bundle document type should be Composition");
 //				}
-			case TRANSACTION:
+			case "TRANSACTION":
 				System.out.println("We are at the transaction");
-				for (BundleEntryComponent nextEntry : theBundle.getEntry()) {
-					resource = nextEntry.getResource();
-					BundleEntryRequestComponent request = nextEntry.getRequest();
+				for (Entry nextEntry : theBundle.getEntry()) {
+					resource = (BaseResource) nextEntry.getResource();
+					EntryRequest request = nextEntry.getRequest();
 
 					// We require a transaction to have a request so that we can
 					// handle the transaction. Without it, we have nothing to
@@ -240,14 +250,15 @@ public class SystemTransactionProvider {
 
 						// Now we have a request that we support. Add this into
 						// the entry to process.
-						HTTPVerb method = request.getMethod();
-						if (method == HTTPVerb.POST) {
+//						HTTPVerbEnum method = request.getMethod();
+						String method = request.getMethod();
+						if (method == HTTPVerbEnum.POST.toString()) {
 							postList.add(resource);
-						} else if (method == HTTPVerb.PUT) {
+						} else if (method == HTTPVerbEnum.PUT.toString()) {
 							putList.add(resource);
-						} else if (method == HTTPVerb.DELETE) {
+						} else if (method == HTTPVerbEnum.DELETE.toString()) {
 							deleteList.add(request.getUrl());
-						} else if (method == HTTPVerb.GET) {
+						} else if (method == HTTPVerbEnum.GET.toString()) {
 							// TODO: getList.add(new ParameterWrapper());
 							// create parameter here.
 						} else {
@@ -257,7 +268,7 @@ public class SystemTransactionProvider {
 				}
 
 				break;
-			case MESSAGE:
+			case "MESSAGE":
 //				entry = theBundle.getEntryFirstRep();
 //				resource = entry.getResource();
 //				if (resource.getResourceType() == ResourceType.MessageHeader) {
@@ -283,10 +294,10 @@ public class SystemTransactionProvider {
 						+ theBundle.getType().toString() + ". We support DOCUMENT, TRANSACTION, and MESSAGE");
 			}
 
-			List<BundleEntryComponent> responseTransaction = myMapper.executeRequests(transactionEntries);
+			List<Entry> responseTransaction = myMapper.executeRequests(transactionEntries);
 			if (responseTransaction != null && responseTransaction.size() > 0) {
 				retVal.setEntry(responseTransaction);
-				retVal.setType(BundleType.TRANSACTIONRESPONSE);
+				retVal.setType(BundleTypeEnum.TRANSACTION_RESPONSE);
 			} else {
 				ThrowFHIRExceptions
 						.unprocessableEntityException("Faied process the bundle, " + theBundle.getType().toString());

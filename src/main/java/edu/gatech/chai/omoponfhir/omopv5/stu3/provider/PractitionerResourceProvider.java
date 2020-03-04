@@ -20,9 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.InstantType;
-import org.hl7.fhir.dstu3.model.Practitioner;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.InstantType;
+import ca.uhn.fhir.model.primitive.InstantDt;
+//import org.hl7.fhir.dstu3.model.Practitioner;
+import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -120,7 +123,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
 	}
 	
 	@Delete()
-	public void deletePractitioner(@IdParam IdType theId) {
+	public void deletePractitioner(@IdParam IdDt theId) {
 		if (getMyMapper().removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -214,7 +217,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
 	 *         exists.
 	 */
 	@Read()
-	public Practitioner readPractitioner(@IdParam IdType theId) {
+	public Practitioner readPractitioner(@IdParam IdDt theId) {
 		Practitioner retval = (Practitioner) myMapper.toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -234,7 +237,7 @@ public class PractitionerResourceProvider implements IResourceProvider {
 	 * @return This method returns a "MethodOutcome"
 	 */
 	@Update()
-	public MethodOutcome updatePractitioner(@IdParam IdType theId, @ResourceParam Practitioner thePractitioner) {
+	public MethodOutcome updatePractitioner(@IdParam IdDt theId, @ResourceParam Practitioner thePractitioner) {
 		validateResource(thePractitioner);
 
 		Long fhirId=null;

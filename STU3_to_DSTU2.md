@@ -9,8 +9,7 @@
 `import org.hl7.fhir.dstu3.model.CodeableConcept; becomes import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;`
 `import org.hl7.fhir.exceptions.FHIRException; becomes import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;`
 `import org.hl7.fhir.dstu3.model.codesystems.AdministrativeGender; becomes import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;`
-`import org.hl7.fhir.dstu3.model.Reference becomes import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt
-;`
+`import org.hl7.fhir.dstu3.model.Reference becomes import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;`
 `import org.hl7.fhir.dstu3.model.Resource; becomes import ca.uhn.fhir.model.dstu2.resource.BaseResource;`
 `import org.hl7.fhir.dstu3.model.DateTimeType; becomes import ca.uhn.fhir.model.primitive.DateTimeDt;`
 `import org.hl7.fhir.dstu3.model.Type; becomes import ca.uhn.fhir.model.api.IDatatype;`
@@ -35,6 +34,8 @@
 `import org.hl7.fhir.dstu3.model.Observation; becomes import ca.uhn.fhir.model.dstu2.resource.Observation;`
 `import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;`
 `import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryResponse;`
+`import org.hl7.fhir.dstu3.model.Bundle.BundleType; becomes import ca.uhn.fhir.model.dstu2.valueset.BundleTypeEnum;`
+`import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryRequest;`
 `import org.hl7.fhir.dstu3.model.Bundle; becomes import ca.uhn.fhir.model.dstu2.resource.Bundle;`
 `import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb; becomes import ca.uhn.fhir.model.dstu2.valueset.HTTPVerbEnum;`
 `import org.hl7.fhir.dstu3.model.StringType; becomes import ca.uhn.fhir.model.primitive.StringDt;`
@@ -76,6 +77,11 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity; becomes import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;`
 `import org.hl7.fhir.dstu3.model.InstantType; becomes import ca.uhn.fhir.model.primitive.InstantDt;`
 `import org.hl7.fhir.dstu3.model.DateType; becomes import ca.uhn.fhir.model.primitive.DateDt;`
+`import org.hl7.fhir.dstu3.model.Composition; becomes import ca.uhn.fhir.model.dstu2.resource.Composition;`
+`import org.hl7.fhir.dstu3.model.MessageHeader; becomes import ca.uhn.fhir.model.dstu2.resource.MessageHeader;`
+`import org.hl7.fhir.dstu3.model.Enumerations.MessageEvent; becomes import ca.uhn.fhir.model.dstu2.valueset.MessageEventEnum;`
+`import org.hl7.fhir.dstu3.model.MessageHeader.ResponseType; becomes import ca.uhn.fhir.model.dstu2.valueset.ResponseTypeEnum;`
+`import org.hl7.fhir.dstu3.model.MessageHeader.MessageHeaderResponseComponent; becomes import ca.uhn.fhir.model.dstu2.resource.MessageHeader.Response;`
 
 `IdType becomes IdDt`
 `CodeableConcept becomes CodeableConceptDt`
@@ -92,8 +98,11 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `AddressUse becomes AddressUseEnum`
 `BundleEntryComponent becomes Entry`
 `BundleEntryResponseComponent becomes EntryResponse`
+`BundleEntryRequestComponent becomes EntryRequest`
 `ResourceType.Patient becomes ResourceTypeEnum.PATIENT`
 `ResourceType.Observation becomes ResourceTypeEnum.OBSERVATION`
+`ResourceType.Composition becomes ResourceTypeEnum.COMPOSITION`
+`ResourceType.MessageHeader becomes ResourceTypeEnum.MESSAGEHEADER`
 `PatientLinkComponent becomes Link`
 `HumanName becomes HumanNameDt`
 `ContactPoint becomes ContactPointDt`
@@ -115,6 +124,12 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `MedicationRequest becomes MedicationOrder`
 `InstantType becomes InstantDt`
 `DateType becomes DateDt`
+`UriType becomes UriDt`
+`HTTPVerb becomes HTTPVerbEnum`
+`BundleType.TRANSACTIONRESPONSE becomes BundleTypeEnum.TRANSACTION_RESPONSE`
+`MessageEvent.OBSERVATIONPROVIDE becomes MessageEventEnum.OBSERVATION_PROVIDE`
+`ResponseType becomes ResponseTypeEnum`
+`MessageHeaderResponseComponent becomes Response`
 
 ```
 getAuthorFirstRep method doesn't exist, but you can impplement it via the following (by example)

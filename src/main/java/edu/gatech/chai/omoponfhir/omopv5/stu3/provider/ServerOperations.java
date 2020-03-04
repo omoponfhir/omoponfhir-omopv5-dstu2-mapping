@@ -19,21 +19,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.hl7.fhir.dstu3.model.BooleanType;
-import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.Enumerations.MessageEvent;
-import org.hl7.fhir.dstu3.model.MessageHeader;
-import org.hl7.fhir.dstu3.model.OperationOutcome;
-import org.hl7.fhir.dstu3.model.MessageHeader.MessageHeaderResponseComponent;
-import org.hl7.fhir.dstu3.model.MessageHeader.ResponseType;
-import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
-import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.dstu3.model.Bundle.BundleType;
-import org.hl7.fhir.dstu3.model.Resource;
-import org.hl7.fhir.dstu3.model.ResourceType;
-import org.hl7.fhir.dstu3.model.UriType;
+//import org.hl7.fhir.dstu3.model.BooleanType;
+import ca.uhn.fhir.model.primitive.BooleanDt;
+//import org.hl7.fhir.dstu3.model.Bundle;
+import ca.uhn.fhir.model.dstu2.resource.Bundle;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.Coding;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+//import org.hl7.fhir.dstu3.model.Enumerations.MessageEvent;
+import ca.uhn.fhir.model.dstu2.valueset.MessageEventEnum;
+//import org.hl7.fhir.dstu3.model.MessageHeader;
+import ca.uhn.fhir.model.dstu2.resource.MessageHeader;
+//import org.hl7.fhir.dstu3.model.OperationOutcome;
+import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
+//import org.hl7.fhir.dstu3.model.MessageHeader.MessageHeaderResponseComponent;
+import ca.uhn.fhir.model.dstu2.resource.MessageHeader.Response;
+//import org.hl7.fhir.dstu3.model.MessageHeader.ResponseType;
+import ca.uhn.fhir.model.dstu2.valueset.ResponseTypeEnum;
+//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
+//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
+import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
+//import org.hl7.fhir.dstu3.model.Bundle.BundleType;
+import ca.uhn.fhir.model.dstu2.valueset.BundleTypeEnum;
+//import org.hl7.fhir.dstu3.model.Resource;
+import ca.uhn.fhir.model.dstu2.resource.BaseResource;
+//import org.hl7.fhir.dstu3.model.ResourceType;
+import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;
+//import org.hl7.fhir.dstu3.model.UriType;
+import ca.uhn.fhir.model.primitive.UriDt;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 
@@ -53,30 +68,32 @@ public class ServerOperations {
 	@Operation(name="$process-message")
 	public Bundle processMessageOperation(
 			@OperationParam(name="content") Bundle theContent,
-			@OperationParam(name="async") BooleanType theAsync,
-			@OperationParam(name="response-url") UriType theUri			
+			@OperationParam(name="async") BooleanDt theAsync,
+			@OperationParam(name="response-url") UriDt theUri
 			) {
 		Bundle retVal = new Bundle();
 		MessageHeader messageHeader = null;
-		List<Resource> resources = new ArrayList<Resource>();
+		List<BaseResource> resources = new ArrayList<BaseResource>();
 		
-		if (theContent.getType() == BundleType.MESSAGE) {
-			List<BundleEntryComponent> entries = theContent.getEntry();
+		if (theContent.getType() == BundleTypeEnum.MESSAGE.toString()) {
+			List<Entry> entries = theContent.getEntry();
 			// Evaluate the first entry, which must be MessageHeader
 //			BundleEntryComponent entry1 = theContent.getEntryFirstRep();
 //			Resource resource = entry1.getResource();
 			if (entries != null && entries.size() > 0 && 
 					entries.get(0).getResource() != null &&
-					entries.get(0).getResource().getResourceType() == ResourceType.MessageHeader) {
+//					entries.get(0).getResource().getResourceType() == ResourceTypeEnum.MESSAGEHEADER) {
+					entries.get(0).getResource().getResourceName() == ResourceTypeEnum.MESSAGEHEADER.toString()) {
 				messageHeader = (MessageHeader) entries.get(0).getResource();
 				// We handle observation-type.
 				// TODO: Add other types later.
-				Coding event = messageHeader.getEvent();
-				Coding obsprovided = new Coding(MessageEvent.OBSERVATIONPROVIDE.getSystem(), MessageEvent.OBSERVATIONPROVIDE.toCode(), MessageEvent.OBSERVATIONPROVIDE.getDefinition());
+				CodingDt event = messageHeader.getEvent();
+				CodingDt obsprovided = new CodingDt(MessageEventEnum.OBSERVATION_PROVIDE.getSystem(), MessageEventEnum.OBSERVATION_PROVIDE.getCode());
+				obsprovided.setDisplay("Provide a simple observation or update a previously provided simple observation.");
 				if (CodeableConceptUtil.compareCodings(event, obsprovided) == 0) {
 					// This is lab report. they are all to be added to the server.
 					for (int i=1; i<entries.size(); i++) {
-						resources.add(entries.get(i).getResource());
+						resources.add((BaseResource) entries.get(i).getResource());
 					}
 				} else {
 					ThrowFHIRExceptions.unprocessableEntityException(
@@ -87,30 +104,31 @@ public class ServerOperations {
 			ThrowFHIRExceptions.unprocessableEntityException(
 					"The bundle must be a MESSAGE type");
 		}
-		MessageHeaderResponseComponent messageHeaderResponse = new MessageHeaderResponseComponent();
+		Response messageHeaderResponse = new Response();
 		messageHeaderResponse.setId(messageHeader.getId());
 
-		List<BundleEntryComponent> resultEntries = null;
+		List<Entry> resultEntries = null;
 		try {
 			resultEntries = myMapper.createEntries(resources);
-			messageHeaderResponse.setCode(ResponseType.OK);
+			messageHeaderResponse.setCode(ResponseTypeEnum.OK);
 		} catch (FHIRException e) {
 			e.printStackTrace();
-			messageHeaderResponse.setCode(ResponseType.OK);
+			messageHeaderResponse.setCode(ResponseTypeEnum.OK);
 			OperationOutcome outcome = new OperationOutcome();
-			CodeableConcept detailCode = new CodeableConcept();
+			CodeableConceptDt detailCode = new CodeableConceptDt();
 			detailCode.setText(e.getMessage());
-			outcome.addIssue().setSeverity(IssueSeverity.ERROR).setDetails(detailCode);
-			messageHeaderResponse.setDetailsTarget(outcome);
+			outcome.addIssue().setSeverity(IssueSeverityEnum.ERROR).setDetails(detailCode);
+//			messageHeaderResponse.setDetailsTarget(outcome);
+//	We don't have this in DSTU2
 		}
 		
 		messageHeader.setResponse(messageHeaderResponse);
-		BundleEntryComponent responseMessageEntry = new BundleEntryComponent();
+		Entry responseMessageEntry = new Entry();
 		UUID uuid = UUID.randomUUID();
 		responseMessageEntry.setFullUrl("urn:uuid:"+uuid.toString());
 		responseMessageEntry.setResource(messageHeader);
 		
-		if (resultEntries == null) resultEntries = new ArrayList<BundleEntryComponent>();
+		if (resultEntries == null) resultEntries = new ArrayList<Entry>();
 		
 		resultEntries.add(0, responseMessageEntry);
 		retVal.setEntry(resultEntries);

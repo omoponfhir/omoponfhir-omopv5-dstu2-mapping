@@ -103,6 +103,7 @@ import ca.uhn.fhir.model.dstu2.composite.DurationDt;`
 `ResourceType.Observation becomes ResourceTypeEnum.OBSERVATION`
 `ResourceType.Composition becomes ResourceTypeEnum.COMPOSITION`
 `ResourceType.MessageHeader becomes ResourceTypeEnum.MESSAGEHEADER`
+`ResourceType.Device becomes ResourceTypeEnum.DEVICE`
 `PatientLinkComponent becomes Link`
 `HumanName becomes HumanNameDt`
 `ContactPoint becomes ContactPointDt`

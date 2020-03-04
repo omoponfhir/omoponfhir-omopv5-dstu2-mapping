@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 //import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 //import org.hl7.fhir.dstu3.model.DeviceUseStatement;
 import ca.uhn.fhir.model.dstu2.resource.DeviceUseStatement;
@@ -124,11 +125,11 @@ public class DeviceUseStatementResourceProvider implements IResourceProvider {
 		validateResource(theDeviceUseStatement);
 		
 		// We need to check if this resource has device resource embedded.
-		List<Resource> containeds = theDeviceUseStatement.getContained();
+		List<IResource> containeds = theDeviceUseStatement.getContained().getContainedResources();
 		boolean deviceFound = false;
-		for (Resource contained: containeds) {
-			ResourceType resourceType = contained.getResourceType();
-			if (resourceType == ResourceType.Device) {
+		for (IResource contained: containeds) {
+			String resourceType = contained.getResourceName();
+			if (resourceType == ResourceTypeEnum.DEVICE.toString()) {
 				deviceFound = true;
 				break;
 			}

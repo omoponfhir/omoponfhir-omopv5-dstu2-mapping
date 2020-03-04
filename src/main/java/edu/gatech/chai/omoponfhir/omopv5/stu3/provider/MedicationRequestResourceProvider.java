@@ -236,7 +236,7 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 				paramList.addAll(getMyMapper().mapParameter("Medication:"+Medication.SP_RES_ID, theMedication.getValue(), false));
 			}
 		}
-		
+
 //			SP Doesn't Exist in DSTU2
 //		if (theSubject != null) {
 //			if (theSubject.getResourceType().equals(PatientResourceProvider.getType())) {

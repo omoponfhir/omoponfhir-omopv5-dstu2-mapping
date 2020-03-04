@@ -19,13 +19,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Observation;
-import org.hl7.fhir.dstu3.model.OperationOutcome;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.IdType;
+import ca.uhn.fhir.model.primitive.IdDt;
+//import org.hl7.fhir.dstu3.model.Observation;
+import ca.uhn.fhir.model.dstu2.resource.Observation;
+//import org.hl7.fhir.dstu3.model.OperationOutcome;
+import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
+//import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+//import org.hl7.fhir.dstu3.model.Reference;
+import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
+//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 //import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -59,6 +66,8 @@ import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.mapping.OmopObservation;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.ThrowFHIRExceptions;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
+
+import javax.persistence.Id;
 
 public class ObservationResourceProvider implements IResourceProvider {
 
@@ -123,16 +132,16 @@ public class ObservationResourceProvider implements IResourceProvider {
 		
 		if (id == null) {
 			OperationOutcome outcome = new OperationOutcome();
-			CodeableConcept detailCode = new CodeableConcept();
+			CodeableConceptDt detailCode = new CodeableConceptDt();
 			detailCode.setText("Failed to create entity.");
-			outcome.addIssue().setSeverity(IssueSeverity.FATAL).setDetails(detailCode);
+			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
 			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
 		}
 		return new MethodOutcome(new IdDt(id));
 	}
 
 	@Delete()
-	public void deleteObservation(@IdParam IdType theId) {
+	public void deleteObservation(@IdParam IdDt theId) {
 		if (getMyMapper().removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -252,7 +261,7 @@ public class ObservationResourceProvider implements IResourceProvider {
 	 * @return Returns a resource matching this identifier, or null if none exists.
 	 */
 	@Read()
-	public Observation readObservation(@IdParam IdType theId) {
+	public Observation readObservation(@IdParam IdDt theId) {
 		Observation retval = (Observation) getMyMapper().toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
@@ -261,18 +270,18 @@ public class ObservationResourceProvider implements IResourceProvider {
 		return retval;
 	}
 
-	/**
-	 * The "@Update" annotation indicates that this method supports replacing an existing 
-	 * resource (by ID) with a new instance of that resource.
-	 * 
-	 * @param theId
-	 *            This is the ID of the patient to update
-	 * @param thePatient
-	 *            This is the actual resource to save
-	 * @return This method returns a "MethodOutcome"
-	 */
+//	/**
+//	 * The "@Update" annotation indicates that this method supports replacing an existing
+//	 * resource (by ID) with a new instance of that resource.
+//	 *
+//	 * @param theId
+//	 *            This is the ID of the patient to update
+//	 * @param thePatient
+//	 *            This is the actual resource to save
+//	 * @return This method returns a "MethodOutcome"
+//	 */
 	@Update()
-	public MethodOutcome updateObservation(@IdParam IdType theId, @ResourceParam Observation theObservation) {
+	public MethodOutcome updateObservation(@IdParam IdDt theId, @ResourceParam Observation theObservation) {
 		validateResource(theObservation);
 		
 		Long fhirId=null;
@@ -292,24 +301,24 @@ public class ObservationResourceProvider implements IResourceProvider {
 	// TODO: Add more validation code here.
 	private void validateResource(Observation theObservation) {
 		OperationOutcome outcome = new OperationOutcome();
-		CodeableConcept detailCode = new CodeableConcept();
+		CodeableConceptDt detailCode = new CodeableConceptDt();
 		if (theObservation.getCode().isEmpty()) {
 			detailCode.setText("No code is provided.");
-			outcome.addIssue().setSeverity(IssueSeverity.FATAL).setDetails(detailCode);
+			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
 			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
 		}
 		
-		Reference subjectReference = theObservation.getSubject();
+		ResourceReferenceDt subjectReference = theObservation.getSubject();
 		if (subjectReference == null || subjectReference.isEmpty()) {
 			detailCode.setText("Subject cannot be empty for OmopOnFHIR");
-			outcome.addIssue().setSeverity(IssueSeverity.FATAL).setDetails(detailCode);
+			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
 			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
 		}
 		
 		String subjectResource = subjectReference.getReferenceElement().getResourceType();
 		if (!subjectResource.contentEquals("Patient")) {
 			detailCode.setText("Subject ("+subjectResource+") must be Patient resource for OmopOnFHIR");
-			outcome.addIssue().setSeverity(IssueSeverity.FATAL).setDetails(detailCode);
+			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
 			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
 		}
 	}

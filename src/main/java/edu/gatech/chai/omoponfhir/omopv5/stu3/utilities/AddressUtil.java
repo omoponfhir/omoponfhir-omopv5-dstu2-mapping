@@ -19,7 +19,8 @@ import java.util.List;
 
 //import org.hl7.fhir.dstu3.model.Address;
 import ca.uhn.fhir.model.dstu2.composite.AddressDt;
-import org.hl7.fhir.dstu3.model.StringType;
+//import org.hl7.fhir.dstu3.model.StringType;
+import ca.uhn.fhir.model.primitive.StringDt;
 
 import edu.gatech.chai.omopv5.dba.service.LocationService;
 import edu.gatech.chai.omopv5.model.entity.Location;
@@ -36,7 +37,7 @@ public class AddressUtil {
 		if (address == null)
 			return null;
 
-		List<StringType> addressLines = address.getLine();
+		List<StringDt> addressLines = address.getLine();
 		String line1 = null;
 		String line2 = null;
 		if (addressLines.size() > 0) {

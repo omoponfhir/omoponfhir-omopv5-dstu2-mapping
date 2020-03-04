@@ -31,9 +31,8 @@ import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 //import org.hl7.fhir.dstu3.model.ContactPoint;
 import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
 //import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
-import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
+import ca.uhn.fhir.model.dstu2.valueset.*;
 //import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointUse;
-import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
 //import org.hl7.fhir.dstu3.model.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
 //import org.hl7.fhir.dstu3.model.HumanName;
@@ -54,12 +53,10 @@ import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 //import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 //import org.hl7.fhir.dstu3.model.Address.AddressUse;
-import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 //import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
-import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 //import org.hl7.fhir.dstu3.model.codesystems.V3MaritalStatus;
-import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 //import org.hl7.fhir.exceptions.FHIRException;
+import ca.uhn.fhir.model.primitive.StringDt;
 import edu.gatech.chai.omoponfhir.omopv5.stu3.utilities.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IIdType;
@@ -147,7 +144,8 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 				if (!patient.getCareProvider().isEmpty()) {
 					List<ResourceReferenceDt> generalPractitioners = patient.getCareProvider();
 					for (ResourceReferenceDt generalPractitioner : generalPractitioners) {
-						if (generalPractitioner.fhirType().equals(PractitionerResourceProvider.getType())) {
+//						if (generalPractitioner.fhirType().equals(PractitionerResourceProvider.getType())) {
+						if (generalPractitioner.getId().getResourceType().equals(PractitionerResourceProvider.getType())) {
 							// We map generalPractitioner to Provider, which is
 							// Practitioner.
 							IIdType generalPractitionerId = generalPractitioner.getReferenceElement();
@@ -183,7 +181,8 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 							ResourceReferenceDt patientLinkOther = patientLink.getOther();
 							IIdType patientLinkOtherId = patientLinkOther.getReferenceElement();
 							Patient linkedPatient;
-							if (.equals(PatientResourceProvider.getType())) {
+//							if (patientLinkOther.fhirType().equals(PatientResourceProvider.getType())) {
+							if (patientLinkOther.getId().getResourceType().equals(PatientResourceProvider.getType())) {
 								FPerson linkedPerson = getMyOmopService().findById(omopId);
 								linkedPatient = constructFHIR(patientLinkOtherId.getIdPartAsLong(), linkedPerson);
 							} else {
@@ -227,7 +226,8 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 					}
 					typeCoding.setCode(code);
 					typeCodeable.addCoding(typeCoding);
-					identifier.setType(typeCodeable);
+//					identifier.setType(typeCodeable);
+					identifier.setType(IdentifierTypeCodesEnum.forCode(typeCoding.getCode()));
 
 					for (int i = 2; i < personIdentifier.length; i++) {
 						value = value.concat(personIdentifier[i]);
@@ -316,7 +316,10 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		}
 
 		HumanNameDt humanName = new HumanNameDt();
-		humanName.setFamily(fPerson.getFamilyName()).addGiven(fPerson.getGivenName1());
+		List<StringDt> tempList= humanName.getFamily();
+		StringDt tempFamilyName = new StringDt(fPerson.getFamilyName());
+		tempList.add(tempFamilyName);
+		humanName.setFamily(tempList).addGiven(fPerson.getGivenName1());
 		patient.addName(humanName);
 		if (fPerson.getGivenName2() != null)
 			patient.getName().get(0).addGiven(fPerson.getGivenName2());
@@ -327,14 +330,29 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 			patient.setActive(true);
 
 		if (fPerson.getMaritalStatus() != null && !fPerson.getMaritalStatus().isEmpty()) {
-			CodeableConceptDt maritalStatusCode = new CodeableConceptDt();
+//			CodeableConceptDt maritalStatusCode = new CodeableConceptDt();
 			MaritalStatusCodesEnum maritalStatus;
 			try {
 				maritalStatus = MaritalStatusCodesEnum.forCode(fPerson.getMaritalStatus().toUpperCase());
-				CodingDt coding = new CodingDt(maritalStatus.getSystem(), maritalStatus.getCode(),
-						maritalStatus.getDisplay());
-				maritalStatusCode.addCoding(coding);
-				patient.setMaritalStatus(maritalStatusCode);
+//				String temp = maritalStatus.getCode();
+//				String tempDisplay="";
+//				switch (temp) {
+//					case "A": tempDisplay= "Annulled";
+//					case "D": tempDisplay= "Divorced";
+//					case "I": tempDisplay= "Interlocutory";
+//					case "L": tempDisplay= "Legally Separated";
+//					case "M": tempDisplay= "Married";
+//					case "P": tempDisplay= "Polygamous";
+//					case "S": tempDisplay= "Never Married";
+//					case "T": tempDisplay= "Domestic partner";
+//					case "U": tempDisplay= "unmarried";
+//					case "W": tempDisplay= "Widowed";
+//					default: tempDisplay= "?";
+//				}
+//				CodingDt coding = new CodingDt(maritalStatus.getSystem(), maritalStatus.getCode());
+//				coding.setDisplay(tempDisplay);
+//				maritalStatusCode.addCoding(coding);
+				patient.setMaritalStatus(maritalStatus);
 			} catch (FHIRException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -455,15 +473,15 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		return personSourceValue;
 	}
 
-	/**
-	 * OMOP on FHIR mapping - from FHIR to OMOP
-	 *
-	 * @param Patient resource.
-	 * @param IdDt  fhirId that you want to update
-	 *
-	 * @return Resource ID. Returns ID in Long. This is what needs to be used to
-	 *         refer this resource.
-	 */
+//	/**
+//	 * OMOP on FHIR mapping - from FHIR to OMOP
+//	 *
+//	 * @param Patient resource.
+//	 * @param IdDt  fhirId that you want to update
+//	 *
+//	 * @return Resource ID. Returns ID in Long. This is what needs to be used to
+//	 *         refer this resource.
+//	 */
 	@Override
 	public Long toDbase(USCorePatient patient, IdDt fhirId) throws FHIRException {
 		Long omopId = null, fhirIdLong = null;

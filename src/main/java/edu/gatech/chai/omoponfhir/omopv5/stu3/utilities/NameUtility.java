@@ -19,20 +19,21 @@ import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.hl7.fhir.dstu3.model.HumanName;
+//import org.hl7.fhir.dstu3.model.HumanName;
+import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;
 
 public class NameUtility {
 	private static final String stdNameTextFormat = "(\\w+), (\\w+)";
 	private static final Pattern stdNamePattern =  Pattern.compile(stdNameTextFormat);
 	private static final String stdNameFormat = "{0}, {1}";
-	public static HumanName nametoFHIRHumanName(String family, String given) {
-		HumanName retVal = new HumanName();
-		retVal.setFamily(family);
+	public static HumanNameDt nametoFHIRHumanName(String family, String given) {
+		HumanNameDt retVal = new HumanNameDt();
+		retVal.addFamily(family);
 		retVal.addGiven(given);
 		return retVal;
 	}
 	
-	public static HumanName nametoFHIRHumanName(String text) {
+	public static HumanNameDt nametoFHIRHumanName(String text) {
 		Matcher stdNameMatcher = stdNamePattern.matcher(text);
 		String family = null;
 		String given = null;

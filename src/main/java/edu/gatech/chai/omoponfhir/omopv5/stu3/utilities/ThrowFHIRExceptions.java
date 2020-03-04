@@ -15,9 +15,12 @@
  *******************************************************************************/
 package edu.gatech.chai.omoponfhir.omopv5.stu3.utilities;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.OperationOutcome;
-import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+//import org.hl7.fhir.dstu3.model.CodeableConcept;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+//import org.hl7.fhir.dstu3.model.OperationOutcome;
+import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
+//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
+import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.server.exceptions.InternalErrorException;
@@ -27,9 +30,9 @@ public class ThrowFHIRExceptions {
 
 	public static UnprocessableEntityException unprocessableEntityException(String message) {
 		OperationOutcome outcome = new OperationOutcome();
-		CodeableConcept detailCode = new CodeableConcept();
+		CodeableConceptDt detailCode = new CodeableConceptDt();
 		detailCode.setText(message);
-		outcome.addIssue().setSeverity(IssueSeverity.FATAL).setDetails(detailCode);
+		outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
 		throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
 	}
 	

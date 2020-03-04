@@ -18,21 +18,22 @@ package edu.gatech.chai.omoponfhir.omopv5.stu3.provider;
 import java.util.Date;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.InstantType;
+//import org.hl7.fhir.dstu3.model.InstantType;
+import ca.uhn.fhir.model.primitive.InstantDt;
 import org.hl7.fhir.instance.model.api.IPrimitiveType;
 
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 
 public abstract class OmopFhirBundleProvider implements IBundleProvider {
-	InstantType searchTime;
+	InstantDt searchTime;
 	List<ParameterWrapper> paramList;
 	Integer preferredPageSize;
 	Integer totalSize;
 	String orderParams = null;
 
 	public OmopFhirBundleProvider (List<ParameterWrapper> paramList) {
-		this.searchTime = InstantType.withCurrentTime();
+		this.searchTime = InstantDt.withCurrentTime();
 		this.paramList = paramList;
 	}
 	

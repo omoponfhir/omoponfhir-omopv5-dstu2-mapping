@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 //import org.hl7.fhir.dstu3.model.Annotation;
+import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 //import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
@@ -438,68 +439,68 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 
 				if (theCode.getModifier() != null &&
 						theCode.getModifier().compareTo(TokenParamModifier.IN) == 0) {
-					// code has URI for the valueset search.
-					TerminologyServiceClient terminologyService = TerminologyServiceClient.getInstance();
-					Map<String, List<ConceptSetComponent>> theIncExcl = terminologyService.getValueSetByUrl(code);
-
-					List<ConceptSetComponent> includes = theIncExcl.get("include");
-					List<String> values = new ArrayList<String>();
-					for (ConceptSetComponent include : includes) {
-						// We need to loop
-						ParameterWrapper myParamWrapper = new ParameterWrapper();
-						myParamWrapper.setParameterType("Code:In");
-						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabulary", "drugConcept.conceptCode"));
-						myParamWrapper.setOperators(Arrays.asList("=", "in"));
-
-						String valueSetSystem = include.getSystem();
-						try {
-							omopVocabulary = OmopCodeableConceptMapping.omopVocabularyforFhirUri(valueSetSystem);
-						} catch (FHIRException e) {
-							e.printStackTrace();
-						}
-						if ("None".equals(omopVocabulary)) {
-							ThrowFHIRExceptions.unprocessableEntityException("We don't understand the system, "+valueSetSystem+" in code:in valueset");
-						}
-						values.add(valueSetSystem);
-
-						List<ConceptReferenceComponent> concepts = include.getConcept();
-						for (ConceptReferenceComponent concept : concepts) {
-							String valueSetCode = concept.getCode();
-							values.add(valueSetCode);
-						}
-						myParamWrapper.setValues(values);
-						myParamWrapper.setUpperRelationship("or");
-						mapList.add(myParamWrapper);
-					}
-
-					List<ConceptSetComponent> excludes = theIncExcl.get("exclude");
-					for (ConceptSetComponent exclude : excludes) {
-						// We need to loop
-						ParameterWrapper myParamWrapper = new ParameterWrapper();
-						myParamWrapper.setParameterType("Code:In");
-						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabulary", "drugConcept.conceptCode"));
-						myParamWrapper.setOperators(Arrays.asList("=", "out"));
-
-						String valueSetSystem = exclude.getSystem();
-						try {
-							omopVocabulary = OmopCodeableConceptMapping.omopVocabularyforFhirUri(valueSetSystem);
-						} catch (FHIRException e) {
-							e.printStackTrace();
-						}
-						if ("None".equals(omopVocabulary)) {
-							ThrowFHIRExceptions.unprocessableEntityException("We don't understand the system, "+valueSetSystem+" in code:in valueset");
-						}
-						values.add(valueSetSystem);
-
-						List<ConceptReferenceComponent> concepts = exclude.getConcept();
-						for (ConceptReferenceComponent concept : concepts) {
-							String valueSetCode = concept.getCode();
-							values.add(valueSetCode);
-						}
-						myParamWrapper.setValues(values);
-						myParamWrapper.setUpperRelationship("and");
-						mapList.add(myParamWrapper);
-					}
+//					// code has URI for the valueset search.
+//					TerminologyServiceClient terminologyService = TerminologyServiceClient.getInstance();
+////					Map<String, List<ConceptSetComponent>> theIncExcl = terminologyService.getValueSetByUrl(code);
+//
+//					List<ConceptSetComponent> includes = theIncExcl.get("include");
+//					List<String> values = new ArrayList<String>();
+//					for (ConceptSetComponent include : includes) {
+//						// We need to loop
+//						ParameterWrapper myParamWrapper = new ParameterWrapper();
+//						myParamWrapper.setParameterType("Code:In");
+//						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabulary", "drugConcept.conceptCode"));
+//						myParamWrapper.setOperators(Arrays.asList("=", "in"));
+//
+//						String valueSetSystem = include.getSystem();
+//						try {
+//							omopVocabulary = OmopCodeableConceptMapping.omopVocabularyforFhirUri(valueSetSystem);
+//						} catch (FHIRException e) {
+//							e.printStackTrace();
+//						}
+//						if ("None".equals(omopVocabulary)) {
+//							ThrowFHIRExceptions.unprocessableEntityException("We don't understand the system, "+valueSetSystem+" in code:in valueset");
+//						}
+//						values.add(valueSetSystem);
+//
+//						List<ConceptReferenceComponent> concepts = include.getConcept();
+//						for (ConceptReferenceComponent concept : concepts) {
+//							String valueSetCode = concept.getCode();
+//							values.add(valueSetCode);
+//						}
+//						myParamWrapper.setValues(values);
+//						myParamWrapper.setUpperRelationship("or");
+//						mapList.add(myParamWrapper);
+//					}
+//
+//					List<ConceptSetComponent> excludes = theIncExcl.get("exclude");
+//					for (ConceptSetComponent exclude : excludes) {
+//						// We need to loop
+//						ParameterWrapper myParamWrapper = new ParameterWrapper();
+//						myParamWrapper.setParameterType("Code:In");
+//						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabulary", "drugConcept.conceptCode"));
+//						myParamWrapper.setOperators(Arrays.asList("=", "out"));
+//
+//						String valueSetSystem = exclude.getSystem();
+//						try {
+//							omopVocabulary = OmopCodeableConceptMapping.omopVocabularyforFhirUri(valueSetSystem);
+//						} catch (FHIRException e) {
+//							e.printStackTrace();
+//						}
+//						if ("None".equals(omopVocabulary)) {
+//							ThrowFHIRExceptions.unprocessableEntityException("We don't understand the system, "+valueSetSystem+" in code:in valueset");
+//						}
+//						values.add(valueSetSystem);
+//
+//						List<ConceptReferenceComponent> concepts = exclude.getConcept();
+//						for (ConceptReferenceComponent concept : concepts) {
+//							String valueSetCode = concept.getCode();
+//							values.add(valueSetCode);
+//						}
+//						myParamWrapper.setValues(values);
+//						myParamWrapper.setUpperRelationship("and");
+//						mapList.add(myParamWrapper);
+//					}
 				} else {
 					if (system != null && !system.isEmpty()) {
 						try {
@@ -528,23 +529,24 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 					mapList.add(paramWrapper);
 				}
 				break;
-			case MedicationStatement.SP_CONTEXT:
-				Long fhirEncounterId = ((ReferenceParam) value).getIdPartAsLong();
-				Long omopVisitOccurrenceId = IdMapping.getOMOPfromFHIR(fhirEncounterId,
-						EncounterResourceProvider.getType());
-				// String resourceName = ((ReferenceParam) value).getResourceType();
-
-				// We support Encounter so the resource type should be Encounter.
-				if (omopVisitOccurrenceId != null) {
-					paramWrapper.setParameterType("Long");
-					paramWrapper.setParameters(Arrays.asList("visitOccurrence.id"));
-					paramWrapper.setOperators(Arrays.asList("="));
-					paramWrapper.setValues(Arrays.asList(String.valueOf(omopVisitOccurrenceId)));
-					paramWrapper.setRelationship("or");
-					mapList.add(paramWrapper);
-				}
-				break;
-			case MedicationStatement.SP_EFFECTIVE:
+//			case MedicationStatement.SP_CONTEXT:
+//				Long fhirEncounterId = ((ReferenceParam) value).getIdPartAsLong();
+//				Long omopVisitOccurrenceId = IdMapping.getOMOPfromFHIR(fhirEncounterId,
+//						EncounterResourceProvider.getType());
+//				// String resourceName = ((ReferenceParam) value).getResourceType();
+//
+//				// We support Encounter so the resource type should be Encounter.
+//				if (omopVisitOccurrenceId != null) {
+//					paramWrapper.setParameterType("Long");
+//					paramWrapper.setParameters(Arrays.asList("visitOccurrence.id"));
+//					paramWrapper.setOperators(Arrays.asList("="));
+//					paramWrapper.setValues(Arrays.asList(String.valueOf(omopVisitOccurrenceId)));
+//					paramWrapper.setRelationship("or");
+//					mapList.add(paramWrapper);
+//				}
+//				break;
+//			case MedicationStatement.SP_EFFECTIVE:
+			case MedicationStatement.SP_EFFECTIVEDATE:
 				DateParam effectiveDateParam = ((DateParam) value);
 				ParamPrefixEnum apiOperator = effectiveDateParam.getPrefix();
 				String sqlOperator = null;
@@ -773,15 +775,17 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 			// We may have reference.
 			ResourceReferenceDt medicationReference;
 			try {
-				medicationReference = fhirResource.getMedicationReference();
+//				medicationReference = fhirResource.getMedicationReference();
+				medicationReference = (ResourceReferenceDt)fhirResource.getMedication();
 				if (medicationReference.isEmpty()) {
 					// This is an error. We require this.
 					throw new FHIRException("Medication[CodeableConcept or Reference] is missing");
 				} else {
 					String medicationReferenceId = medicationReference.getReferenceElement().getIdPart();
 					if (medicationReference.getReferenceElement().isLocal()) {
-						List<ResourceReferenceDt> contains = fhirResource.getContained();
-						for (ResourceReferenceDt resource : contains) {
+//						List<ResourceReferenceDt> contains = fhirResource.getContained();
+						List<IResource> contains = fhirResource.getContained().getContainedResources();
+						for (IResource resource : contains) {
 							if (!resource.isEmpty()
 									&& resource.getIdElement().getIdPart().equals(medicationReferenceId)) {
 
@@ -802,7 +806,11 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 
 		} else {
 			try {
-				medicationCodeableConcept = fhirResource.getMedicationCodeableConcept();
+//				medicationCodeableConcept = fhirResource.getMedicationCodeableConcept();
+				IDatatype temp = fhirResource.getMedication();
+				if(temp instanceof CodeableConceptDt){
+					medicationCodeableConcept=(CodeableConceptDt) temp;
+				}
 			} catch (FHIRException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

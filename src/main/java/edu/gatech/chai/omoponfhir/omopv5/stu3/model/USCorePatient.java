@@ -18,7 +18,7 @@ package edu.gatech.chai.omoponfhir.omopv5.stu3.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hl7.fhir.dstu3.model.BackboneElement;
+//import org.hl7.fhir.dstu3.model.BackboneElement;
 //import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 //import org.hl7.fhir.dstu3.model.Patient;
@@ -30,6 +30,7 @@ import ca.uhn.fhir.model.api.annotation.Description;
 import ca.uhn.fhir.model.api.annotation.Extension;
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import ca.uhn.fhir.util.ElementUtil;
+import org.hl7.fhir.instance.model.api.IBackboneElement;
 
 @ResourceDef(name = "Patient", profile = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
 public class USCorePatient extends Patient {
@@ -84,7 +85,7 @@ public class USCorePatient extends Patient {
 	 * extensions. It is referenced by the field myRace above.
 	 */
 	@Block
-	public static class Race extends BackboneElement {
+	public static class Race implements IBackboneElement {
 		/**
 		 * 
 		 */
@@ -104,6 +105,20 @@ public class USCorePatient extends Patient {
 			}
 			
 			return myCategory;
+		}
+
+		public boolean hasFormatComment(){
+			return false;
+		}
+
+		@Override
+		public List<String> getFormatCommentsPre() {
+			return null;
+		}
+
+		@Override
+		public List<String> getFormatCommentsPost() {
+			return null;
 		}
 
 		public void setCategory(List<CodingDt> myCategory) {
@@ -127,7 +142,7 @@ public class USCorePatient extends Patient {
 			return ElementUtil.isEmpty(myCategory);
 		}
 
-		@Override
+//		@Override
 		public Race copy() {
 			Race copy = new Race();
 			copy.myCategory = this.myCategory;
@@ -142,7 +157,7 @@ public class USCorePatient extends Patient {
 	 * extensions. It is referenced by the field myRace above.
 	 */
 	@Block
-	public static class Ethnicity extends BackboneElement {
+	public static class Ethnicity implements IBackboneElement {
 		/**
 		 * 
 		 */
@@ -186,6 +201,21 @@ public class USCorePatient extends Patient {
 		}
 
 		@Override
+		public boolean hasFormatComment() {
+			return false;
+		}
+
+		@Override
+		public List<String> getFormatCommentsPre() {
+			return null;
+		}
+
+		@Override
+		public List<String> getFormatCommentsPost() {
+			return null;
+		}
+
+//		@Override
 		public Ethnicity copy() {
 			Ethnicity copy = new Ethnicity();
 			copy.myCategory = this.myCategory;

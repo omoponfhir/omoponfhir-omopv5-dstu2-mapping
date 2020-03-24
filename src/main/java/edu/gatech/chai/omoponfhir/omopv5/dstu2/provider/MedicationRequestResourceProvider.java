@@ -86,7 +86,7 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 	}
 	
 	public static String getType() {
-		return "MedicationRequest";
+		return "MedicationOrder";
 	}
 
     public OmopMedicationRequest getMyMapper() {

@@ -67,6 +67,7 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationStatementResou
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
@@ -131,6 +132,8 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		conceptService = context.getBean(ConceptService.class);
 		providerService = context.getBean(ProviderService.class);
 		fPersonService = context.getBean(FPersonService.class);
+		
+		getSize();
 	}
 
 	public static OmopMedicationRequest getInstance() {
@@ -456,7 +459,11 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 	public Long getSize() {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
 		// call getSize with empty parameter list. The getSize will add filter parameter.
-		return getSize(paramList);
+		Long size = getSize(paramList);
+		
+		ExtensionUtil.addResourceCount(getMyFhirResourceType(), size);
+
+		return size;
 	}
 
 	@Override

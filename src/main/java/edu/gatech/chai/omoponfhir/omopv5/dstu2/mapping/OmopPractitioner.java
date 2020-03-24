@@ -77,6 +77,8 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 
 		careSiteService = context.getBean(CareSiteService.class);
 		locationService = context.getBean(LocationService.class);
+		
+		getSize();
 	}
 
 	public static OmopPractitioner getInstance() {

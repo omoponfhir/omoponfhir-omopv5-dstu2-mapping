@@ -37,6 +37,7 @@ import org.springframework.web.context.WebApplicationContext;
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
@@ -60,6 +61,7 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 	}
 	
 	private void initialize(WebApplicationContext context) {
+		getSize();
 	}
 
 	
@@ -186,7 +188,11 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 	@Override
 	public Long getSize() {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
-		return getSize(paramList);
+		Long size = getSize(paramList);
+		
+		ExtensionUtil.addResourceCount(getMyFhirResourceType(), size);
+		
+		return size;
 	}
 
 	@Override

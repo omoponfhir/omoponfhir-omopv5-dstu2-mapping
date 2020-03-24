@@ -107,6 +107,8 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		fPersonService = context.getBean(FPersonService.class);
 		providerService = context.getBean(ProviderService.class);
 		visitOccurrenceService = context.getBean(VisitOccurrenceService.class);
+		
+		getSize();
 	}
 
 	public static OmopDocumentReference getInstance() {

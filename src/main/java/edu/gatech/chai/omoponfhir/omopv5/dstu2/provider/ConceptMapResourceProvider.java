@@ -9,6 +9,7 @@ import java.util.List;
 import ca.uhn.fhir.model.primitive.BooleanDt;
 //import org.hl7.fhir.dstu3.model.CodeType;
 import ca.uhn.fhir.model.primitive.CodeDt;
+import ca.uhn.fhir.model.primitive.IdDt;
 //import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 //import org.hl7.fhir.dstu3.model.Coding;
@@ -21,6 +22,7 @@ import ca.uhn.fhir.model.dstu2.resource.Parameters;
 import ca.uhn.fhir.model.primitive.StringDt;
 //import org.hl7.fhir.dstu3.model.UriType;
 import ca.uhn.fhir.model.primitive.UriDt;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -35,8 +37,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.annotation.OperationParam;
+import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopConceptMap;
@@ -80,6 +84,11 @@ public class ConceptMapResourceProvider implements IResourceProvider {
 
 	public void setFhirContext(FhirContext fhirContext) {
 		this.fhirContext = fhirContext;
+	}
+
+	@Read()
+	public ConceptMap readConceptMap(@IdParam IdDt theId) {
+		return null;
 	}
 
 	/**

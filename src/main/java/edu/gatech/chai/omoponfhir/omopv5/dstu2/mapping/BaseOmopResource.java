@@ -39,6 +39,7 @@ import edu.gatech.chai.omoponfhir.local.dao.FhirOmopCodeMapImpl;
 import edu.gatech.chai.omoponfhir.local.dao.FhirOmopVocabularyMapImpl;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.IService;
@@ -99,7 +100,11 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 	}
 
 	public Long getSize() {
-		return myOmopService.getSize();
+		Long size = myOmopService.getSize();
+		
+		// update the counts map.
+		ExtensionUtil.addResourceCount(myFhirResourceType, size);
+		return size;
 	}
 
 	public Long getSize(List<ParameterWrapper> mapList) {

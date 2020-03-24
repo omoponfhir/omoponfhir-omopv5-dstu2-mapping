@@ -70,6 +70,7 @@ public class OmopDevice extends BaseOmopResource<Device, DeviceExposure, DeviceE
 	
 	private void initialize(WebApplicationContext context) {
 //		conceptService = context.getBean(ConceptService.class);
+		getSize();
 	}
 
 	public static OmopDevice getInstance() {

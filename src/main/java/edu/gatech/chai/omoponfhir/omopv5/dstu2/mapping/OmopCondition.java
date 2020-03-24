@@ -81,6 +81,8 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		providerService = context.getBean(ProviderService.class);
 		conceptService = context.getBean(ConceptService.class);
 		visitOccurrenceService = context.getBean(VisitOccurrenceService.class);
+		
+		getSize();
 	}
 
 	public static OmopCondition getInstance() {

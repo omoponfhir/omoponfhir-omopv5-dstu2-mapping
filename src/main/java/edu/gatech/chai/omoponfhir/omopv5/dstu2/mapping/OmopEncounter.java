@@ -109,47 +109,66 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 
 		if (visitOccurrence.getVisitConcept() != null) {
 			String visitString = visitOccurrence.getVisitConcept().getName().toLowerCase();
-			CodingDt coding = new CodingDt();
+//			CodingDt coding = new CodingDt();
+//			if (visitString.contains("inpatient")) {
+//				coding.setSystem(V3ActCode.IMP.getSystem());
+//				coding.setCode(V3ActCode.IMP.toCode());
+//				coding.setDisplay(V3ActCode.IMP.getDisplay());
+//			} else if (visitString.toLowerCase().contains("outpatient")) {
+//				coding.setSystem(V3ActCode.AMB.getSystem());
+//				coding.setCode(V3ActCode.AMB.toCode());
+//				coding.setDisplay(V3ActCode.AMB.getDisplay());
+//			} else if (visitString.toLowerCase().contains("ambulatory")
+//					|| visitString.toLowerCase().contains("office")) {
+//				coding.setSystem(V3ActCode.AMB.getSystem());
+//				coding.setCode(V3ActCode.AMB.toCode());
+//				coding.setDisplay(V3ActCode.AMB.getDisplay());
+//			} else if (visitString.toLowerCase().contains("home")) {
+//				coding.setSystem(V3ActCode.HH.getSystem());
+//				coding.setCode(V3ActCode.HH.toCode());
+//				coding.setDisplay(V3ActCode.HH.getDisplay());
+//			} else if (visitString.toLowerCase().contains("emergency")) {
+//				coding.setSystem(V3ActCode.EMER.getSystem());
+//				coding.setCode(V3ActCode.EMER.toCode());
+//				coding.setDisplay(V3ActCode.EMER.getDisplay());
+//			} else if (visitString.toLowerCase().contains("field")) {
+//				coding.setSystem(V3ActCode.FLD.getSystem());
+//				coding.setCode(V3ActCode.FLD.toCode());
+//				coding.setDisplay(V3ActCode.FLD.getDisplay());
+//			} else if (visitString.toLowerCase().contains("daytime")) {
+//				coding.setSystem(V3ActCode.SS.getSystem());
+//				coding.setCode(V3ActCode.SS.toCode());
+//				coding.setDisplay(V3ActCode.SS.getDisplay());
+//			} else if (visitString.toLowerCase().contains("virtual")) {
+//				coding.setSystem(V3ActCode.VR.getSystem());
+//				coding.setCode(V3ActCode.VR.toCode());
+//				coding.setDisplay(V3ActCode.VR.getDisplay());
+//			} else {
+//				coding = null;
+//			}
+			String encounterClassName = "OTHER";
 			if (visitString.contains("inpatient")) {
-				coding.setSystem(V3ActCode.IMP.getSystem());
-				coding.setCode(V3ActCode.IMP.toCode());
-				coding.setDisplay(V3ActCode.IMP.getDisplay());
+				encounterClassName = "INPATIENT";
 			} else if (visitString.toLowerCase().contains("outpatient")) {
-				coding.setSystem(V3ActCode.AMB.getSystem());
-				coding.setCode(V3ActCode.AMB.toCode());
-				coding.setDisplay(V3ActCode.AMB.getDisplay());
+				encounterClassName = "OUTPATIENT";
 			} else if (visitString.toLowerCase().contains("ambulatory")
 					|| visitString.toLowerCase().contains("office")) {
-				coding.setSystem(V3ActCode.AMB.getSystem());
-				coding.setCode(V3ActCode.AMB.toCode());
-				coding.setDisplay(V3ActCode.AMB.getDisplay());
+				encounterClassName = "AMBULATORY";
 			} else if (visitString.toLowerCase().contains("home")) {
-				coding.setSystem(V3ActCode.HH.getSystem());
-				coding.setCode(V3ActCode.HH.toCode());
-				coding.setDisplay(V3ActCode.HH.getDisplay());
+				encounterClassName = "HOME";
 			} else if (visitString.toLowerCase().contains("emergency")) {
-				coding.setSystem(V3ActCode.EMER.getSystem());
-				coding.setCode(V3ActCode.EMER.toCode());
-				coding.setDisplay(V3ActCode.EMER.getDisplay());
+				encounterClassName = "EMERGENCY";
 			} else if (visitString.toLowerCase().contains("field")) {
-				coding.setSystem(V3ActCode.FLD.getSystem());
-				coding.setCode(V3ActCode.FLD.toCode());
-				coding.setDisplay(V3ActCode.FLD.getDisplay());
+				encounterClassName = "FIELD";
 			} else if (visitString.toLowerCase().contains("daytime")) {
-				coding.setSystem(V3ActCode.SS.getSystem());
-				coding.setCode(V3ActCode.SS.toCode());
-				coding.setDisplay(V3ActCode.SS.getDisplay());
+				encounterClassName = "DAYTIME";
 			} else if (visitString.toLowerCase().contains("virtual")) {
-				coding.setSystem(V3ActCode.VR.getSystem());
-				coding.setCode(V3ActCode.VR.toCode());
-				coding.setDisplay(V3ActCode.VR.getDisplay());
-			} else {
-				coding = null;
+				encounterClassName = "VIRTUAL";
 			}
 
-			if (coding != null)
+			if (encounterClassName != null)
 //				encounter.setClass_(coding);
-				encounter.setClassElement(EncounterClassEnum.valueOf(coding.getCode()));
+				encounter.setClassElement(EncounterClassEnum.valueOf(encounterClassName));
 
 		}
 

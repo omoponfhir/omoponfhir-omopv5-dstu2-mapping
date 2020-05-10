@@ -134,7 +134,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		}
 		//Set gender
 		if (omopProvider.getGenderConcept() != null) {
-			String gName = omopProvider.getGenderConcept().getName().toLowerCase();
+			String gName = omopProvider.getGenderConcept().getConceptName().toLowerCase();
 			AdministrativeGenderEnum gender;
 			try {
 				gender = AdministrativeGenderEnum.forCode(gName);

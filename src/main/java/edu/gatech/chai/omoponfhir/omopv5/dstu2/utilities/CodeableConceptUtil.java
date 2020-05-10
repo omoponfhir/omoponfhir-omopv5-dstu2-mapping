@@ -33,23 +33,23 @@ import edu.gatech.chai.omopv5.model.entity.Concept;
 
 public class CodeableConceptUtil {
 	public static void addCodingFromOmopConcept(CodeableConceptDt codeableConcept, Concept concept) throws FHIRException {
-		String fhirUri = OmopCodeableConceptMapping.fhirUriforOmopVocabulary(concept.getVocabulary());
+		String fhirUri = OmopCodeableConceptMapping.fhirUriforOmopVocabulary(concept.getVocabularyId());
 
 		CodingDt coding = new CodingDt();
 		coding.setSystem(fhirUri);
 		coding.setCode(concept.getConceptCode());
-		coding.setDisplay(concept.getName());
+		coding.setDisplay(concept.getConceptName());
 		
 		codeableConcept.addCoding(coding);
 	}
 	
 	public static CodingDt getCodingFromOmopConcept(Concept concept, FhirOmopVocabularyMapImpl fhirOmopVocabularyMap) throws FHIRException {
-		String fhirUri = fhirOmopVocabularyMap.getFhirSystemNameFromOmopVocabulary(concept.getVocabulary());
+		String fhirUri = fhirOmopVocabularyMap.getFhirSystemNameFromOmopVocabulary(concept.getVocabularyId());
 
 		CodingDt coding = new CodingDt();
 		coding.setSystem(fhirUri);
 		coding.setCode(concept.getConceptCode());
-		coding.setDisplay(concept.getName());
+		coding.setDisplay(concept.getConceptName());
 
 		return coding;
 	}
@@ -116,10 +116,10 @@ public class CodeableConceptUtil {
 	 * @throws FHIRException if the {@link Concept} vocabulary cannot be mapped by the {@link OmopCodeableConceptMapping} fhirUriforOmopVocabularyi method.
      */
 	public static CodeableConceptDt createFromConcept(Concept concept) throws FHIRException{
-		String conceptVocab = concept.getVocabulary();
+		String conceptVocab = concept.getVocabularyId();
 		String conceptFhirUri = OmopCodeableConceptMapping.fhirUriforOmopVocabulary(conceptVocab);
 		String conceptCode = concept.getConceptCode();
-		String conceptName = concept.getName();
+		String conceptName = concept.getConceptName();
 
 		CodingDt conceptCoding = new CodingDt();
 		conceptCoding.setSystem(conceptFhirUri);

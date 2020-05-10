@@ -150,7 +150,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 
 		long start = System.currentTimeMillis();
 
-		String omopVocabulary = fObservationView.getObservationConcept().getVocabulary();
+		String omopVocabulary = fObservationView.getObservationConcept().getVocabularyId();
 		String systemUriString = fhirOmopVocabularyMap.getFhirSystemNameFromOmopVocabulary(omopVocabulary);
 		if ("None".equals(systemUriString)) {
 			// If we can't find FHIR Uri or system name, just use Omop Vocabulary Id.
@@ -178,13 +178,13 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		System.out.println("unit: at "+Long.toString(unitTS)+" duration: "+Long.toString(unitTS-vocabTS));
 
 		if (unitConcept != null && unitConcept.getId() != 0L) {
-			String omopUnitVocabularyId = unitConcept.getVocabulary();
+			String omopUnitVocabularyId = unitConcept.getVocabularyId();
 			unitSystemUri = fhirOmopVocabularyMap.getFhirSystemNameFromOmopVocabulary(omopUnitVocabularyId);
 			if ("None".equals(unitSystemUri)) {
 				unitSystemUri = omopUnitVocabularyId;
 			}
 
-			unitUnit = unitConcept.getName();
+			unitUnit = unitConcept.getConceptName();
 			unitCode = unitConcept.getConceptCode();
 		}
 
@@ -194,9 +194,9 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		String codeString = fObservationView.getObservationConcept().getConceptCode();
 		String displayString;
 		if (fObservationView.getObservationConcept().getId() == 0L) {
-			displayString = fObservationView.getSourceValue();
+			displayString = fObservationView.getObservationSourceValue();
 		} else {
-			displayString = fObservationView.getObservationConcept().getName();
+			displayString = fObservationView.getObservationConcept().getConceptName();
 		}
 
 		long codeStringTS = System.currentTimeMillis()-start;
@@ -221,7 +221,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			// First we add systolic component.
 			Component comp = new Component();
 			CodingDt coding = new CodingDt(systemUriString, fObservationView.getObservationConcept().getConceptCode());
-			coding.setDisplay(fObservationView.getObservationConcept().getName());
+			coding.setDisplay(fObservationView.getObservationConcept().getConceptName());
 			CodeableConceptDt componentCode = new CodeableConceptDt();
 			componentCode.addCoding(coding);
 			comp.setCode(componentCode);
@@ -248,11 +248,11 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			WebApplicationContext myAppCtx = ContextLoaderListener.getCurrentWebApplicationContext();
 			FObservationViewService myService = myAppCtx.getBean(FObservationViewService.class);
 			FObservationView diastolicDb = myService.findDiastolic(DIASTOLIC_CONCEPT_ID,
-					fObservationView.getFPerson().getId(), fObservationView.getDate(), fObservationView.getTime());
+					fObservationView.getFPerson().getId(), fObservationView.getObservationDate(), fObservationView.getObservationTime());
 			if (diastolicDb != null) {
 				comp = new Component();
 				coding = new CodingDt(systemUriString, diastolicDb.getObservationConcept().getConceptCode());
-				coding.setDisplay(diastolicDb.getObservationConcept().getName());
+				coding.setDisplay(diastolicDb.getObservationConcept().getConceptName());
 				componentCode = new CodeableConceptDt();
 				componentCode.addCoding(coding);
 				comp.setCode(componentCode);
@@ -262,12 +262,12 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 					// Unit is defined as a concept code in omop v4, then unit
 					// and code are the same in this case
 					if (diastolicDb.getUnitConcept() != null && diastolicDb.getUnitConcept().getId() != 0L) {
-						quantity.setUnit(diastolicDb.getUnitConcept().getName());
+						quantity.setUnit(diastolicDb.getUnitConcept().getConceptName());
 						quantity.setCode(diastolicDb.getUnitConcept().getConceptCode());
 						String unitSystem = fhirOmopVocabularyMap.getFhirSystemNameFromOmopVocabulary(
-								diastolicDb.getUnitConcept().getVocabulary());
+								diastolicDb.getUnitConcept().getVocabularyId());
 						if ("None".equals(unitSystem))
-							unitSystem = diastolicDb.getUnitConcept().getVocabulary();
+							unitSystem = diastolicDb.getUnitConcept().getVocabularyId();
 						quantity.setSystem(unitSystem);
 						comp.setValue(quantity);
 					} else {
@@ -275,12 +275,12 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 						if (diastolicUnitSource != null && !diastolicUnitSource.isEmpty()) {
 							Concept diastolicUnitConcept = CodeableConceptUtil.getOmopConceptWithOmopVacabIdAndCode(conceptService, OmopCodeableConceptMapping.UCUM.getOmopVocabulary(), unitSource);
 							if (diastolicUnitConcept != null && diastolicUnitConcept.getId() != 0L) {
-								quantity.setUnit(diastolicUnitConcept.getName());
+								quantity.setUnit(diastolicUnitConcept.getConceptName());
 								quantity.setCode(diastolicUnitConcept.getConceptCode());
 								String unitSystem = fhirOmopVocabularyMap.getFhirSystemNameFromOmopVocabulary(
-										diastolicUnitConcept.getVocabulary());
+										diastolicUnitConcept.getVocabularyId());
 								if ("None".equals(unitSystem))
-									unitSystem = diastolicUnitConcept.getVocabulary();
+									unitSystem = diastolicUnitConcept.getVocabularyId();
 								quantity.setSystem(unitSystem);
 							} else {
 								quantity.setUnit(diastolicUnitSource);
@@ -323,11 +323,11 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				// vocabulary is a required attribute for concept, then it's
 				// expected to not be null
 				String valueSystem = fhirOmopVocabularyMap.getFhirSystemNameFromOmopVocabulary(
-						fObservationView.getValueAsConcept().getVocabulary());
+						fObservationView.getValueAsConcept().getVocabularyId());
 				if ("None".equals(valueSystem))
-					valueSystem = fObservationView.getValueAsConcept().getVocabulary();
+					valueSystem = fObservationView.getValueAsConcept().getVocabularyId();
 				CodingDt coding = new CodingDt(valueSystem, fObservationView.getValueAsConcept().getConceptCode());
-				coding.setDisplay(fObservationView.getValueAsConcept().getName());
+				coding.setDisplay(fObservationView.getValueAsConcept().getConceptName());
 				CodeableConceptDt valueAsConcept = new CodeableConceptDt();
 				valueAsConcept.addCoding(coding);
 				observation.setValue(valueAsConcept);
@@ -364,7 +364,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 
 		observation.setStatus(ObservationStatusEnum.FINAL);
 
-		if (fObservationView.getDate() != null) {
+		if (fObservationView.getObservationDate() != null) {
 			Date myDate = createDateTime(fObservationView);
 			if (myDate != null) {
 				DateTimeDt appliesDate = new DateTimeDt(myDate);
@@ -392,8 +392,8 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		long visitTS = System.currentTimeMillis()-start;
 		System.out.println("visitTS: at "+Long.toString(visitTS)+" duration: "+Long.toString(visitTS-personTS));
 
-		if (fObservationView.getTypeConcept() != null) {
-			if (fObservationView.getTypeConcept().getId() == 44818701L) {
+		if (fObservationView.getObservationTypeConcept() != null) {
+			if (fObservationView.getObservationTypeConcept().getId() == 44818701L) {
 				// This is From physical examination.
 
 				CodeableConceptDt typeConcept = new CodeableConceptDt();
@@ -401,31 +401,31 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				typeCoding.setDisplay("");
 				typeConcept.addCoding(typeCoding);
 				observation.setCategory(typeConcept);
-			} else if (fObservationView.getTypeConcept().getId() == 44818702L
-					|| fObservationView.getTypeConcept().getId() == 44791245L) {
+			} else if (fObservationView.getObservationTypeConcept().getId() == 44818702L
+					|| fObservationView.getObservationTypeConcept().getId() == 44791245L) {
 				CodeableConceptDt typeConcept = new CodeableConceptDt();
 				// This is Lab result
 				CodingDt typeCoding = new CodingDt("http://hl7.org/fhir/observation-category", "laboratory");
 				typeCoding.setDisplay("");
 				typeConcept.addCoding(typeCoding);
 				observation.setCategory(typeConcept);
-			} else if (fObservationView.getTypeConcept().getId() == 45905771L) {
+			} else if (fObservationView.getObservationTypeConcept().getId() == 45905771L) {
 				CodeableConceptDt typeConcept = new CodeableConceptDt();
 				// This is Lab result
 				CodingDt typeCoding = new CodingDt("http://hl7.org/fhir/observation-category", "survey");
 				typeCoding.setDisplay("");
 				typeConcept.addCoding(typeCoding);
 				observation.setCategory(typeConcept);
-			} else if (fObservationView.getTypeConcept().getId() == 38000277L
-					|| fObservationView.getTypeConcept().getId() == 38000278L) {
+			} else if (fObservationView.getObservationTypeConcept().getId() == 38000277L
+					|| fObservationView.getObservationTypeConcept().getId() == 38000278L) {
 				CodeableConceptDt typeConcept = new CodeableConceptDt();
 				// This is Lab result
 				CodingDt typeCoding = new CodingDt("http://hl7.org/fhir/observation-category", "laboratory");
 				typeCoding.setDisplay("");
 				typeConcept.addCoding(typeCoding);
 				observation.setCategory(typeConcept);
-			} else if (fObservationView.getTypeConcept().getId() == 38000280L
-					|| fObservationView.getTypeConcept().getId() == 38000281L) {
+			} else if (fObservationView.getObservationTypeConcept().getId() == 38000280L
+					|| fObservationView.getObservationTypeConcept().getId() == 38000281L) {
 				CodeableConceptDt typeConcept = new CodeableConceptDt();
 				// This is Lab result
 				CodingDt typeCoding = new CodingDt("http://hl7.org/fhir/observation-category", "exam");
@@ -454,7 +454,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		System.out.println("providerTS: at "+Long.toString(providerTS)+" duration: "+Long.toString(providerTS-obsTypeTS));
 
 
-		String identifierString = fObservationView.getSourceValue();
+		String identifierString = fObservationView.getObservationSourceValue();
 		if (identifierString != null && !identifierString.isEmpty()) {
 			IdentifierDt identifier = new IdentifierDt();
 			identifier.setValue(identifierString);
@@ -606,7 +606,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				systolicMeasurement = new Measurement();
 
 				if (identifier_value != null && !identifier_value.isEmpty()) {
-					systolicMeasurement.setSourceValue(identifier_value.getValue());
+					systolicMeasurement.setMeasurementSourceValue(identifier_value.getValue());
 				}
 //				systolicMeasurement.setSourceValue(SYSTOLIC_LOINC_CODE);
 				systolicMeasurement.setFPerson(tPerson);
@@ -616,7 +616,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				diastolicMeasurement = new Measurement();
 
 				if (identifier_value != null) {
-					diastolicMeasurement.setSourceValue(identifier_value.getValue());
+					diastolicMeasurement.setMeasurementSourceValue(identifier_value.getValue());
 				}
 //				diastolicMeasurement.setSourceValue(DIASTOLIC_LOINC_CODE);
 				diastolicMeasurement.setFPerson(tPerson);
@@ -821,25 +821,25 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		if (fhirResource.getEffective() instanceof DateTimeDt) {
 			Date date = ((DateTimeDt) fhirResource.getEffective()).getValue();
 			if (systolicMeasurement != null) {
-				systolicMeasurement.setDate(date);
-				systolicMeasurement.setTime(timeFormat.format(date));
+				systolicMeasurement.setMeasurementDate(date);
+				systolicMeasurement.setMeasurementTime(timeFormat.format(date));
 			}
 			if (diastolicMeasurement != null) {
-				diastolicMeasurement.setDate(date);
-				diastolicMeasurement.setTime(timeFormat.format(date));
+				diastolicMeasurement.setMeasurementDate(date);
+				diastolicMeasurement.setMeasurementTime(timeFormat.format(date));
 			}
 		} else if (fhirResource.getEffective() instanceof PeriodDt) {
 			Date startDate = ((PeriodDt) fhirResource.getEffective()).getStart();
 			if (startDate != null) {
 				if (systolicMeasurement != null) {
-					systolicMeasurement.setDate(startDate);
-					systolicMeasurement.setTime(timeFormat.format(startDate));
+					systolicMeasurement.setMeasurementDate(startDate);
+					systolicMeasurement.setMeasurementTime(timeFormat.format(startDate));
 				}
 			}
 			if (startDate != null) {
 				if (diastolicMeasurement != null) {
-					diastolicMeasurement.setDate(startDate);
-					diastolicMeasurement.setTime(timeFormat.format(startDate));
+					diastolicMeasurement.setMeasurementDate(startDate);
+					diastolicMeasurement.setMeasurementTime(timeFormat.format(startDate));
 				}
 			}
 		}
@@ -904,7 +904,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 
 		// Long retvalSystolic = null, retvalDiastolic = null;
 		if (systolicMeasurement != null) {
-			systolicMeasurement.setType(typeConcept);
+			systolicMeasurement.setMeasurementTypeConcept(typeConcept);
 			retVal.add(systolicMeasurement);
 
 			// if (systolicMeasurement.getId() != null) {
@@ -916,7 +916,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			// }
 		}
 		if (diastolicMeasurement != null) {
-			diastolicMeasurement.setType(typeConcept);
+			diastolicMeasurement.setMeasurementTypeConcept(typeConcept);
 			retVal.add(diastolicMeasurement);
 
 			// if (diastolicMeasurement.getId() != null) {
@@ -1014,7 +1014,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 
 		IdentifierDt identifier = fhirResource.getIdentifierFirstRep();
 		if (identifier != null && !identifier.isEmpty()) {
-			measurement.setSourceValue(identifier.getValue());
+			measurement.setMeasurementSourceValue(identifier.getValue());
 		}
 
 		String idString = fhirResource.getSubject().getReferenceElement().getIdPart();
@@ -1121,7 +1121,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		}
 
 		if (concept != null)
-			measurement.setSourceValueConcept(concept);
+			measurement.setMeasurementSourceConcept(concept);
 
 		/* Set the value of the observation */
 		IDatatype valueType = fhirResource.getValue();
@@ -1263,13 +1263,13 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 		if (fhirResource.getEffective() instanceof DateTimeDt) {
 			Date date = ((DateTimeDt) fhirResource.getEffective()).getValue();
-			measurement.setDate(date);
-			measurement.setTime(timeFormat.format(date));
+			measurement.setMeasurementDate(date);
+			measurement.setMeasurementTime(timeFormat.format(date));
 		} else if (fhirResource.getEffective() instanceof PeriodDt) {
 			Date startDate = ((PeriodDt) fhirResource.getEffective()).getStart();
 			if (startDate != null) {
-				measurement.setDate(startDate);
-				measurement.setTime(timeFormat.format(startDate));
+				measurement.setMeasurementDate(startDate);
+				measurement.setMeasurementTime(timeFormat.format(startDate));
 			}
 		}
 		/* Set visit occurrence */
@@ -1329,7 +1329,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 
 		concept = new Concept();
 		concept.setId(typeConceptId);
-		measurement.setType(concept);
+		measurement.setMeasurementTypeConcept(concept);
 
 		retVal.add(measurement);
 
@@ -1358,7 +1358,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		IdentifierDt identifier = fhirResource.getIdentifierFirstRep();
 		if (identifier != null && !identifier.isEmpty()) {
 			// This will be overwritten if we fail to get code mapped to concept id.
-			observation.setSourceValue(identifier.getValue());
+			observation.setObservationSourceValue(identifier.getValue());
 		}
 
 		Long fhirSubjectId = fhirResource.getSubject().getReferenceElement().getIdPartAsLong();
@@ -1450,11 +1450,11 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		observation.setObservationConcept(concept);
 		// Set this in the source column
 		if (concept == null || concept.getIdAsLong() == 0L) {
-			observation.setSourceValue(valueSourceString);
+			observation.setObservationSourceValue(valueSourceString);
 		}
 
 		if (concept != null)
-			observation.setSourceConcept(concept);
+			observation.setObservationSourceConcept(concept);
 
 		/* Set the value of the observation */
 		IDatatype valueType = fhirResource.getValue();
@@ -1537,13 +1537,13 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 		if (fhirResource.getEffective() instanceof DateTimeDt) {
 			Date date = ((DateTimeDt) fhirResource.getEffective()).getValue();
-			observation.setDate(date);
-			observation.setTime(timeFormat.format(date));
+			observation.setObservationDate(date);
+			observation.setObservationDateTime(date);
 		} else if (fhirResource.getEffective() instanceof PeriodDt) {
 			Date startDate = ((PeriodDt) fhirResource.getEffective()).getStart();
 			if (startDate != null) {
-				observation.setDate(startDate);
-				observation.setTime(timeFormat.format(startDate));
+				observation.setObservationDate(startDate);
+				observation.setObservationDateTime(startDate);
 			}
 		}
 		/* Set visit occurrence */
@@ -1598,7 +1598,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 
 		concept = new Concept();
 		concept.setId(typeConceptId);
-		observation.setTypeConcept(concept);
+		observation.setObservationTypeConcept(concept);
 
 		return observation;
 	}
@@ -1638,8 +1638,8 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			}
 
 			for (Concept conceptForCode : conceptForCodes) {
-				String domain = conceptForCode.getDomain();
-				String systemName = conceptForCode.getVocabulary();
+				String domain = conceptForCode.getDomainId();
+				String systemName = conceptForCode.getVocabularyId();
 				try {
 //					List<Identifier> identifiers = fhirResource.getIdentifier();
 //					String identifier_value = null;
@@ -1851,7 +1851,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 						retvalDiastolic = retId;
 					}
 
-					date = m.getDate();
+					date = m.getMeasurementDate();
 					fPerson = m.getFPerson();
 				}
 			}
@@ -1871,7 +1871,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				retId = observationService.create(observation).getId();
 			}
 
-			date = observation.getDate();
+			date = observation.getObservationDate();
 			fPerson = observation.getFPerson();
 
 			domainConceptId = 27L;
@@ -1991,14 +1991,14 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 					int noteMonth = cal.get(Calendar.MONTH);
 					int noteDay = cal.get(Calendar.DAY_OF_MONTH);
 
-					cal.setTime(existingNote.getDate());
+					cal.setTime(existingNote.getNoteDate());
 					int exNoteYear = cal.get(Calendar.YEAR);
 					int exNoteMonth = cal.get(Calendar.MONTH);
 					int exNoteDay = cal.get(Calendar.DAY_OF_MONTH);
 
 					if (noteYear == exNoteYear && noteMonth == exNoteMonth && noteDay == exNoteDay
 							&& noteFPerson.getId() == existingNote.getFPerson().getId()
-							&& 44814645L == existingNote.getType().getId()) {
+							&& 44814645L == existingNote.getNoteTypeConcept().getId()) {
 
 						// check if we have this in the fact relationship table. If so,
 						// there is no further action required.
@@ -2015,10 +2015,10 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			}
 			if (found == false) {
 				Note methodNote = new Note();
-				methodNote.setDate(noteDate);
+				methodNote.setNoteDate(noteDate);
 				methodNote.setFPerson(noteFPerson);
 				methodNote.setNoteText(noteText);
-				methodNote.setType(new Concept(44814645L));
+				methodNote.setNoteTypeConcept(new Concept(44814645L));
 
 				note = noteService.create(methodNote);
 			} else {
@@ -2147,15 +2147,15 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 
 	private static Date createDateTime(FObservationView fObservationView) {
 		Date myDate = null;
-		if (fObservationView.getDate() != null) {
+		if (fObservationView.getObservationDate() != null) {
 			SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-			String dateString = fmt.format(fObservationView.getDate());
+			String dateString = fmt.format(fObservationView.getObservationDate());
 			fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			try {
-				if (fObservationView.getTime() != null && fObservationView.getTime().isEmpty() == false) {
-					myDate = fmt.parse(dateString + " " + fObservationView.getTime());
+				if (fObservationView.getObservationTime() != null && fObservationView.getObservationTime().isEmpty() == false) {
+					myDate = fmt.parse(dateString + " " + fObservationView.getObservationTime());
 				} else {
-					myDate = fObservationView.getDate();
+					myDate = fObservationView.getObservationDate();
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();

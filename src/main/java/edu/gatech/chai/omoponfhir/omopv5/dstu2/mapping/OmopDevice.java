@@ -94,13 +94,13 @@ public class OmopDevice extends BaseOmopResource<Device, DeviceExposure, DeviceE
 		Concept entityConcept = entity.getDeviceConcept();
 		String systemUri = new String();
 		try {
-			systemUri = OmopCodeableConceptMapping.fhirUriforOmopVocabulary(entityConcept.getVocabulary());
+			systemUri = OmopCodeableConceptMapping.fhirUriforOmopVocabulary(entityConcept.getVocabularyId());
 		} catch (FHIRException e) {
 			e.printStackTrace();
 		}
 		
 		String code = entityConcept.getConceptCode();
-		String dispaly = entityConcept.getName();
+		String dispaly = entityConcept.getConceptName();
 
 		CodingDt typeCoding = new CodingDt();
 		typeCoding.setSystem(systemUri);

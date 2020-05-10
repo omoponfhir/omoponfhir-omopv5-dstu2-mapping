@@ -94,7 +94,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		careSiteService = context.getBean(CareSiteService.class);
 		providerService = context.getBean(ProviderService.class);
 		conditionOccurrenceService = context.getBean(ConditionOccurrenceService.class);
-		
+
 		getSize();
 	}
 
@@ -108,7 +108,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		encounter.setId(new IdDt(fhirId));
 
 		if (visitOccurrence.getVisitConcept() != null) {
-			String visitString = visitOccurrence.getVisitConcept().getName().toLowerCase();
+			String visitString = visitOccurrence.getVisitConcept().getConceptName().toLowerCase();
 //			CodingDt coding = new CodingDt();
 //			if (visitString.contains("inpatient")) {
 //				coding.setSystem(V3ActCode.IMP.getSystem());
@@ -184,48 +184,69 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		PeriodDt visitPeriod = new PeriodDt();
 		DateFormat dateOnlyFormat = new SimpleDateFormat("yyyy/MM/dd");
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
-		try {
-			// For start Date
-			String timeString = "00:00:00";
-			if (visitOccurrence.getStartTime() != null && !visitOccurrence.getStartTime().isEmpty()) {
-				timeString = visitOccurrence.getStartTime();
+//		try {
+		// For start Date
+//			String timeString = "00:00:00";
+//			if (visitOccurrence.getStartTime() != null && !visitOccurrence.getStartTime().isEmpty()) {
+//				timeString = visitOccurrence.getStartTime();
+//			}
+		Date visitStartDate = visitOccurrence.getVisitStartDate();
+		Date visitStartDateTime = visitOccurrence.getVisitStartDateTime();
+		DateTimeDt tempDate = null;
+		if (visitStartDate != null) {
+			if (visitStartDateTime != null) {
+				tempDate = new DateTimeDt(visitStartDateTime);
+			} else {
+				tempDate = new DateTimeDt(visitStartDate);
 			}
-			String dateTimeString = dateOnlyFormat.format(visitOccurrence.getStartDate()) + " " + timeString;
-			Date DateTime = dateFormat.parse(dateTimeString);
-			DateTimeDt tempDate = new DateTimeDt(DateTime);
-//			visitPeriod.setStart(DateTime);
-			visitPeriod.setStart(tempDate);
-
-			// For end Date
-			timeString = "00:00:00";
-			if (visitOccurrence.getEndTime() != null && !visitOccurrence.getEndTime().isEmpty()) {
-				timeString = visitOccurrence.getEndTime();
-			}
-			dateTimeString = dateOnlyFormat.format(visitOccurrence.getEndDate()) + " " + timeString;
-			DateTime = dateFormat.parse(dateTimeString);
-			DateTimeDt tempDate2 = new DateTimeDt(DateTime);
-//			visitPeriod.setEnd(DateTime);
-			visitPeriod.setEnd(tempDate2);
-
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+//			String dateTimeString = dateOnlyFormat.format(visitOccurrence.getStartDate()) + " " + timeString;
+//			Date DateTime = dateFormat.parse(dateTimeString);
+//			DateTimeDt tempDate = new DateTimeDt(DateTime);
+//			visitPeriod.setStart(DateTime);
+		visitPeriod.setStart(tempDate);
+
+		// For end Date
+		Date visitEndDate = visitOccurrence.getVisitStartDate();
+		Date visitEndDateTime = visitOccurrence.getVisitStartDateTime();
+		DateTimeDt tempDate2 = null;
+		if (visitEndDate != null) {
+			if (visitEndDateTime != null) {
+				tempDate2 = new DateTimeDt(visitEndDateTime);
+			} else {
+				tempDate2 = new DateTimeDt(visitEndDate);
+			}
+		}
+
+		// timeString = "00:00:00";
+//			if (visitOccurrence.getEndTime() != null && !visitOccurrence.getEndTime().isEmpty()) {
+//				timeString = visitOccurrence.getEndTime();
+//			}
+//			dateTimeString = dateOnlyFormat.format(visitOccurrence.getEndDate()) + " " + timeString;
+//			DateTime = dateFormat.parse(dateTimeString);
+//			DateTimeDt tempDate2 = new DateTimeDt(DateTime);
+//			visitPeriod.setEnd(DateTime);
+		visitPeriod.setEnd(tempDate2);
+
+//		} catch (ParseException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		encounter.setPeriod(visitPeriod);
 
 		if (visitOccurrence.getCareSite() != null) {
 			ResourceReferenceDt serviceProviderReference = new ResourceReferenceDt(
-				new IdDt(OrganizationResourceProvider.getType(),
-					IdMapping.getFHIRfromOMOP(visitOccurrence.getCareSite().getId(), OrganizationResourceProvider.getType())));
+					new IdDt(OrganizationResourceProvider.getType(), IdMapping.getFHIRfromOMOP(
+							visitOccurrence.getCareSite().getId(), OrganizationResourceProvider.getType())));
 			serviceProviderReference.setDisplay(visitOccurrence.getCareSite().getCareSiteName());
 			encounter.setServiceProvider(serviceProviderReference);
 		}
 
 		if (visitOccurrence.getProvider() != null) {
 			ResourceReferenceDt individualReference = new ResourceReferenceDt(
-				new IdDt(PractitionerResourceProvider.getType(),
-					IdMapping.getFHIRfromOMOP(visitOccurrence.getProvider().getId(), PractitionerResourceProvider.getType())));
+					new IdDt(PractitionerResourceProvider.getType(), IdMapping.getFHIRfromOMOP(
+							visitOccurrence.getProvider().getId(), PractitionerResourceProvider.getType())));
 			individualReference.setDisplay(visitOccurrence.getProvider().getProviderName());
 			Participant participate = new Participant();
 			participate.setIndividual(individualReference);
@@ -240,17 +261,19 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 //		param.setValues(Arrays.asList(String.valueOf(visitOccurrence.getId())));
 //		List<ParameterWrapper> params = Arrays.asList(param);
 //		List<ConditionOccurrence> conditions = conditionOccurrenceService.searchWithParams(0, 0, params, null);
-		List<ConditionOccurrence> conditions = conditionOccurrenceService.searchByColumnString("visitOccurrence.id", visitOccurrence.getId());
+		List<ConditionOccurrence> conditions = conditionOccurrenceService.searchByColumnString("visitOccurrence.id",
+				visitOccurrence.getId());
 		for (ConditionOccurrence condition : conditions) {
-			ResourceReferenceDt conditionReference = new ResourceReferenceDt(new IdDt(ConditionResourceProvider.getType(), condition.getId()));
+			ResourceReferenceDt conditionReference = new ResourceReferenceDt(
+					new IdDt(ConditionResourceProvider.getType(), condition.getId()));
 //			DiagnosisComponent diagnosisComponent = new DiagnosisComponent();
 //			diagnosisComponent.setCondition(conditionReference);
 //			encounter.addDiagnosis(diagnosisComponent);
-			List<ResourceReferenceDt> tempList=encounter.getIndication();
+			List<ResourceReferenceDt> tempList = encounter.getIndication();
 			tempList.add(conditionReference);
 			encounter.setIndication(tempList);
 		}
-		
+
 		return encounter;
 	}
 
@@ -276,8 +299,10 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 	public List<ParameterWrapper> mapParameter(String parameter, Object value, boolean or) {
 		List<ParameterWrapper> mapList = new ArrayList<ParameterWrapper>();
 		ParameterWrapper paramWrapper = new ParameterWrapper();
-        if (or) paramWrapper.setUpperRelationship("or");
-        else paramWrapper.setUpperRelationship("and");
+		if (or)
+			paramWrapper.setUpperRelationship("or");
+		else
+			paramWrapper.setUpperRelationship("and");
 
 		switch (parameter) {
 		case Encounter.SP_RES_ID:
@@ -290,13 +315,14 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 			mapList.add(paramWrapper);
 			break;
 //		case Encounter.SP_DIAGNOSIS:
-			// TODO: handle diagnosis. This is condition id. Add join capability to parameter wrapper.
+		// TODO: handle diagnosis. This is condition id. Add join capability to
+		// parameter wrapper.
 //			break;
 		case "Patient:" + Patient.SP_RES_ID:
-			addParamlistForPatientIDName(parameter, (String)value, paramWrapper, mapList);
+			addParamlistForPatientIDName(parameter, (String) value, paramWrapper, mapList);
 			break;
 		case "Patient:" + Patient.SP_NAME:
-			addParamlistForPatientIDName(parameter, (String)value, paramWrapper, mapList);
+			addParamlistForPatientIDName(parameter, (String) value, paramWrapper, mapList);
 			break;
 		default:
 			mapList = null;
@@ -310,12 +336,12 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 	public VisitOccurrence constructOmop(Long omopId, Encounter encounter) {
 		FPerson fPerson;
 		VisitOccurrence visitOccurrence = null;
-		
+
 		if (omopId != null) {
 			visitOccurrence = getMyOmopService().findById(omopId);
 		}
 		if (visitOccurrence == null) {
-			visitOccurrence = new VisitOccurrence();				
+			visitOccurrence = new VisitOccurrence();
 		}
 
 		ResourceReferenceDt patientReference = encounter.getPatient();
@@ -351,29 +377,29 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		}
 
 		/* Set Period */
-		SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss");
+//		SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss");
 		PeriodDt tempPeriod = encounter.getPeriod();
 		if (tempPeriod != null) {
 			Date tempDate = tempPeriod.getStart();
 			if (tempDate != null) {
-				visitOccurrence.setStartDate(tempDate);
-				visitOccurrence.setStartTime(fmt.format(tempDate));
+				visitOccurrence.setVisitStartDate(tempDate);
+				visitOccurrence.setVisitStartDateTime(tempDate);
 			} else {
-				visitOccurrence.setStartDate(new Date(0));
+				visitOccurrence.setVisitStartDate(new Date(0));
 			}
 
 			tempDate = tempPeriod.getEnd();
 			if (tempDate != null) {
-				visitOccurrence.setEndDate(tempDate);
-				visitOccurrence.setEndTime(fmt.format(tempDate));
+				visitOccurrence.setVisitEndDate(tempDate);
+				visitOccurrence.setVisitEndDateTime(tempDate);
 			} else {
-				visitOccurrence.setEndDate(new Date(0));
+				visitOccurrence.setVisitEndDate(new Date(0));
 			}
 		}
 
 		/*
-		 * Set Class - IP: Inpatient Visit - OP: Outpient Visit - ER: Emergency
-		 * Room Visit - LTCP: Long Term Care Visit -
+		 * Set Class - IP: Inpatient Visit - OP: Outpient Visit - ER: Emergency Room
+		 * Visit - LTCP: Long Term Care Visit -
 		 */
 //		CodingDt classCoding = encounter.getClass_();
 //		CodingDt classCoding = new CodingDt("http://hl7.org/fhir/v3/ActCode",encounter.getClassElement());
@@ -401,8 +427,10 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		if (participant != null && !participant.isEmpty()) {
 			ResourceReferenceDt individualRef = participant.getIndividual();
 			if (individualRef != null) {
-				if (individualRef.getReferenceElement().getResourceType().equals(PractitionerResourceProvider.getType())) {
-					Long providerId = IdMapping.getOMOPfromFHIR(individualRef.getReferenceElement().getIdPartAsLong(), PractitionerResourceProvider.getType());
+				if (individualRef.getReferenceElement().getResourceType()
+						.equals(PractitionerResourceProvider.getType())) {
+					Long providerId = IdMapping.getOMOPfromFHIR(individualRef.getReferenceElement().getIdPartAsLong(),
+							PractitionerResourceProvider.getType());
 					Provider provider = providerService.findById(providerId);
 					if (provider != null) {
 						visitOccurrence.setProvider(provider);
@@ -410,23 +438,25 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 				}
 			}
 		}
-		
+
 		// Set care site, which is organization in FHIR
 		ResourceReferenceDt serviceProvider = encounter.getServiceProvider();
 		if (serviceProvider != null && !serviceProvider.isEmpty()) {
 			// service provider is Organization in Omop on FHIR.
-			if (serviceProvider.getReferenceElement().getResourceType().equals(OrganizationResourceProvider.getType())) {
-				Long careSiteId = IdMapping.getOMOPfromFHIR(serviceProvider.getReferenceElement().getIdPartAsLong(), OrganizationResourceProvider.getType());
+			if (serviceProvider.getReferenceElement().getResourceType()
+					.equals(OrganizationResourceProvider.getType())) {
+				Long careSiteId = IdMapping.getOMOPfromFHIR(serviceProvider.getReferenceElement().getIdPartAsLong(),
+						OrganizationResourceProvider.getType());
 				CareSite careSite = careSiteService.findById(careSiteId);
 				if (careSite != null) {
 					visitOccurrence.setCareSite(careSite);
 				}
 			}
 		}
-		// NOTE: diagnosis.condition 
-		//       This contains what condition is pointing to this encounter. 
-		//       This is a link, which the conditionOccurrence should already have in OMOP.
-		//       So, we do not import this information here.
+		// NOTE: diagnosis.condition
+		// This contains what condition is pointing to this encounter.
+		// This is a link, which the conditionOccurrence should already have in OMOP.
+		// So, we do not import this information here.
 
 		// TODO: How do we handle Location Resource. This is different from
 		// Location table in OMOP v5.

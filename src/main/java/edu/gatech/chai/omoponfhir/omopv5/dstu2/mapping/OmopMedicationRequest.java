@@ -222,41 +222,45 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		}
 
 		// Dosage mapping
-		Double dose = entity.getEffectiveDrugDose();
+//		Double dose = entity.getEffectiveDrugDose();
+		Double dose = entity.getQuantity();
 		SimpleQuantityDt doseQuantity = new SimpleQuantityDt();
 		if (dose != null) {
 			doseQuantity.setValue(dose);
 		}
 
-		Concept unitConcept = entity.getDoseUnitConcept();
-		String unitUnit = null;
+//		Concept unitConcept = entity.getDoseUnitConcept();
+		String unitUnit = entity.getDoseUnitSourceValue();
 		String unitCode = null;
 		String unitSystem = null;
-		if (unitConcept != null) {
-			String omopUnitVocab = unitConcept.getVocabulary();
-			String omopUnitCode = unitConcept.getConceptCode();
-			String omopUnitName = unitConcept.getName();
+		if (unitUnit != null && !unitUnit.isEmpty()) {
+			// See if we can convert this unit to concept code.
+			List<Concept> unitConcepts = conceptService.searchByColumnString("concept_name", unitUnit);
+			if (unitConcepts.size() > 0) {
+				String omopUnitVocab = unitConcepts.get(0).getVocabularyId();
+				String omopUnitCode = unitConcepts.get(0).getConceptCode();
+				String omopUnitName = unitConcepts.get(0).getConceptName();
+				String fhirUnitUri;
+				try {
+					fhirUnitUri = OmopCodeableConceptMapping.fhirUriforOmopVocabulary(omopUnitVocab);
+					if ("None".equals(fhirUnitUri)) {
+//						fhirUnitUri = unitConcept.getVocabulary().getVocabularyReference();
+						fhirUnitUri = "NotAvailable";
+					}
 
-			String fhirUnitUri;
-			try {
-				fhirUnitUri = OmopCodeableConceptMapping.fhirUriforOmopVocabulary(omopUnitVocab);
-				if ("None".equals(fhirUnitUri)) {
-//					fhirUnitUri = unitConcept.getVocabulary().getVocabularyReference();
-					fhirUnitUri = "NotAvailable";
+					unitUnit = omopUnitName;
+					unitCode = omopUnitCode;
+					unitSystem = fhirUnitUri;
+				} catch (FHIRException e) {
+					e.printStackTrace();
 				}
-
-				unitUnit = omopUnitName;
-				unitCode = omopUnitCode;
-				unitSystem = fhirUnitUri;
-			} catch (FHIRException e) {
-				e.printStackTrace();
 			}
 		}
 
 		if (!doseQuantity.isEmpty()) {
-			doseQuantity.setUnit(unitUnit);
-			doseQuantity.setCode(unitCode);
-			doseQuantity.setSystem(unitSystem);
+			if (unitUnit != null && !unitUnit.isEmpty()) doseQuantity.setUnit(unitUnit);
+			if (unitCode != null && !unitCode.isEmpty()) doseQuantity.setCode(unitCode);
+			if (unitSystem != null && !unitSystem.isEmpty()) doseQuantity.setSystem(unitSystem);
 
 			DosageInstruction dosage = new DosageInstruction();
 			dosage.setDose(doseQuantity);
@@ -677,13 +681,16 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 				doseQty = (SimpleQuantityDt) dosageInstruction.getDose();
 				if (doseQty.isEmpty())
 					continue;
-				drugExposure.setEffectiveDrugDose(doseQty.getValue().doubleValue());
+				drugExposure.setQuantity(doseQty.getValue().doubleValue());
 				String doseCode = doseQty.getCode();
 				String doseSystem = doseQty.getSystem();
 				String vocabId = OmopCodeableConceptMapping.omopVocabularyforFhirUri(doseSystem);
 				Concept unitConcept = CodeableConceptUtil.getOmopConceptWithOmopVacabIdAndCode(conceptService, vocabId,
 						doseCode);
-				drugExposure.setDoseUnitConcept(unitConcept);
+				if (unitConcept != null && unitConcept.getId() != 0L)
+					drugExposure.setDoseUnitSourceValue(unitConcept.getConceptName());
+				else 
+					drugExposure.setDoseUnitSourceValue(doseQty.getCode());
 				break;
 			} catch (FHIRException e) {
 				// TODO Auto-generated catch block
@@ -709,7 +716,10 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 					vocabId = OmopCodeableConceptMapping.omopVocabularyforFhirUri(doseSystem);
 					Concept unitConcept = CodeableConceptUtil.getOmopConceptWithOmopVacabIdAndCode(conceptService,
 							vocabId, doseCode);
-					drugExposure.setDoseUnitConcept(unitConcept);
+					if (unitConcept != null && unitConcept.getId() != 0L)
+						drugExposure.setDoseUnitSourceValue(unitConcept.getConceptName());
+					else
+						drugExposure.setDoseUnitSourceValue(doseCode);
 				} catch (FHIRException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

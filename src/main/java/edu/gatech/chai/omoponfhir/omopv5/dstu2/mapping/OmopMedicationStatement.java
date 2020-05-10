@@ -302,31 +302,50 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 		}
 
 		// Get drug dose
-		Double effectiveDrugDose = entity.getEffectiveDrugDose();
-		Double omopQuantity = entity.getQuantity();
+//		Double effectiveDrugDose = entity.getEffectiveDrugDose();
+//		Double omopQuantity = entity.getQuantity();
+//		SimpleQuantityDt quantity = new SimpleQuantityDt();
+//		if (effectiveDrugDose != null) {
+//			quantity.setValue(effectiveDrugDose);
+//		} else if (omopQuantity != null) {
+//			quantity.setValue(omopQuantity);
+//		}
+		Double dose = entity.getQuantity();
 		SimpleQuantityDt quantity = new SimpleQuantityDt();
-		if (effectiveDrugDose != null) {
-			quantity.setValue(effectiveDrugDose);
-		} else if (omopQuantity != null) {
-			quantity.setValue(omopQuantity);
+		if (dose != null) {
+			quantity.setValue(dose);
 		}
-
-		Concept unitConcept = entity.getDoseUnitConcept();
-		if (unitConcept != null) {
-			try {
-				String unitFhirUri = OmopCodeableConceptMapping
-						.fhirUriforOmopVocabulary(unitConcept.getVocabulary());
-				if (!"None".equals(unitFhirUri)) {
-					String unitDisplay = unitConcept.getName();
+		
+//		Concept unitConcept = entity.getDoseUnitConcept();
+		String unitUnit = entity.getDoseUnitSourceValue();
+		Concept unitConcept;
+		if (unitUnit != null && !unitUnit.isEmpty()) {
+			// See if we can convert this unit to concept code.
+			List<Concept> unitConcepts = conceptService.searchByColumnString("concept_name", unitUnit);
+			if (unitConcepts.size() > 0) {
+				unitConcept = unitConcepts.get(0);
+				String omopUnitVocab = unitConcept.getVocabularyId();
+				String omopUnitCode = unitConcept.getConceptCode();
+				String omopUnitName = unitConcept.getConceptName();
+				String fhirUnitUri;
+				try {
+					fhirUnitUri = OmopCodeableConceptMapping.fhirUriforOmopVocabulary(omopUnitVocab);
+					if ("None".equals(fhirUnitUri)) {
+//						fhirUnitUri = unitConcept.getVocabulary().getVocabularyReference();
+						fhirUnitUri = "NotAvailable";
+					} 
+					String unitDisplay = unitConcept.getConceptName();
 					String unitCode = unitConcept.getConceptCode();
+
 					quantity.setUnit(unitDisplay);
-					quantity.setSystem(unitFhirUri);
+					quantity.setSystem(fhirUnitUri);
 					quantity.setCode(unitCode);
+					
+				} catch (FHIRException e) {
+					e.printStackTrace();
 				}
-			} catch (FHIRException e) {
-				// We have null vocabulary id in the unit concept.
-				// Throw error and move on.
-				e.printStackTrace();
+			} else {
+				quantity.setUnit(unitUnit);
 			}
 		}
 
@@ -340,13 +359,13 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 		if (routeConcept != null) {
 			try {
 				String myUri = OmopCodeableConceptMapping
-						.fhirUriforOmopVocabulary(routeConcept.getVocabulary());
+						.fhirUriforOmopVocabulary(routeConcept.getVocabularyId());
 				if (!"None".equals(myUri)) {
 					CodeableConceptDt routeCodeableConcept = new CodeableConceptDt();
 					CodingDt routeCoding = new CodingDt();
 					routeCoding.setSystem(myUri);
 					routeCoding.setCode(routeConcept.getConceptCode());
-					routeCoding.setDisplay(routeConcept.getName());
+					routeCoding.setDisplay(routeConcept.getConceptName());
 
 					routeCodeableConcept.addCoding(routeCoding);
 					dosage.setRoute(routeCodeableConcept);
@@ -749,7 +768,7 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 							rNTOmopConcept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService,
 									rNTCoding);
 							if (rNTOmopConcept != null) {
-								reasonsForStopped = reasonsForStopped.concat(" " + rNTOmopConcept.getName());
+								reasonsForStopped = reasonsForStopped.concat(" " + rNTOmopConcept.getConceptName());
 							}
 						} catch (FHIRException e) {
 							// TODO Auto-generated catch block
@@ -959,7 +978,7 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 						unitConcept = CodeableConceptUtil.getOmopConceptWithOmopVacabIdAndCode(conceptService,
 								omopVocabularyId, code);
 						if (unitConcept != null) {
-							drugExposure.setDoseUnitConcept(unitConcept);
+							drugExposure.setDoseUnitSourceValue(unitConcept.getConceptName());
 							break;
 						}
 					}

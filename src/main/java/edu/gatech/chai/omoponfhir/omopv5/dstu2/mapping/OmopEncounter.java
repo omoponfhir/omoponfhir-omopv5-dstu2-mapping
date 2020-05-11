@@ -340,7 +340,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 
 		// We are writing to the database. Keep the source so we know where it
 		// is coming from
-		if (encounter.getId() != null) {
+		if (encounter.getId() != null && !encounter.getId().isEmpty()) {
 			// See if we already have this in the source field. If so,
 			// then we want update not create
 			VisitOccurrence origVisit = getMyOmopService().findById(omopId);

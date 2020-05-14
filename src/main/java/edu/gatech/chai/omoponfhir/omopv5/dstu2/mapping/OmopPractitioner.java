@@ -380,7 +380,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		}
 
 		IdentifierDt identifier = practitioner.getIdentifierFirstRep();
-		if (identifier.getValue().isEmpty() == false) {
+		if (identifier.getValue() != null && !identifier.getValue().isEmpty()) {
 			providerSourceValue = identifier.getValue();
 			omopProvider.setProviderSourceValue(providerSourceValue);
 		}

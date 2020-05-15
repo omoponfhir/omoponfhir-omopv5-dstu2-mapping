@@ -1044,7 +1044,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		} else {
 //			genderCode = AdministrativeGenderEnum.NULL.toString();
 //			This might need to be null or "?" instead
-			genderCode = "UNKNOWN";
+			genderCode = "unknown";
 		}
 		try {
 			fperson.getGenderConcept().setId(OmopConceptMapping.omopForAdministrativeGenderCode(genderCode));

@@ -362,10 +362,12 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		omopProvider.setGenderConcept(new Concept());
 //		String genderCode = practitioner.getGender().toCode();
 		String genderCode = practitioner.getGender();
-		try {
-			omopProvider.getGenderConcept().setId(OmopConceptMapping.omopForAdministrativeGenderCode(genderCode));
-		} catch (FHIRException e) {
-			e.printStackTrace();
+		if(genderCode!=null) {
+			try {
+				omopProvider.getGenderConcept().setId(OmopConceptMapping.omopForAdministrativeGenderCode(genderCode));
+			} catch (FHIRException e) {
+				e.printStackTrace();
+			}
 		}
 
 		//Create a new caresite if does not exist

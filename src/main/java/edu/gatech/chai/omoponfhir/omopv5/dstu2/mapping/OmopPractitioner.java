@@ -346,7 +346,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 //			HumanNameDt next = practitionerIterator.next();
 //			omopProvider.setProviderName(next.getText());
 //		}
-		String tempName=practitioner.getName().getFamilyAsSingleString()+" , "+practitioner.getName().getGivenAsSingleString();
+		String tempName=practitioner.getName().getFamilyAsSingleString()+", "+practitioner.getName().getGivenAsSingleString();
 		omopProvider.setProviderName(tempName);
 		//Set address
 		List<AddressDt> addresses = practitioner.getAddress();

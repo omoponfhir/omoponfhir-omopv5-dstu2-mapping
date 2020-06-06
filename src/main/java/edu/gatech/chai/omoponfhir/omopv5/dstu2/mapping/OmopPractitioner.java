@@ -346,7 +346,8 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 //			HumanNameDt next = practitionerIterator.next();
 //			omopProvider.setProviderName(next.getText());
 //		}
-	omopProvider.setProviderName(practitioner.getName().getFamilyAsSingleString());
+		String tempName=practitioner.getName().getFamilyAsSingleString()+", "+practitioner.getName().getGivenAsSingleString();
+		omopProvider.setProviderName(tempName);
 		//Set address
 		List<AddressDt> addresses = practitioner.getAddress();
 		Location retLocation = null;
@@ -359,13 +360,16 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		}
 
 		//Set gender concept
-		omopProvider.setGenderConcept(new Concept());
+
 //		String genderCode = practitioner.getGender().toCode();
 		String genderCode = practitioner.getGender();
-		try {
-			omopProvider.getGenderConcept().setId(OmopConceptMapping.omopForAdministrativeGenderCode(genderCode));
-		} catch (FHIRException e) {
-			e.printStackTrace();
+		if(genderCode!=null) {
+			omopProvider.setGenderConcept(new Concept());
+			try {
+				omopProvider.getGenderConcept().setId(OmopConceptMapping.omopForAdministrativeGenderCode(genderCode));
+			} catch (FHIRException e) {
+				e.printStackTrace();
+			}
 		}
 
 		//Create a new caresite if does not exist
@@ -380,7 +384,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		}
 
 		IdentifierDt identifier = practitioner.getIdentifierFirstRep();
-		if (identifier.getValue().isEmpty() == false) {
+		if (identifier.getValue() != null && !identifier.getValue().isEmpty()) {
 			providerSourceValue = identifier.getValue();
 			omopProvider.setProviderSourceValue(providerSourceValue);
 		}

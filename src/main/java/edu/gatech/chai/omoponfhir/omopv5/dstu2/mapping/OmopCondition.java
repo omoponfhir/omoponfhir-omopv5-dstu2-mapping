@@ -417,7 +417,7 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 			typeCoding.setCode(code);
 			CodeableConceptDt typeCodeableConcept = new CodeableConceptDt();
 			typeCodeableConcept.addCoding(typeCoding);
-			condition.setCategory((BoundCodeableConceptDt<ConditionCategoryCodesEnum>) typeCodeableConcept);
+			condition.setCategory((ConditionCategoryCodesEnum.forCode(code)));
 //			if (typeCodeableConcept != null) {
 //				List<CodeableConcept> typeList = new ArrayList<CodeableConcept>();
 //				typeList.add(typeCodeableConcept);

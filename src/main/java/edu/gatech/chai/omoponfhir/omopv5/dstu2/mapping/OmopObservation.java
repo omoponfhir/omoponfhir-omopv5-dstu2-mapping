@@ -248,7 +248,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			WebApplicationContext myAppCtx = ContextLoaderListener.getCurrentWebApplicationContext();
 			FObservationViewService myService = myAppCtx.getBean(FObservationViewService.class);
 			FObservationView diastolicDb = myService.findDiastolic(DIASTOLIC_CONCEPT_ID,
-					fObservationView.getFPerson().getId(), fObservationView.getObservationDate(), fObservationView.getObservationTime());
+					fObservationView.getFPerson().getId(), fObservationView.getObservationDate(), fObservationView.getObservationDateTime());
 			if (diastolicDb != null) {
 				comp = new Component();
 				coding = new CodingDt(systemUriString, diastolicDb.getObservationConcept().getConceptCode());
@@ -365,11 +365,8 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		observation.setStatus(ObservationStatusEnum.FINAL);
 
 		if (fObservationView.getObservationDate() != null) {
-			Date myDate = createDateTime(fObservationView);
-			if (myDate != null) {
-				DateTimeDt appliesDate = new DateTimeDt(myDate);
-				observation.setEffective(appliesDate);
-			}
+			DateTimeDt appliesDate = new DateTimeDt(fObservationView.getObservationDate());
+			observation.setEffective(appliesDate);
 		}
 
 		long directFieldTS = System.currentTimeMillis()-start;
@@ -817,29 +814,29 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 //			}
 		}
 
-		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+//		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 		if (fhirResource.getEffective() instanceof DateTimeDt) {
 			Date date = ((DateTimeDt) fhirResource.getEffective()).getValue();
 			if (systolicMeasurement != null) {
 				systolicMeasurement.setMeasurementDate(date);
-				systolicMeasurement.setMeasurementTime(timeFormat.format(date));
+				systolicMeasurement.setMeasurementDateTime(date);
 			}
 			if (diastolicMeasurement != null) {
 				diastolicMeasurement.setMeasurementDate(date);
-				diastolicMeasurement.setMeasurementTime(timeFormat.format(date));
+				diastolicMeasurement.setMeasurementDateTime(date);
 			}
 		} else if (fhirResource.getEffective() instanceof PeriodDt) {
 			Date startDate = ((PeriodDt) fhirResource.getEffective()).getStart();
 			if (startDate != null) {
 				if (systolicMeasurement != null) {
 					systolicMeasurement.setMeasurementDate(startDate);
-					systolicMeasurement.setMeasurementTime(timeFormat.format(startDate));
+					systolicMeasurement.setMeasurementDateTime(startDate);
 				}
 			}
 			if (startDate != null) {
 				if (diastolicMeasurement != null) {
 					diastolicMeasurement.setMeasurementDate(startDate);
-					diastolicMeasurement.setMeasurementTime(timeFormat.format(startDate));
+					diastolicMeasurement.setMeasurementDateTime(startDate);
 				}
 			}
 		}
@@ -1260,16 +1257,16 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			}
 		}
 
-		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+//		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 		if (fhirResource.getEffective() instanceof DateTimeDt) {
 			Date date = ((DateTimeDt) fhirResource.getEffective()).getValue();
 			measurement.setMeasurementDate(date);
-			measurement.setMeasurementTime(timeFormat.format(date));
+			measurement.setMeasurementDateTime(date);
 		} else if (fhirResource.getEffective() instanceof PeriodDt) {
 			Date startDate = ((PeriodDt) fhirResource.getEffective()).getStart();
 			if (startDate != null) {
 				measurement.setMeasurementDate(startDate);
-				measurement.setMeasurementTime(timeFormat.format(startDate));
+				measurement.setMeasurementDateTime(startDate);
 			}
 		}
 		/* Set visit occurrence */
@@ -1534,7 +1531,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			observation.setValueAsConcept(concept);
 		}
 
-		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+//		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 		if (fhirResource.getEffective() instanceof DateTimeDt) {
 			Date date = ((DateTimeDt) fhirResource.getEffective()).getValue();
 			observation.setObservationDate(date);
@@ -2145,25 +2142,25 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		}
 	}
 
-	private static Date createDateTime(FObservationView fObservationView) {
-		Date myDate = null;
-		if (fObservationView.getObservationDate() != null) {
-			SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-			String dateString = fmt.format(fObservationView.getObservationDate());
-			fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			try {
-				if (fObservationView.getObservationTime() != null && fObservationView.getObservationTime().isEmpty() == false) {
-					myDate = fmt.parse(dateString + " " + fObservationView.getObservationTime());
-				} else {
-					myDate = fObservationView.getObservationDate();
-				}
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
-
-		return myDate;
-	}
+//	private static Date createDateTime(FObservationView fObservationView) {
+//		Date myDate = null;
+//		if (fObservationView.getObservationDate() != null) {
+//			SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+//			String dateString = fmt.format(fObservationView.getObservationDate());
+//			fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//			try {
+//				if (fObservationView.getObservationDateTime() != null) {
+//					myDate = fmt.parse(dateString + " " + fObservationView.getObservationTime());
+//				} else {
+//					myDate = fObservationView.getObservationDate();
+//				}
+//			} catch (ParseException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		return myDate;
+//	}
 
 	public List<ParameterWrapper> mapParameter(String parameter, Object value, boolean or) {
 		List<ParameterWrapper> mapList = new ArrayList<ParameterWrapper>();

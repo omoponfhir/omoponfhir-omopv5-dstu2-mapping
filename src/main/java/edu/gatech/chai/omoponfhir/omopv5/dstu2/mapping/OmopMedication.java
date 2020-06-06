@@ -179,7 +179,7 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 	
 	final ParameterWrapper filterParam = new ParameterWrapper(
 			"String",
-			Arrays.asList("domain"),
+			Arrays.asList("domainId"),
 			Arrays.asList("="),
 			Arrays.asList("Drug"),
 			"or"

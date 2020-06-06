@@ -68,7 +68,7 @@ import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
-import edu.gatech.chai.omopv5.dba.service.ProviderService;
+//import edu.gatech.chai.omopv5.dba.service.ProviderService;
 import edu.gatech.chai.omopv5.dba.service.VisitOccurrenceService;
 import edu.gatech.chai.omopv5.model.entity.Concept;
 import edu.gatech.chai.omopv5.model.entity.DrugExposure;
@@ -105,7 +105,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 	private static OmopMedicationRequest omopMedicationRequest = new OmopMedicationRequest();
 	private VisitOccurrenceService visitOccurrenceService;
 	private ConceptService conceptService;
-	private ProviderService providerService;
+//	private ProviderService providerService;
 	private FPersonService fPersonService;
 
 	public OmopMedicationRequest(WebApplicationContext context) {
@@ -122,7 +122,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 	private void initialize(WebApplicationContext context) {
 		visitOccurrenceService = context.getBean(VisitOccurrenceService.class);
 		conceptService = context.getBean(ConceptService.class);
-		providerService = context.getBean(ProviderService.class);
+//		providerService = context.getBean(ProviderService.class);
 		fPersonService = context.getBean(FPersonService.class);
 
 		getSize();
@@ -174,7 +174,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		String medType = System.getenv("MEDICATION_TYPE");
 		if (medType != null && !medType.isEmpty() && "local".equalsIgnoreCase(medType)) {
 			CodeableConceptDt medicationCodeableConcept;
-			CodeableConceptDt ingredientCodeableConcept;
+//			CodeableConceptDt ingredientCodeableConcept;
 			Medication medicationResource = new Medication();
 			try {
 				medicationCodeableConcept = CodeableConceptUtil
@@ -182,7 +182,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 				List<Concept> ingredients = conceptService.getIngredient(entity.getDrugConcept());
 				Medication.Product tempProduct = new Medication.Product();
 				for (Concept ingredient : ingredients) {
-					ingredientCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(ingredient);
+//					ingredientCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(ingredient);
 					ProductIngredient medIngredientComponent = new ProductIngredient();
 					String temp = ingredient.getId().toString();
 					ResourceReferenceDt tempReference = new ResourceReferenceDt("Medication/" + temp);
@@ -573,7 +573,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		CodeableConceptDt medicationCodeableConcept = null;
 		if (medicationType instanceof ResourceReferenceDt) {
 			// We may have reference.
-			ResourceReferenceDt medicationReference;
+//			ResourceReferenceDt medicationReference;
 			try {
 //				medicationReference = fhirResource.getMedicationReference();
 //				medicationReference = fhirResource.getMedication();

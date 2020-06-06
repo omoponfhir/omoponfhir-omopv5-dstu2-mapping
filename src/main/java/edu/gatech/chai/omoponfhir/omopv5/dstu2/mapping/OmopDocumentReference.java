@@ -325,7 +325,9 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 				typeOmopConcept = typeFhirConcept;
 			}
 			
-			note.setType(typeOmopConcept);
+			note.setNoteTypeConcept(typeOmopConcept);
+			
+			// 
 		} else {
 			ThrowFHIRExceptions.unprocessableEntityException("The type codeableconcept cannot be null");
 		}
@@ -353,10 +355,11 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		// get indexed.
 		Date indexedDate = fhirResource.getIndexed();
 		if (indexedDate != null) {
-			note.setDate(indexedDate);
+			note.setNoteDate(indexedDate);
 			
-			SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-			note.setTime(timeFormat.format(indexedDate));
+//			SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+//			note.setNoteDateTime(timeFormat.format(indexedDate));
+			note.setNoteDateTime(indexedDate);
 		}
 		
 		// get author.
@@ -477,9 +480,9 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		documentReference.setStatus(DocumentReferenceStatusEnum.CURRENT);
 
 		// type: map OMOP's Note Type concept to LOINC code if possible.
-		Concept omopTypeConcept = entity.getType();
+		Concept omopTypeConcept = entity.getNoteTypeConcept();
 		CodeableConceptDt typeCodeableConcept = null;
-		if ("Note Type".equals(omopTypeConcept.getVocabulary())) {
+		if ("Note Type".equals(omopTypeConcept.getVocabularyId())) {
 			Long loincConceptId = OmopNoteTypeMapping.getLoincConceptIdFor(omopTypeConcept.getId());
 			System.out.println("origin:"+omopTypeConcept.getId()+" loinc:"+loincConceptId);
 			try {
@@ -517,24 +520,23 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		documentReference.setSubject(patientReference);
 		
 		// Set created time
-		Date createdDate = entity.getDate();
-		String createdTime = entity.getTime();
-		DateTimeDt createdDateTime = null;
+		Date createdDate = entity.getNoteDate();
+		Date createdDateTime = entity.getNoteDateTime();
+		DateTimeDt createdTimeDt = null;
 		if (createdDate != null) {
-			if (createdTime != null)
+			if (createdDateTime != null) {
 //				createdDateTime = DateUtil.constructDateTime(createdDate, createdTime);
-				createdDateTime = new DateTimeDt(DateUtil.constructDateTime(createdDate, createdTime));
-			else
+				createdTimeDt = new DateTimeDt(createdDateTime);
+				documentReference.setCreated(createdTimeDt);
+				documentReference.setIndexedWithMillisPrecision(createdDateTime);
+			} else {
 //				createdDateTime = DateUtil.constructDateTime(createdDate, null);
-				createdDateTime = new DateTimeDt(DateUtil.constructDateTime(createdDate, null));
+				createdTimeDt = new DateTimeDt(createdDate);
+				documentReference.setCreated(createdTimeDt);
+				documentReference.setIndexedWithMillisPrecision(createdDate);
+			}
 		}
-		
-		if (createdDateTime != null) {
-			documentReference.setCreated(createdDateTime);
-//			documentReference.setIndexed(createdDateTime);
-			documentReference.setIndexedWithMillisPrecision(createdDate);
-		}
-		
+				
 		// Set author 
 		Provider provider = entity.getProvider();
 		if (provider != null) {

@@ -277,11 +277,11 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		}
 
 		if (fPerson.getGenderConcept() != null) {
-			String gName = fPerson.getGenderConcept().getName();
+			String gName = fPerson.getGenderConcept().getConceptName();
 			if (gName == null || gName.isEmpty()) {
 				Concept genderConcept = conceptService.findById(fPerson.getGenderConcept().getId());
 				if (genderConcept != null)
-					gName = genderConcept.getName();
+					gName = genderConcept.getConceptName();
 				else
 					gName = null;
 			}
@@ -1037,8 +1037,8 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		// this.death = patient.getDeceased();
 
 		fperson.setGenderConcept(new Concept());
-		String genderCode;
-		if (patient.getGender() != null) {
+		String genderCode = "";
+		if (patient.getGender() != null && !patient.getGender().isEmpty()) {
 //			genderCode = patient.getGender().getCode();
 			genderCode = patient.getGender();
 		} else {
@@ -1050,6 +1050,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 			fperson.getGenderConcept().setId(OmopConceptMapping.omopForAdministrativeGenderCode(genderCode));
 		} catch (FHIRException e) {
 			e.printStackTrace();
+			fperson.getGenderConcept().setId(0L);
 		}
 
 		List<ResourceReferenceDt> generalPractitioners = patient.getCareProvider();

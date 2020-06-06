@@ -94,8 +94,8 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 		if (careSite.getPlaceOfServiceConcept() != null) {
 			String codeString = careSite.getPlaceOfServiceConcept().getConceptCode();
 //			String systemUriString = careSite.getPlaceOfServiceConcept().getVocabulary().getVocabularyReference();
-			String systemUriString = vocabularyService.findById(careSite.getPlaceOfServiceConcept().getVocabulary()).getVocabularyReference();
-			String displayString = careSite.getPlaceOfServiceConcept().getName();
+			String systemUriString = vocabularyService.findById(careSite.getPlaceOfServiceConcept().getVocabularyId()).getVocabularyReference();
+			String displayString = careSite.getPlaceOfServiceConcept().getConceptName();
 			CodingDt tempcoding = new CodingDt(systemUriString,codeString);
 			tempcoding.setDisplay(displayString);
 			CodeableConceptDt typeCodeableConcept = new CodeableConceptDt()

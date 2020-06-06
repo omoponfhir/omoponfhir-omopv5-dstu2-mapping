@@ -108,7 +108,7 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		// ??
 		String sourceValue = conditionOccurrence.getConditionSourceValue();
 		// ??
-		Concept sourceConceptId = conditionOccurrence.getSourceConceptId();
+		Concept sourceConceptId = conditionOccurrence.getConditionSourceConcept();
 
 		return condition;
 	}
@@ -371,7 +371,7 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 
 	private void addCodeToCondition(ConditionOccurrence conditionOccurrence, Condition condition) {
 		// Condition.code SNOMED-CT
-		Concept conceptId = conditionOccurrence.getConceptId();
+		Concept conceptId = conditionOccurrence.getConditionConcept();
 		if (conceptId != null) {
 			CodeableConceptDt conditionCodeableConcept = retrieveCodeableConcept(conceptId);
 			if (conditionCodeableConcept != null) {
@@ -397,7 +397,7 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 
 	private void addTypeToCondition(ConditionOccurrence conditionOccurrence, Condition condition) {
 		// Condition.category
-		Concept typeConceptId = conditionOccurrence.getTypeConceptId();
+		Concept typeConceptId = conditionOccurrence.getConditionTypeConcept();
 		if (typeConceptId != null) {
 //			String systemUri = ConditionCategoryCodesEnum.PROBLEMLISTITEM.getSystem();
 			String systemUri = "http://hl7.org/fhir/condition-category";
@@ -499,7 +499,7 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		CodeableConceptDt code = fhirResource.getCode();
 		String valueSourceString = null;
 		Concept concept = fhirCode2OmopConcept(conceptService, code, valueSourceString);
-		conditionOccurrence.setConceptId(concept);
+		conditionOccurrence.setConditionConcept(concept);
 
 //		if (code != null) {
 //			List<Coding> codes = code.getCoding();
@@ -567,7 +567,7 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 //		}
 
 		concept = conceptService.findById(typeConceptId);
-		conditionOccurrence.setTypeConceptId(concept);
+		conditionOccurrence.setConditionTypeConcept(concept);
 
 		// set the context
 		/* Set visit occurrence */

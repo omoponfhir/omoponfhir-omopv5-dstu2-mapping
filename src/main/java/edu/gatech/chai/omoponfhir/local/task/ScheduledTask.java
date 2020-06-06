@@ -259,10 +259,10 @@ public class ScheduledTask {
 								conceptName = omopSrc[0];
 							}
 
-							sourceConcept.setName(conceptName);
-							sourceConcept.setDomain(targetConcept.getDomain());
-							sourceConcept.setVocabulary(myVocab.getId());
-							sourceConcept.setConceptClass(targetConcept.getConceptClass());
+							sourceConcept.setConceptName(conceptName);
+							sourceConcept.setDomainId(targetConcept.getDomainId());
+							sourceConcept.setVocabularyId(myVocab.getId());
+							sourceConcept.setConceptClassId(targetConcept.getConceptClassId());
 							sourceConcept.setConceptCode(sourceCode);
 							sourceConcept.setValidStartDate(targetConcept.getValidStartDate());
 							sourceConcept.setValidEndDate(targetConcept.getValidEndDate());
@@ -365,7 +365,7 @@ public class ScheduledTask {
 		newVocab.setId(values[0]);
 		if (values.length > 1) {
 			vocName = values[1];
-			newVocab.setName(values[1]);
+			newVocab.setVocabularyName(values[1]);
 		}
 		
 		if (values.length > 2) {
@@ -418,7 +418,7 @@ public class ScheduledTask {
 	private Relationship createOmopRelationshipConcept(String id, String name, String revId) {
 		Relationship newRelationship = new Relationship();
 		newRelationship.setId(id);
-		newRelationship.setName(name);
+		newRelationship.setRelationshipName(name);
 		newRelationship.setIsHierarchical('0');
 		newRelationship.setDefinesAncestry('0');
 		newRelationship.setReverseRelationshipId(revId);
@@ -452,11 +452,11 @@ public class ScheduledTask {
 	private Concept createVocabularyConcept(String name, String vocabId) {
 		Concept conceptVoc = new Concept();
 		conceptVoc.setId(getTheLargestConceptId());
-		conceptVoc.setName(name);
-		conceptVoc.setDomain("Metadata");
+		conceptVoc.setConceptName(name);
+		conceptVoc.setDomainId("Metadata");
 		
-		conceptVoc.setVocabulary(vocabId);
-		conceptVoc.setConceptClass(vocabId);
+		conceptVoc.setVocabularyId(vocabId);
+		conceptVoc.setConceptClassId(vocabId);
 		conceptVoc.setConceptCode("OMOPonFHIR generated");
 		conceptVoc.setValidStartDate(new Date(0L));
 

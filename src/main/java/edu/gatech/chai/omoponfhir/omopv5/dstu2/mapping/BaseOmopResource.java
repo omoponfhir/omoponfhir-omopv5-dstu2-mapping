@@ -254,6 +254,9 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 	public String constructOrderParams(SortSpec theSort) {
 		String direction;
 
+		if (theSort == null)
+			return null;
+
 		if (theSort.getOrder() != null) direction = theSort.getOrder().toString();
 		else direction = "ASC";
 

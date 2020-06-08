@@ -39,6 +39,8 @@ import ca.uhn.fhir.rest.annotation.OptionalParam;
 import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.RequiredParam;
 import ca.uhn.fhir.rest.annotation.Search;
+import ca.uhn.fhir.rest.annotation.Sort;
+import ca.uhn.fhir.rest.api.SortSpec;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
 import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -110,7 +112,8 @@ public class MedicationResourceProvider implements IResourceProvider {
 
 	@Search()
 	public IBundleProvider findMedicationById(
-			@RequiredParam(name = Medication.SP_RES_ID) TokenParam theMedicationId
+			@RequiredParam(name = Medication.SP_RES_ID) TokenParam theMedicationId,
+			@Sort SortSpec theSort
 			) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper>();
 		
@@ -118,16 +121,20 @@ public class MedicationResourceProvider implements IResourceProvider {
 			paramList.addAll(myMapper.mapParameter(Medication.SP_RES_ID, theMedicationId, false));
 		}
 
+		String orderParams = getMyMapper().constructOrderParams(theSort);
+
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);
 		myBundleProvider.setTotalSize(getTotalSize(paramList));
 		myBundleProvider.setPreferredPageSize(preferredPageSize);
+		myBundleProvider.setOrderParams(orderParams);
 		
 		return myBundleProvider;
 	}
 	
 	@Search()
 	public IBundleProvider findMedicationByParams(
-			@OptionalParam(name = Medication.SP_CODE) TokenOrListParam theOrCodes			
+			@OptionalParam(name = Medication.SP_CODE) TokenOrListParam theOrCodes,
+			@Sort SortSpec theSort
 			) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper>();
 
@@ -141,9 +148,12 @@ public class MedicationResourceProvider implements IResourceProvider {
 			}
 		}
 
+		String orderParams = getMyMapper().constructOrderParams(theSort);
+
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);
 		myBundleProvider.setTotalSize(getTotalSize(paramList));
 		myBundleProvider.setPreferredPageSize(preferredPageSize);
+		myBundleProvider.setOrderParams(orderParams);
 		
 		return myBundleProvider;
 	}
@@ -198,9 +208,9 @@ public class MedicationResourceProvider implements IResourceProvider {
 			List<String> includes = new ArrayList<String>();
 
 			if (paramList.size() == 0) {
-				myMapper.searchWithoutParams(fromIndex, toIndex, retv, includes, null);
+				myMapper.searchWithoutParams(fromIndex, toIndex, retv, includes, orderParams);
 			} else {
-				myMapper.searchWithParams(fromIndex, toIndex, paramList, retv, includes, null);
+				myMapper.searchWithParams(fromIndex, toIndex, paramList, retv, includes, orderParams);
 			}
 
 			return retv;

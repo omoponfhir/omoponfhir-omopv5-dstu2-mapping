@@ -526,13 +526,21 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		// get the start and end date. We are expecting both to be of type DateTimeType
 		IDatatype onSet = fhirResource.getOnset();
 		if (onSet != null && onSet instanceof DateTimeDt) {
-			conditionOccurrence.setStartDate(((DateTimeDt) fhirResource.getOnset()).getValueAsCalendar().getTime());
+			Date onSetDate = ((DateTimeDt) fhirResource.getOnset()).getValueAsCalendar().getTime();
+			conditionOccurrence.setStartDate(onSetDate);
+			conditionOccurrence.setStartDateTime(onSetDate);
 		} if (onSet != null && onSet instanceof PeriodDt) {
 			PeriodDt period = (PeriodDt)onSet;
 			Date start = period.getStart();
 			Date end = period.getEnd();
-			if (start != null) conditionOccurrence.setStartDate(start);
-			if (end != null) conditionOccurrence.setEndDate(end);
+			if (start != null) {
+				conditionOccurrence.setStartDate(start);
+				conditionOccurrence.setStartDateTime(start);
+			}
+			if (end != null) {
+				conditionOccurrence.setEndDate(end);
+				conditionOccurrence.setEndDateTime(end);
+			}
 		}
 
 		if (fhirResource.getAbatement() != null && fhirResource.getAbatement() instanceof DateTimeDt) {

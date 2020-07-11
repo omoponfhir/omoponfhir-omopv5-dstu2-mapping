@@ -940,7 +940,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		Long myId = IdMapping.getOMOPfromFHIR(id_long_part, getMyFhirResourceType());
 		if (myId < 0) {
 			// This is observation table.
-			return observationService.removeById(myId);
+			return observationService.removeById(-myId);
 		} else {
 			return measurementService.removeById(myId);
 		}
@@ -1731,6 +1731,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Long toDbase(Observation fhirResource, IdDt fhirId) throws FHIRException {
 		Long fhirIdLong = null;
@@ -1755,29 +1756,29 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				date = ((PeriodDt) fhirResource.getEffective()).getStart();
 			}
 
-			// get code
-			Concept concept = null;
-			List<CodingDt> codings = fhirResource.getCode().getCoding();
-			String fhirSystem = null;
-			String code = null;
-			String display = null;
-			for (CodingDt coding : codings) {
-				fhirSystem = coding.getSystem();
-				code = coding.getCode();
-				display = coding.getDisplay();
-				String omopSystem = null;
-				if (fhirSystem != null) {
-//					omopSystem = OmopCodeableConceptMapping.omopVocabularyforFhirUri(fhirSystem);
-					omopSystem = fhirOmopVocabularyMap.getOmopVocabularyFromFhirSystemName(fhirSystem);
-					if (omopSystem != null)
-						concept = CodeableConceptUtil.getOmopConceptWithOmopVacabIdAndCode(conceptService, omopSystem,
-								code);
-				}
-				if (concept != null)
-					break;
-			}
-
 			if (patientFhirId != null && date != null) {
+				// get code
+				Concept concept = null;
+				List<CodingDt> codings = fhirResource.getCode().getCoding();
+				String fhirSystem = null;
+				String code = null;
+				String display = null;
+				for (CodingDt coding : codings) {
+					fhirSystem = coding.getSystem();
+					code = coding.getCode();
+					display = coding.getDisplay();
+					String omopSystem = null;
+					if (fhirSystem != null) {
+//						omopSystem = OmopCodeableConceptMapping.omopVocabularyforFhirUri(fhirSystem);
+						omopSystem = fhirOmopVocabularyMap.getOmopVocabularyFromFhirSystemName(fhirSystem);
+						if (omopSystem != null)
+							concept = CodeableConceptUtil.getOmopConceptWithOmopVacabIdAndCode(conceptService, omopSystem,
+									code);
+					}
+					if (concept != null)
+						break;
+				}
+
 				List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper>();
 				paramList.addAll(mapParameter("Patient:" + Patient.SP_RES_ID, String.valueOf(patientFhirId), false));
 
@@ -1830,6 +1831,8 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		Date date = null;
 		FPerson fPerson = null;
 		Long domainConceptId = null;
+		
+		boolean isOmopObservation = false;
 		if (entityMap != null && ((String) entityMap.get("type")).equalsIgnoreCase("measurement")) {
 			measurements = (List<Measurement>) entityMap.get("entity");
 
@@ -1872,6 +1875,8 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			fPerson = observation.getFPerson();
 
 			domainConceptId = 27L;
+			
+			isOmopObservation = true;
 		}
 
 		if (retId == null)
@@ -1966,6 +1971,8 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		}
 
 		Long retFhirId = IdMapping.getFHIRfromOMOP(retId, ObservationResourceProvider.getType());
+		if (isOmopObservation) retFhirId = -retFhirId;
+		
 		return retFhirId;
 	}
 
@@ -2198,8 +2205,8 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 					inequality = "!=";
 
 				// get Date.
-				SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-				String time = timeFormat.format(date);
+//				SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+//				String time = timeFormat.format(date);
 
 				// get only date part.
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -2214,7 +2221,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 
 				System.out.println("TIME VALUE:" + String.valueOf(dateWithoutTime.getTime()));
 				paramWrapper.setParameterType("Date");
-				paramWrapper.setParameters(Arrays.asList("date"));
+				paramWrapper.setParameters(Arrays.asList("observationDate"));
 				paramWrapper.setOperators(Arrays.asList(inequality));
 				paramWrapper.setValues(Arrays.asList(String.valueOf(dateWithoutTime.getTime())));
 				paramWrapper.setRelationship("and");
@@ -2222,10 +2229,10 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 
 				// Time
 				ParameterWrapper paramWrapper_time = new ParameterWrapper();
-				paramWrapper_time.setParameterType("String");
-				paramWrapper_time.setParameters(Arrays.asList("time"));
+				paramWrapper_time.setParameterType("Date");
+				paramWrapper_time.setParameters(Arrays.asList("observationDateTime"));
 				paramWrapper_time.setOperators(Arrays.asList(inequality));
-				paramWrapper_time.setValues(Arrays.asList(time));
+				paramWrapper_time.setValues(Arrays.asList(String.valueOf(date)));
 				paramWrapper_time.setRelationship("and");
 				mapList.add(paramWrapper_time);
 

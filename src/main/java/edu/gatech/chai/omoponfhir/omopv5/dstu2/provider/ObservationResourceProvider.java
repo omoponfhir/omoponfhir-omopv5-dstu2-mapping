@@ -19,19 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
-//import org.hl7.fhir.dstu3.model.OperationOutcome;
 import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
 import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopObservation;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
@@ -43,7 +36,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.Include;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;
@@ -66,8 +58,6 @@ import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
-
-import javax.persistence.Id;
 
 public class ObservationResourceProvider implements IResourceProvider {
 
@@ -135,7 +125,7 @@ public class ObservationResourceProvider implements IResourceProvider {
 			CodeableConceptDt detailCode = new CodeableConceptDt();
 			detailCode.setText("Failed to create entity.");
 			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+			throw new UnprocessableEntityException(FhirContext.forDstu2(), outcome);
 		}
 		return new MethodOutcome(new IdDt(id));
 	}
@@ -305,21 +295,21 @@ public class ObservationResourceProvider implements IResourceProvider {
 		if (theObservation.getCode().isEmpty()) {
 			detailCode.setText("No code is provided.");
 			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+			throw new UnprocessableEntityException(FhirContext.forDstu2(), outcome);
 		}
 		
 		ResourceReferenceDt subjectReference = theObservation.getSubject();
 		if (subjectReference == null || subjectReference.isEmpty()) {
 			detailCode.setText("Subject cannot be empty for OmopOnFHIR");
 			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+			throw new UnprocessableEntityException(FhirContext.forDstu2(), outcome);
 		}
 		
 		String subjectResource = subjectReference.getReferenceElement().getResourceType();
 		if (!subjectResource.contentEquals("Patient")) {
 			detailCode.setText("Subject ("+subjectResource+") must be Patient resource for OmopOnFHIR");
 			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+			throw new UnprocessableEntityException(FhirContext.forDstu2(), outcome);
 		}
 	}
 

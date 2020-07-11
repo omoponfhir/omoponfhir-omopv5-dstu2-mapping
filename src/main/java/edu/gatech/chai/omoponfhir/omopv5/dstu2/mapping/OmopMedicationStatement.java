@@ -286,14 +286,26 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 		// Get effectivePeriod
 		PeriodDt period = new PeriodDt();
 		Date startDate = entity.getDrugExposureStartDate();
+		Date startDateTime = entity.getDrugExposureStartDateTime();
 		if (startDate != null) {
-			DateTimeDt temp = new DateTimeDt(startDate);
+			DateTimeDt temp;
+			if (startDateTime != null) {
+				temp = new DateTimeDt(startDateTime);				
+			} else {
+				temp = new DateTimeDt(startDate);
+			}
 			period.setStart(temp);
 		}
 
 		Date endDate = entity.getDrugExposureEndDate();
+		Date endDateTime = entity.getDrugExposureEndDateTime();
 		if (endDate != null) {
-			DateTimeDt temp2 = new DateTimeDt(endDate);
+			DateTimeDt temp2;
+			if (endDateTime != null) {
+				temp2 = new DateTimeDt(endDateTime);
+			} else {
+				temp2 = new DateTimeDt(endDate);
+			}
 			period.setEnd(temp2);
 		}
 
@@ -867,6 +879,8 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 				// if DateTime is provided, we set start time.
 				Date date = ((DateTimeDt) effective).getValue();
 				drugExposure.setDrugExposureStartDate(date);
+				drugExposure.setDrugExposureStartDateTime(date);
+				drugExposure.setDrugExposureEndDate(date);
 			} else if (effective instanceof PeriodDt) {
 				Date startDate = ((PeriodDt) effective).getStart();
 				Date endDate = ((PeriodDt) effective).getEnd();
@@ -879,10 +893,12 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 					}
 				} else {
 					drugExposure.setDrugExposureStartDate(startDate);
+					drugExposure.setDrugExposureStartDateTime(startDate);
 				}
 
 				if (endDate != null) {
 					drugExposure.setDrugExposureEndDate(endDate);
+					drugExposure.setDrugExposureEndDateTime(endDate);
 				}
 			}
 		}

@@ -69,6 +69,18 @@ public class ScheduledTask {
 				&& !"none".equalsIgnoreCase(localMappingFilePath)) {
 			logger.debug("LocalMappingFilePath is set to " + localMappingFilePath);
 
+			// create if folder does not exist.
+			Path path = Paths.get(localMappingFilePath);
+
+	        if (!Files.exists(path)) {
+	        	try {
+					Files.createDirectory(path);
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
+				}
+	        }
+
 			// get the list of files in this path.
 			BufferedReader reader = null;
 			try (Stream<Path> walk = Files.walk(Paths.get(localMappingFilePath))) {

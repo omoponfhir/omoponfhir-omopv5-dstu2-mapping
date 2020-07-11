@@ -108,7 +108,7 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 			// WARNING check if mapping for lines are correct
 			organization.addAddress().setUse(AddressUseEnum.HOME).addLine(careSite.getLocation().getAddress1())
 					.addLine(careSite.getLocation().getAddress2())
-					.setCity(careSite.getLocation().getCity()).setPostalCode(careSite.getLocation().getZipCode())
+					.setCity(careSite.getLocation().getCity()).setPostalCode(careSite.getLocation().getZip())
 					.setState(careSite.getLocation().getState());
 			// .setPeriod(period);
 		}

@@ -129,7 +129,7 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 			CodeableConceptDt detailCode = new CodeableConceptDt();
 			detailCode.setText("Failed to create entity.");
 			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+			throw new UnprocessableEntityException(FhirContext.forDstu2(), outcome);
 		}
 
 		return new MethodOutcome(new IdDt(id));

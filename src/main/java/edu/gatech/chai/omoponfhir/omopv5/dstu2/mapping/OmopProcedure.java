@@ -529,21 +529,22 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		// Procedure Date mapping. Use start date for Period.
 		try {
 			IDatatype performedType = fhirResource.getPerformed();
-		if (!performedType.isEmpty()) {
-			Date performedDate = null;
-			if (performedType instanceof DateTimeDt) {
-				// PerformedDateTime
-				performedDate= ((DateTimeDt) performedType).getValue();
-//				performedDate = performedType.castToDateTime(performedType).getValue();
-			} else {
-				// PerformedPeriod
-//				performedDate = performedType.castToPeriod(performedType).getStart();
-				performedDate= ((PeriodDt) performedType).getStart();
+			if (!performedType.isEmpty()) {
+				Date performedDate = null;
+				if (performedType instanceof DateTimeDt) {
+					// PerformedDateTime
+					performedDate= ((DateTimeDt) performedType).getValue();
+	//				performedDate = performedType.castToDateTime(performedType).getValue();
+				} else {
+					// PerformedPeriod
+	//				performedDate = performedType.castToPeriod(performedType).getStart();
+					performedDate= ((PeriodDt) performedType).getStart();
+				}
+				if (performedDate != null){
+					procedureOccurrence.setProcedureDate(performedDate);
+					procedureOccurrence.setProcedureDateTime(performedDate);
+				}
 			}
-			
-			if (performedDate != null)
-				procedureOccurrence.setProcedureDate(performedDate);
-		}
 		} catch (FHIRException e) {
 			e.printStackTrace();
 		}

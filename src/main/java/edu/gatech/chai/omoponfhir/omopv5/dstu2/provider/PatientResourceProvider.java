@@ -422,7 +422,7 @@ public class PatientResourceProvider implements IResourceProvider {
 			CodeableConceptDt detailCode = new CodeableConceptDt();
 			detailCode.setText("No family name provided, Patient resources must have at least one family name.");
 			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+			throw new UnprocessableEntityException(FhirContext.forDstu2(), outcome);
 		}
 	}
 

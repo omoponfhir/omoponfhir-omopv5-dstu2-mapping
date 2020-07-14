@@ -53,7 +53,7 @@ public class TerminologyServiceClient {
 		}
 		
 		// Set up FHIR client to make ValueSet calls
-		FhirContext ctx = FhirContext.forDstu3();
+		FhirContext ctx = FhirContext.forDstu2();
 		client = ctx.newRestfulGenericClient(terminologyServerUrl);
 	}
 	

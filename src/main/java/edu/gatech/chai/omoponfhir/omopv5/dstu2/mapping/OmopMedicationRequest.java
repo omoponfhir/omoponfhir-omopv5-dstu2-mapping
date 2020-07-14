@@ -648,7 +648,11 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 //		Date authoredDate = fhirResource.getAuthoredOn();
 		Date authoredDate = fhirResource.getDateWritten();
 		drugExposure.setDrugExposureStartDate(authoredDate);
-
+		drugExposure.setDrugExposureStartDateTime(authoredDate);
+//		set the end date from the ended date
+		Date endedDate = fhirResource.getDateEnded();
+		drugExposure.setDrugExposureEndDate(endedDate);
+		drugExposure.setDrugExposureEndDateTime(endedDate);
 		// Set VisitOccurrence
 		ResourceReferenceDt encounterReference = fhirResource.getEncounter();
 		if (encounterReference != null && !encounterReference.isEmpty()) {

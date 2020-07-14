@@ -463,22 +463,24 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 		// Visit Occurrence mapping
 //		ResourceReferenceDt encounterReference = fhirResource.getContext();
     	ResourceReferenceDt encounterReference = fhirResource.getEncounter();
-		if (encounterReference.getReferenceElement().getResourceType().equals(EncounterResourceProvider.getType())) {
-			Long encounterFhirId = encounterReference.getReferenceElement().getIdPartAsLong();
-			Long omopVisitOccurrenceId = IdMapping.getOMOPfromFHIR(encounterFhirId, EncounterResourceProvider.getType());
-			if (omopVisitOccurrenceId == null) {
-				throw new FHIRException("Unable to get OMOP Visit Occurrence ID from FHIR encounter ID");
-			}
-			
-			VisitOccurrence visitOccurrence = visitOccurrenceService.findById(omopVisitOccurrenceId);
-			if (visitOccurrence != null) {
-				procedureOccurrence.setVisitOccurrence(visitOccurrence);
+    	if (encounterReference != null && !encounterReference.isEmpty()) {
+			if (encounterReference.getReferenceElement().getResourceType().equals(EncounterResourceProvider.getType())) {
+				Long encounterFhirId = encounterReference.getReferenceElement().getIdPartAsLong();
+				Long omopVisitOccurrenceId = IdMapping.getOMOPfromFHIR(encounterFhirId, EncounterResourceProvider.getType());
+				if (omopVisitOccurrenceId == null) {
+					throw new FHIRException("Unable to get OMOP Visit Occurrence ID from FHIR encounter ID");
+				}
+				
+				VisitOccurrence visitOccurrence = visitOccurrenceService.findById(omopVisitOccurrenceId);
+				if (visitOccurrence != null) {
+					procedureOccurrence.setVisitOccurrence(visitOccurrence);
+				} else {
+					throw new FHIRException("Unable to find the visit occurrence from OMOP database");
+				}
 			} else {
-				throw new FHIRException("Unable to find the visit occurrence from OMOP database");
+				throw new FHIRException("Context must be Encounter");
 			}
-		} else {
-			throw new FHIRException("Context must be Encounter");
-		}
+    	}
 
 		} catch (FHIRException e) {
 			e.printStackTrace();

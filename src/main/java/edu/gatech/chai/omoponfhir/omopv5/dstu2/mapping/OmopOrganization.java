@@ -18,6 +18,7 @@ package edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 //import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
@@ -134,11 +135,13 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 			for (IdentifierDt identifier: identifiers) {
 				if (identifier.getValue().isEmpty() == false) {
 					careSiteSourceValue = identifier.getValue();
-					
-					existingCareSite = getMyOmopService().searchByColumnString("careSiteSourceValue", careSiteSourceValue).get(0);
-					if (existingCareSite != null) {
-						omopId = existingCareSite.getId();
-						break;
+					List<CareSite> careSiteList = getMyOmopService().searchByColumnString("careSiteSourceValue", careSiteSourceValue);
+					if(!careSiteList.isEmpty() && careSiteList!=null){
+						existingCareSite = careSiteList.get(0);
+						if (existingCareSite != null) {
+							omopId = existingCareSite.getId();
+							break;
+						}
 					}
 				}
 			}
@@ -248,8 +251,10 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 			careSiteSourceValue = identifier.getValue();
 			careSite.setCareSiteSourceValue(careSiteSourceValue);
 		}
-		
-		Location existingLocation = AddressUtil.searchAndUpdate(locationService, myOrganization.getAddressFirstRep(), location);
+		Location existingLocation=null;
+		if(location!=null){
+			existingLocation = AddressUtil.searchAndUpdate(locationService, myOrganization.getAddressFirstRep(), location);
+		}
 		if (existingLocation != null) {
 			careSite.setLocation(existingLocation);
 		}

@@ -129,7 +129,7 @@ public class DeviceUseStatementResourceProvider implements IResourceProvider {
 		boolean deviceFound = false;
 		for (IResource contained: containeds) {
 			String resourceType = contained.getResourceName();
-			if (resourceType == ResourceTypeEnum.DEVICE.toString()) {
+			if (resourceType.equalsIgnoreCase(ResourceTypeEnum.DEVICE.toString())) {
 				deviceFound = true;
 				break;
 			}

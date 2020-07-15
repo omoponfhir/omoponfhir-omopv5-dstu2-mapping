@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 //import org.hl7.fhir.dstu3.model.Attachment;
 import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;
@@ -38,6 +39,7 @@ import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Context;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
 //import org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus;
 import ca.uhn.fhir.model.dstu2.valueset.DocumentReferenceStatusEnum;
+import ca.uhn.fhir.model.primitive.Base64BinaryDt;
 //import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
@@ -292,40 +294,50 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		
 		// get type
 		CodeableConceptDt typeCodeableConcept = fhirResource.getType();
-		CodingDt loincCoding = null;
-		Concept typeOmopConcept = null;
-		Concept typeFhirConcept = null;
+		boolean isLoinc = false;
+		Concept typeConcept = null;
 		if (typeCodeableConcept != null & !typeCodeableConcept.isEmpty()) {
 			for (CodingDt coding: typeCodeableConcept.getCoding()) {
 				try {
-					typeFhirConcept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService, coding);
+					Concept thisConcept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService, coding);
+					if (thisConcept != null) {
+						typeConcept = thisConcept;
+					}
 				} catch (FHIRException e) {
-					typeFhirConcept = null;
 					e.printStackTrace();
 				}
 				if ("http://loinc.org".equals(coding.getSystem()) ||
 						"urn:oid:2.16.840.1.113883.6.1".equals(coding.getSystem())) {
-					loincCoding = coding;
+					isLoinc = true;
 					break;
 				}
 			}
 			
-			if (typeFhirConcept == null) {
-				ThrowFHIRExceptions.unprocessableEntityException("The type codeableconcept is not recognized");
+			if (typeConcept == null) {
+//				ThrowFHIRExceptions.unprocessableEntityException("The type codeableconcept is not recognized");
+				typeConcept = new Concept(0L);
 			}
 			
-			if (loincCoding != null) {
+			if (isLoinc) {
+				// Based on https://github.com/OHDSI/CommonDataModel/blob/v5.2.2/OMOP_CDM_v5_2.pdf,
+				// Put HL7 LOINC Document Type. 
+				note.setNoteClassConcept(typeConcept);
+
 				// We found loinc coding. See if we can convert to Note Type concept.
-				Long typeOmopConceptId = OmopNoteTypeMapping.getOmopConceptIdFor(typeFhirConcept.getId());
-				typeOmopConcept = conceptService.findById(typeOmopConceptId);
+				Long typeOmopConceptId = OmopNoteTypeMapping.getOmopConceptIdFor(typeConcept.getId());
+				if (typeOmopConceptId != 0L) {
+					typeConcept = conceptService.findById(typeOmopConceptId);
+				}
+			} else {
+				note.setNoteClassConcept(new Concept(0L));
 			}
 			
-			if (typeOmopConcept == null) {
-				// We couldn't get Note Type concept. Just use the fhirConcept as is.
-				typeOmopConcept = typeFhirConcept;
-			}
+//			if (typeOmopConcept == null) {
+//				// We couldn't get Note Type concept. Just use the fhirConcept as is.
+//				typeOmopConcept = typeConcept;
+//			}
 			
-			note.setNoteTypeConcept(typeOmopConcept);
+			note.setNoteTypeConcept(typeConcept);
 			
 			// 
 		} else {
@@ -409,23 +421,51 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 			}
 			
 			String contentType = attachment.getContentType();
+			Integer size = attachment.getSize();
+			 Base64BinaryDt hash = attachment.getHashElement();
 			if (contentType != null && !contentType.isEmpty()) {
-				if (!"text/plain".equals(contentType)) {
-					ThrowFHIRExceptions.unprocessableEntityException("content.attachment must be text/plain");
-				}
-				
 				byte[] data = attachment.getData();
-				if (data == null) {
-					data = attachment.getHash();
+//				if (data == null) {
+//					data = attachment.getHash();
+//				}
+				
+				String attachmentUrl = attachment.getUrl();
+				if (data == null && (attachmentUrl == null || attachmentUrl.isEmpty())) {
+					ThrowFHIRExceptions.unprocessableEntityException("content.attachment.data, hash, or url must exist");
 				}
 				
-				if (data == null) {
-					ThrowFHIRExceptions.unprocessableEntityException("content.attachment.data or hash must exist");
+				if (data != null) {
+					// get text.
+					String data_text = new String(data);
+
+					if ("text/plain".equals(contentType)) {
+						note_text = note_text.concat(data_text);						
+					} else if ("application/pdf".equals(contentType)) {
+						note_text = "::application/pdf::"+data_text;
+					} else {
+						ThrowFHIRExceptions.unprocessableEntityException("content.attachment must be text/plain or application/pdf");						
+					}
+				} else {
+					// URL must not be null or empty at this point.
+					String data_text = contentType+"^"+attachmentUrl;
+					if (size != null && size > 0) {
+						data_text += "^"+size.toString();
+					} else {
+						data_text += "^";
+					}
+					
+					if (hash != null) {
+						data_text += "^"+hash.getValueAsString();
+					} else {
+						data_text += "^";
+					}
+					
+					if (note_text == null || note_text.isEmpty()) {
+						note_text = "::link::"+data_text;
+					} else {
+						note_text = note_text.concat("~"+data_text);
+					}
 				}
-				
-				// get text.
-				String data_text = new String(data);
-				note_text = note_text.concat(data_text);
 			} else {
 				ThrowFHIRExceptions.unprocessableEntityException("content.attachment.contentType must be specified as text/plain");
 			}
@@ -436,6 +476,12 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		}
 		
 		note.setNoteText(note_text);
+		
+		// encoding_concept_id and language_concept_id are required in OMOP.
+		// But, we can't find entries in concept table for this. WE need to revisit this
+		// TODO: revisit this later. Check athena vocabulary database to see if we can find code for this.
+		note.setEncodingConcept(new Concept(0L));
+		note.setLanguageConcept(new Concept(0L));
 		
 		return note;
 	}
@@ -483,18 +529,23 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		Concept omopTypeConcept = entity.getNoteTypeConcept();
 		CodeableConceptDt typeCodeableConcept = null;
 		if ("Note Type".equals(omopTypeConcept.getVocabularyId())) {
-			Long loincConceptId = OmopNoteTypeMapping.getLoincConceptIdFor(omopTypeConcept.getId());
-			System.out.println("origin:"+omopTypeConcept.getId()+" loinc:"+loincConceptId);
-			try {
-				if (loincConceptId != 0L) {
-					// We found lonic code for this. Find this concept and create FHIR codeable
-					// concept.
-					Concept loincConcept = conceptService.findById(loincConceptId);
-					typeCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(loincConcept);
+			Concept classConcept = entity.getNoteClassConcept();
+			if (classConcept != null) {
+				typeCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(classConcept);
+			} else {
+				Long loincConceptId = OmopNoteTypeMapping.getLoincConceptIdFor(omopTypeConcept.getId());
+				System.out.println("origin:"+omopTypeConcept.getId()+" loinc:"+loincConceptId);
+				try {
+					if (loincConceptId != 0L) {
+						// We found lonic code for this. Find this concept and create FHIR codeable
+						// concept.
+						Concept loincConcept = conceptService.findById(loincConceptId);
+						typeCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(loincConcept);
+					}
+				} catch (FHIRException e) {
+					e.printStackTrace();
+					typeCodeableConcept = null;
 				}
-			} catch (FHIRException e) {
-				e.printStackTrace();
-				typeCodeableConcept = null;
 			}
 		}
 		
@@ -552,16 +603,41 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		String noteText = entity.getNoteText();
 		if (noteText != null && !noteText.isEmpty()) {
 			AttachmentDt attachment = new AttachmentDt();
-			attachment.setContentType("text/plain");
-			attachment.setLanguage("en-US");
-			
-			// Convert data to base64
-			attachment.setData(noteText.getBytes());
-			
-//			Content documentReferenceContentComponent = new Content(attachment);
-			Content documentReferenceContentComponent = new Content();
-			documentReferenceContentComponent.setAttachment(attachment);
-			documentReference.addContent(documentReferenceContentComponent);
+			if (noteText.startsWith("::link::")) {
+				noteText = noteText.substring(8);
+				String[] urls = noteText.split(Pattern.quote("~"));
+				for (String url: urls) {
+					String[] typeAndUrl = url.split("\\^");
+					attachment.setContentType(typeAndUrl[0]);
+					attachment.setUrl(typeAndUrl[1]);
+					if (typeAndUrl.length >= 3) {
+						attachment.setSize(Integer.valueOf(typeAndUrl[2]));
+					}
+					
+					if (typeAndUrl.length >= 4) {
+						Base64BinaryDt theValue = new Base64BinaryDt();
+						theValue.setValueAsString(typeAndUrl[3]);
+						attachment.setHash(theValue);
+					}
+					Content documentReferenceContentComponent = new Content();
+					documentReferenceContentComponent.setAttachment(attachment);
+					documentReference.addContent(documentReferenceContentComponent);
+				}
+			} else {
+				if (noteText.startsWith("::application/pdf::")) {
+					attachment.setContentType("application/pdf");
+					attachment.setData(noteText.substring(19).getBytes());
+				} else {
+					attachment.setContentType("text/plain");
+					attachment.setLanguage("en-US");
+				}				
+				// Convert data to base64
+				attachment.setData(noteText.getBytes());
+//				Content documentReferenceContentComponent = new Content(attachment);
+				Content documentReferenceContentComponent = new Content();
+				documentReferenceContentComponent.setAttachment(attachment);
+				documentReference.addContent(documentReferenceContentComponent);
+			}
 		}
 		
 		// Set context if visitOccurrence exists.

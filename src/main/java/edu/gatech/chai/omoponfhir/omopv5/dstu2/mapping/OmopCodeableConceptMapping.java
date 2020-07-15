@@ -41,7 +41,6 @@ public enum OmopCodeableConceptMapping {
 	RXNORM("http://www.nlm.nih.gov/research/umls/rxnorm", "RxNorm"),
 	SCT("http://snomed.info/sct", "SNOMED"),
 	UCUM("http://unitsofmeasure.org", "UCUM"),
-	DEVICETYPE("urn:gtri:omoponfhir:devicetype", "Device Type");
 	
 	
 	public static String omopVocabularyforFhirUri(String fhirUri) throws FHIRException {

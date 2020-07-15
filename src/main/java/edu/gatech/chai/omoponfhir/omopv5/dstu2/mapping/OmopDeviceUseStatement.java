@@ -367,6 +367,10 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 						} else {
 							deviceExposure.setDeviceSourceValue(deviceTypeCoding.getSystem()+":"+deviceTypeCoding.getCode());
 						}
+					} else {
+						logger.debug("DeviceTypeConcept could not be resolved to Device Concept: "+deviceTypeCoding.getSystem()+":"+deviceTypeCoding.getCode());
+						deviceExposure.setDeviceConcept(new Concept(0L));
+						deviceExposure.setDeviceSourceValue(deviceTypeCoding.getSystem()+":"+deviceTypeCoding.getCode());
 					}
 				} catch (FHIRException e) {
 					e.printStackTrace();

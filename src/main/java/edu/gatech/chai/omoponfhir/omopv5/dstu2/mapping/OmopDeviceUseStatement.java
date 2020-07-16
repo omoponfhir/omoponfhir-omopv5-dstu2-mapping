@@ -323,11 +323,13 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 			Date startDate = periodUsed.getStart();
 			if (startDate != null) {
 				deviceExposure.setDeviceExposureStartDate(startDate);
+				deviceExposure.setDeviceExposureStartDateTime(startDate);
 			}
 			
 			Date endDate = periodUsed.getEnd();
 			if (endDate != null) {
 				deviceExposure.setDeviceExposureEndDate(endDate);
+				deviceExposure.setDeviceExposureEndDateTime(endDate);
 			}
 		}
 		
@@ -361,6 +363,7 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 				try {
 					Concept concept = CodeableConceptUtil.getOmopConceptWithFhirConcept(conceptService, deviceTypeCoding);
 					if (concept != null) {
+						logger.debug("DeviceConcept is set to OMOP Concept ID: "+concept.getId());
 						deviceExposure.setDeviceConcept(concept);
 						if (concept.getId() != 0L) {
 							deviceExposure.setDeviceSourceConcept(concept);
@@ -375,6 +378,8 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 				} catch (FHIRException e) {
 					e.printStackTrace();
 				}
+			} else {
+				throw new FHIRException("Device Type cannot be null or empty");
 			}
 			
 			// set device UDI
@@ -390,6 +395,8 @@ public class OmopDeviceUseStatement extends BaseOmopResource<MyDeviceUseStatemen
 			if (udi != null && !udi.isEmpty()) {
 				deviceExposure.setUniqueDeviceId(udi);
 			}
+		} else {
+			throw new FHIRException("Device information is require in the contained section");
 		}
 		
 		// set default value that cannot be null

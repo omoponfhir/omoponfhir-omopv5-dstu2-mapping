@@ -261,7 +261,7 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 //		param.setValues(Arrays.asList(String.valueOf(visitOccurrence.getId())));
 //		List<ParameterWrapper> params = Arrays.asList(param);
 //		List<ConditionOccurrence> conditions = conditionOccurrenceService.searchWithParams(0, 0, params, null);
-		List<ConditionOccurrence> conditions = conditionOccurrenceService.searchByColumnString("visitOccurrence.id",
+		List<ConditionOccurrence> conditions = conditionOccurrenceService.searchByColumnString("visitOccurrence",
 				visitOccurrence.getId());
 		for (ConditionOccurrence condition : conditions) {
 			ResourceReferenceDt conditionReference = new ResourceReferenceDt(

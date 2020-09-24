@@ -33,6 +33,9 @@ import ca.uhn.fhir.model.dstu2.resource.Organization;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 
 import org.hl7.fhir.instance.model.api.IIdType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 //import org.hl7.fhir.dstu3.model.Address;
 import ca.uhn.fhir.model.dstu2.composite.AddressDt;
 //import org.hl7.fhir.dstu3.model.Address.AddressUse;
@@ -54,6 +57,7 @@ import edu.gatech.chai.omopv5.model.entity.Concept;
 import edu.gatech.chai.omopv5.model.entity.Location;
 
 public class OmopOrganization extends BaseOmopResource<Organization, CareSite, CareSiteService> implements IResourceMapping<Organization, CareSite> {
+	final static Logger logger = LoggerFactory.getLogger(OmopOrganization.class);
 	
 	private static OmopOrganization omopOrganization = new OmopOrganization();
 	private LocationService locationService;
@@ -61,7 +65,7 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 
 	public OmopOrganization(WebApplicationContext context) {
 		super(context, CareSite.class, CareSiteService.class, OrganizationResourceProvider.getType());
-		
+		initialize(context);
 	}
 
 	public OmopOrganization() {

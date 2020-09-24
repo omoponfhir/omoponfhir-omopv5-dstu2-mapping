@@ -148,7 +148,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 					List<ResourceReferenceDt> generalPractitioners = patient.getCareProvider();
 					for (ResourceReferenceDt generalPractitioner : generalPractitioners) {
 //						if (generalPractitioner.fhirType().equals(PractitionerResourceProvider.getType())) {
-						if (generalPractitioner.getId().getResourceType().equals(PractitionerResourceProvider.getType())) {
+						if (generalPractitioner.getReferenceElement().getResourceType().equals(PractitionerResourceProvider.getType())) {
 							// We map generalPractitioner to Provider, which is
 							// Practitioner.
 							IIdType generalPractitionerId = generalPractitioner.getReferenceElement();
@@ -185,7 +185,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 							IIdType patientLinkOtherId = patientLinkOther.getReferenceElement();
 							Patient linkedPatient;
 //							if (patientLinkOther.fhirType().equals(PatientResourceProvider.getType())) {
-							if (patientLinkOther.getId().getResourceType().equals(PatientResourceProvider.getType())) {
+							if (patientLinkOther.getReferenceElement().getResourceType().equals(PatientResourceProvider.getType())) {
 								FPerson linkedPerson = getMyOmopService().findById(omopId);
 								linkedPatient = constructFHIR(patientLinkOtherId.getIdPartAsLong(), linkedPerson);
 							} else {
@@ -273,7 +273,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 			// WARNING check if mapping for lines are correct
 			patient.addAddress().setUse(AddressUseEnum.HOME).addLine(fPerson.getLocation().getAddress1())
 					.addLine(fPerson.getLocation().getAddress2()).setCity(fPerson.getLocation().getCity())
-					.setPostalCode(fPerson.getLocation().getZipCode()).setState(fPerson.getLocation().getState());
+					.setPostalCode(fPerson.getLocation().getZip()).setState(fPerson.getLocation().getState());
 		}
 
 		if (fPerson.getGenderConcept() != null) {
@@ -796,7 +796,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 					addressName = "%" + ((StringParam) value).getValue() + "%";
 				paramWrapper.setParameterType("String");
 				paramWrapper.setParameters(Arrays.asList("location.address1", "location.address2", "location.city",
-						"location.state", "location.zipCode"));
+						"location.state", "location.zip"));
 				paramWrapper.setOperators(Arrays.asList("like", "like", "like", "like", "like"));
 				paramWrapper.setValues(Arrays.asList(addressName));
 				paramWrapper.setRelationship("or");
@@ -835,7 +835,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 				else
 					addressZipName = "%" + ((StringParam) value).getValue() + "%";
 				paramWrapper.setParameterType("String");
-				paramWrapper.setParameters(Arrays.asList("location.zipCode"));
+				paramWrapper.setParameters(Arrays.asList("location.zip"));
 				paramWrapper.setOperators(Arrays.asList("like"));
 				paramWrapper.setValues(Arrays.asList(addressZipName));
 				paramWrapper.setRelationship("or");

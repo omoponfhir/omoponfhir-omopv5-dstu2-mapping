@@ -382,13 +382,13 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 
 	private void addStartAndEndDateToCondition(ConditionOccurrence conditionOccurrence, Condition condition) {
 		// Condition.onsetDateTime
-		Date startDate = conditionOccurrence.getStartDate();
+		Date startDate = conditionOccurrence.getConditionStartDate();
 		if (startDate != null) {
 			DateTimeDt onsetDateTime = new DateTimeDt(startDate);
 			condition.setOnset(onsetDateTime);
 		}
 		// Condition.abatementDateTime
-		Date endDate = conditionOccurrence.getEndDate();
+		Date endDate = conditionOccurrence.getConditionEndDate();
 		if (endDate != null) {
 			DateTimeDt abatementDateTime = new DateTimeDt(endDate);
 			condition.setAbatement(abatementDateTime);
@@ -526,18 +526,18 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		// get the start and end date. We are expecting both to be of type DateTimeType
 		IDatatype onSet = fhirResource.getOnset();
 		if (onSet != null && onSet instanceof DateTimeDt) {
-			conditionOccurrence.setStartDate(((DateTimeDt) fhirResource.getOnset()).getValueAsCalendar().getTime());
+			conditionOccurrence.setConditionStartDate(((DateTimeDt) fhirResource.getOnset()).getValueAsCalendar().getTime());
 		} if (onSet != null && onSet instanceof PeriodDt) {
 			PeriodDt period = (PeriodDt)onSet;
 			Date start = period.getStart();
 			Date end = period.getEnd();
-			if (start != null) conditionOccurrence.setStartDate(start);
-			if (end != null) conditionOccurrence.setEndDate(end);
+			if (start != null) conditionOccurrence.setConditionStartDate(start);
+			if (end != null) conditionOccurrence.setConditionEndDate(end);
 		}
 
 		if (fhirResource.getAbatement() != null && fhirResource.getAbatement() instanceof DateTimeDt) {
 //			conditionOccurrence.setEndDate(((DateTimeDt) fhirResource.getAbatement()).toCalendar().getTime());
-			conditionOccurrence.setEndDate(((DateTimeDt) fhirResource.getAbatement()).getValueAsCalendar().getTime());
+			conditionOccurrence.setConditionEndDate(((DateTimeDt) fhirResource.getAbatement()).getValueAsCalendar().getTime());
 		} else {
 			// leave alone, end date not required
 		}

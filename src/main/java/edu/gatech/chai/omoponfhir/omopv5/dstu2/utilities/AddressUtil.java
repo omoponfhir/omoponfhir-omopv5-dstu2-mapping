@@ -60,7 +60,7 @@ public class AddressUtil {
 				location.setAddress1(line1);
 				if (line2 != null)
 					location.setAddress2(line2);
-				location.setZipCode(zipCode);
+				location.setZip(zipCode);
 				location.setCity(city);
 				location.setState(state);
 			} else {

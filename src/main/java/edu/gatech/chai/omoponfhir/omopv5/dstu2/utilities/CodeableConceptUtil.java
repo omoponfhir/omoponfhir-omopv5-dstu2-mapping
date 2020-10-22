@@ -73,7 +73,7 @@ public class CodeableConceptUtil {
 		
 		ParameterWrapper param = new ParameterWrapper(
 				"String",
-				Arrays.asList("vocabulary", "conceptCode"),
+				Arrays.asList("vocabularyId", "conceptCode"),
 				Arrays.asList("=", "="),
 				Arrays.asList(omopVocabularyId, code),
 				"and"

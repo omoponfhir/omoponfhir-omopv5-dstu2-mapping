@@ -321,7 +321,7 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 		Concept unitConcept;
 		if (unitUnit != null && !unitUnit.isEmpty()) {
 			// See if we can convert this unit to concept code.
-			List<Concept> unitConcepts = conceptService.searchByColumnString("concept_name", unitUnit);
+			List<Concept> unitConcepts = conceptService.searchByColumnString("conceptName", unitUnit);
 			if (unitConcepts.size() > 0) {
 				unitConcept = unitConcepts.get(0);
 				String omopUnitVocab = unitConcept.getVocabularyId();
@@ -602,20 +602,20 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 			case "Patient:" + Patient.SP_IDENTIFIER:
 				addParamlistForPatientIDName(parameter, (String) value, paramWrapper, mapList);
 				break;
-//		case MedicationStatement.SP_PATIENT:
-//			ReferenceParam patientReference = ((ReferenceParam) value);
-//			Long fhirPatientId = patientReference.getIdPartAsLong();
-//			Long omopPersonId = IdMapping.getOMOPfromFHIR(fhirPatientId, PatientResourceProvider.getType());
-//
-//			String omopPersonIdString = String.valueOf(omopPersonId);
-//
-//			paramWrapper.setParameterType("Long");
-//			paramWrapper.setParameters(Arrays.asList("fPerson.id"));
-//			paramWrapper.setOperators(Arrays.asList("="));
-//			paramWrapper.setValues(Arrays.asList(omopPersonIdString));
-//			paramWrapper.setRelationship("or");
-//			mapList.add(paramWrapper);
-//			break;
+			case MedicationStatement.SP_PATIENT:
+				ReferenceParam patientReference = ((ReferenceParam) value);
+				Long fhirPatientId = patientReference.getIdPartAsLong();
+				Long omopPersonId = IdMapping.getOMOPfromFHIR(fhirPatientId, PatientResourceProvider.getType());
+	
+				String omopPersonIdString = String.valueOf(omopPersonId);
+	
+				paramWrapper.setParameterType("Long");
+				paramWrapper.setParameters(Arrays.asList("fPerson.id"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(omopPersonIdString));
+				paramWrapper.setRelationship("or");
+				mapList.add(paramWrapper);
+				break;
 			case MedicationStatement.SP_SOURCE:
 				ReferenceParam sourceReference = ((ReferenceParam) value);
 				String sourceReferenceId = String.valueOf(sourceReference.getIdPartAsLong());

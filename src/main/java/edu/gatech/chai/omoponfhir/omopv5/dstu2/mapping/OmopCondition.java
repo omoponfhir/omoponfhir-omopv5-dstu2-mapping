@@ -212,15 +212,15 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 
 				paramWrapper.setParameterType("String");
 				if ("None".equals(omopVocabulary) && code != null && !code.isEmpty()) {
-					paramWrapper.setParameters(Arrays.asList("conceptId.conceptCode"));
+					paramWrapper.setParameters(Arrays.asList("conditionConcept.conceptCode"));
 					paramWrapper.setOperators(Arrays.asList("="));
 					paramWrapper.setValues(Arrays.asList(code));
 				} else if (!"None".equals(omopVocabulary) && (code == null || code.isEmpty())) {
-					paramWrapper.setParameters(Arrays.asList("conceptId.vocabulary"));
+					paramWrapper.setParameters(Arrays.asList("conditionConcept.vocabularyId"));
 					paramWrapper.setOperators(Arrays.asList("="));
 					paramWrapper.setValues(Arrays.asList(omopVocabulary));
 				} else {
-					paramWrapper.setParameters(Arrays.asList("conceptId.vocabulary", "conceptId.conceptCode"));
+					paramWrapper.setParameters(Arrays.asList("conditionConcept.vocabularyId", "conditionConcept.conceptCode"));
 					paramWrapper.setOperators(Arrays.asList("=", "="));
 					paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
 				}
@@ -371,9 +371,9 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 
 	private void addCodeToCondition(ConditionOccurrence conditionOccurrence, Condition condition) {
 		// Condition.code SNOMED-CT
-		Concept conceptId = conditionOccurrence.getConditionConcept();
-		if (conceptId != null) {
-			CodeableConceptDt conditionCodeableConcept = retrieveCodeableConcept(conceptId);
+		Concept conditionConcept = conditionOccurrence.getConditionConcept();
+		if (conditionConcept != null) {
+			CodeableConceptDt conditionCodeableConcept = retrieveCodeableConcept(conditionConcept);
 			if (conditionCodeableConcept != null) {
 				condition.setCode(conditionCodeableConcept);
 			}

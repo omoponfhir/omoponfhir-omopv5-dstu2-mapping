@@ -2254,7 +2254,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 							// will search matching diastolic value.
 							paramWrapper.setParameterType("String");
 							paramWrapper.setParameters(
-									Arrays.asList("observationConcept.vocabulary", "observationConcept.conceptCode"));
+									Arrays.asList("observationConcept.vocabularyId", "observationConcept.conceptCode"));
 							paramWrapper.setOperators(Arrays.asList("like", "like"));
 							paramWrapper.setValues(Arrays.asList(omopVocabulary, SYSTOLIC_LOINC_CODE));
 							paramWrapper.setRelationship("and");
@@ -2262,7 +2262,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 						} else {
 							paramWrapper.setParameterType("String");
 							paramWrapper.setParameters(
-									Arrays.asList("observationConcept.vocabulary", "observationConcept.conceptCode"));
+									Arrays.asList("observationConcept.vocabularyId", "observationConcept.conceptCode"));
 							paramWrapper.setOperators(Arrays.asList("like", "like"));
 							paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
 							paramWrapper.setRelationship("and");
@@ -2271,7 +2271,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 					} else {
 						// We have no code specified. Search by system.
 						paramWrapper.setParameterType("String");
-						paramWrapper.setParameters(Arrays.asList("observationConcept.vocabulary"));
+						paramWrapper.setParameters(Arrays.asList("observationConcept.vocabularyId"));
 						paramWrapper.setOperators(Arrays.asList("like"));
 						paramWrapper.setValues(Arrays.asList(omopVocabulary));
 						paramWrapper.setRelationship("or");
@@ -2298,7 +2298,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 						if (code == null || code.isEmpty()) {
 							// yes system but no code.
 							paramWrapper.setParameterType("String");
-							paramWrapper.setParameters(Arrays.asList("observationConcept.vocabulary"));
+							paramWrapper.setParameters(Arrays.asList("observationConcept.vocabularyId"));
 							paramWrapper.setOperators(Arrays.asList("like"));
 							paramWrapper.setValues(Arrays.asList(omopVocabulary));
 							paramWrapper.setRelationship("or");
@@ -2307,7 +2307,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 							// We have both system and code.
 							paramWrapper.setParameterType("String");
 							paramWrapper.setParameters(
-									Arrays.asList("observationConcept.vocabulary", "observationConcept.conceptCode"));
+									Arrays.asList("observationConcept.vocabularyId", "observationConcept.conceptCode"));
 							paramWrapper.setOperators(Arrays.asList("like", "like"));
 							paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
 							paramWrapper.setRelationship("and");

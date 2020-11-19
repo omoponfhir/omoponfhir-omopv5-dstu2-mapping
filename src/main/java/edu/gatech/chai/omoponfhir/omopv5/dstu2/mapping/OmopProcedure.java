@@ -294,11 +294,11 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 				paramWrapper.setOperators(Arrays.asList("="));
 				paramWrapper.setValues(Arrays.asList(code));
 			} else if (!"None".equals(omopVocabulary) && (code == null || code.isEmpty())) {
-				paramWrapper.setParameters(Arrays.asList("procedureConcept.vocabulary"));
+				paramWrapper.setParameters(Arrays.asList("procedureConcept.vocabularyId"));
 				paramWrapper.setOperators(Arrays.asList("="));
 				paramWrapper.setValues(Arrays.asList(omopVocabulary));				
 			} else {
-				paramWrapper.setParameters(Arrays.asList("procedureConcept.vocabulary", "procedureConcept.conceptCode"));
+				paramWrapper.setParameters(Arrays.asList("procedureConcept.vocabularyId", "procedureConcept.conceptCode"));
 				paramWrapper.setOperators(Arrays.asList("=","="));
 				paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
 			}

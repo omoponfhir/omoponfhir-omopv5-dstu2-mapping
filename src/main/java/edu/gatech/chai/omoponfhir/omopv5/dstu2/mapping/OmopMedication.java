@@ -159,11 +159,11 @@ public class OmopMedication extends BaseOmopResource<Medication, Concept, Concep
 				paramWrapper.setOperators(Arrays.asList("like"));
 				paramWrapper.setValues(Arrays.asList(code));
 			} else if (!"None".equals(omopVocabulary) && (code == null || code.isEmpty())) {
-				paramWrapper.setParameters(Arrays.asList("vocabulary"));
+				paramWrapper.setParameters(Arrays.asList("vocabularyId"));
 				paramWrapper.setOperators(Arrays.asList("like"));
 				paramWrapper.setValues(Arrays.asList(omopVocabulary));				
 			} else {
-				paramWrapper.setParameters(Arrays.asList("vocabulary", "conceptCode"));
+				paramWrapper.setParameters(Arrays.asList("vocabularyId", "conceptCode"));
 				paramWrapper.setOperators(Arrays.asList("like","like"));
 				paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
 			}

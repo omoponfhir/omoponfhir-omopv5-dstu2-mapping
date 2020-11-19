@@ -248,11 +248,11 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 				paramWrapper.setOperators(Arrays.asList("="));
 				paramWrapper.setValues(Arrays.asList(code));
 			} else if (!"None".equals(omopVocabulary) && (code == null || code.isEmpty())) {
-				paramWrapper.setParameters(Arrays.asList("typeConcept.vocabulary"));
+				paramWrapper.setParameters(Arrays.asList("typeConcept.vocabularyId"));
 				paramWrapper.setOperators(Arrays.asList("="));
 				paramWrapper.setValues(Arrays.asList(omopVocabulary));				
 			} else {
-				paramWrapper.setParameters(Arrays.asList("typeConcept.vocabulary", "typeConcept.conceptCode"));
+				paramWrapper.setParameters(Arrays.asList("typeConcept.vocabularyId", "typeConcept.conceptCode"));
 				paramWrapper.setOperators(Arrays.asList("=","="));
 				paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
 			}

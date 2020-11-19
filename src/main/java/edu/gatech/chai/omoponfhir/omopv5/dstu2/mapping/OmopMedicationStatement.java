@@ -470,7 +470,7 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 //						// We need to loop
 //						ParameterWrapper myParamWrapper = new ParameterWrapper();
 //						myParamWrapper.setParameterType("Code:In");
-//						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabulary", "drugConcept.conceptCode"));
+//						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabularyId", "drugConcept.conceptCode"));
 //						myParamWrapper.setOperators(Arrays.asList("=", "in"));
 //
 //						String valueSetSystem = include.getSystem();
@@ -499,7 +499,7 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 //						// We need to loop
 //						ParameterWrapper myParamWrapper = new ParameterWrapper();
 //						myParamWrapper.setParameterType("Code:In");
-//						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabulary", "drugConcept.conceptCode"));
+//						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabularyId", "drugConcept.conceptCode"));
 //						myParamWrapper.setOperators(Arrays.asList("=", "out"));
 //
 //						String valueSetSystem = exclude.getSystem();
@@ -538,11 +538,11 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 						paramWrapper.setOperators(Arrays.asList("like"));
 						paramWrapper.setValues(Arrays.asList(code));
 					} else if (!"None".equals(omopVocabulary) && (code == null || code.isEmpty())) {
-						paramWrapper.setParameters(Arrays.asList("drugConcept.vocabulary"));
+						paramWrapper.setParameters(Arrays.asList("drugConcept.vocabularyId"));
 						paramWrapper.setOperators(Arrays.asList("like"));
 						paramWrapper.setValues(Arrays.asList(omopVocabulary));
 					} else {
-						paramWrapper.setParameters(Arrays.asList("drugConcept.vocabulary", "drugConcept.conceptCode"));
+						paramWrapper.setParameters(Arrays.asList("drugConcept.vocabularyId", "drugConcept.conceptCode"));
 						paramWrapper.setOperators(Arrays.asList("like", "like"));
 						paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
 					}

@@ -226,7 +226,7 @@ public class OmopDevice extends BaseOmopResource<Device, DeviceExposure, DeviceE
 				if (code == null || code.isEmpty()) {
 					// yes system but no code.
 					paramWrapper.setParameterType("String");
-					paramWrapper.setParameters(Arrays.asList("deviceConcept.vocabulary"));
+					paramWrapper.setParameters(Arrays.asList("deviceConcept.vocabularyId"));
 					paramWrapper.setOperators(Arrays.asList("like"));
 					paramWrapper.setValues(Arrays.asList(omopVocabulary));
 					paramWrapper.setRelationship("or");
@@ -235,7 +235,7 @@ public class OmopDevice extends BaseOmopResource<Device, DeviceExposure, DeviceE
 					// We have both system and code.
 					paramWrapper.setParameterType("String");
 					paramWrapper.setParameters(
-							Arrays.asList("deviceConcept.vocabulary", "deviceConcept.conceptCode"));
+							Arrays.asList("deviceConcept.vocabularyId", "deviceConcept.conceptCode"));
 					paramWrapper.setOperators(Arrays.asList("like", "like"));
 					paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
 					paramWrapper.setRelationship("and");

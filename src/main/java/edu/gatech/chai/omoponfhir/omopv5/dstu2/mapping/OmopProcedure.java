@@ -48,6 +48,7 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
 import ca.uhn.fhir.rest.param.DateParam;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ParamPrefixEnum;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -56,6 +57,7 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.ProcedureResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.DateUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
@@ -322,29 +324,42 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 			}
 			break;
 		case Procedure.SP_DATE:
-			DateParam dateParam = ((DateParam) value);
-			ParamPrefixEnum apiOperator = dateParam.getPrefix();
-			String sqlOperator = null;
-			if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN)) {
-				sqlOperator = ">";
-			} else if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN_OR_EQUALS)) {
-				sqlOperator = ">=";
-			} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN)) {
-				sqlOperator = "<";
-			} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN_OR_EQUALS)) {
-				sqlOperator = "<=";
-			} else if (apiOperator.equals(ParamPrefixEnum.NOT_EQUAL)) {
-				sqlOperator = "!=";
-			} else {
-				sqlOperator = "=";
-			}
-			Date date = dateParam.getValue();
+			// We got Date Range here. 
+			DateRangeParam dateRangeParam = ((DateRangeParam) value);
 			
-			paramWrapper.setParameterType("Date");
-			paramWrapper.setParameters(Arrays.asList("procedureDate"));
-			paramWrapper.setOperators(Arrays.asList(sqlOperator));
-			paramWrapper.setValues(Arrays.asList(String.valueOf(date.getTime())));
-			paramWrapper.setRelationship("or");
+			// There are 3 possible cases. 
+			// case 1 is range.
+			// case 2 is lower bound and no upper bound
+			// case 3 is upper bound and no lower bound
+			
+//			if (dateRangeParam.getUpperBound() == null) {
+//				// case 2
+//				Date lowerDate = dateRangeParam.getLowerBoundAsInstant();
+//				
+//			}
+//			ParamPrefixEnum apiOperator = dateParam.getPrefix();
+//			String sqlOperator = null;
+//			if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN)) {
+//				sqlOperator = ">";
+//			} else if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN_OR_EQUALS)) {
+//				sqlOperator = ">=";
+//			} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN)) {
+//				sqlOperator = "<";
+//			} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN_OR_EQUALS)) {
+//				sqlOperator = "<=";
+//			} else if (apiOperator.equals(ParamPrefixEnum.NOT_EQUAL)) {
+//				sqlOperator = "!=";
+//			} else {
+//				sqlOperator = "=";
+//			}
+//			Date date = dateParam.getValue();
+//			
+//			paramWrapper.setParameterType("Date");
+//			paramWrapper.setParameters(Arrays.asList("procedureDate"));
+//			paramWrapper.setOperators(Arrays.asList(sqlOperator));
+//			paramWrapper.setValues(Arrays.asList(String.valueOf(date.getTime())));
+//			paramWrapper.setRelationship("or");
+			paramWrapper = DateUtil.constructParameterWrapper(dateRangeParam, "procedureDate");
 			mapList.add(paramWrapper);
 			break;
 		case Procedure.SP_SUBJECT:

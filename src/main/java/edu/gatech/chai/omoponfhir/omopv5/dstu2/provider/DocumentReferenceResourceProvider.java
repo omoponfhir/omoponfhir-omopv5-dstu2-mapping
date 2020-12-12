@@ -34,7 +34,6 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
 import ca.uhn.fhir.model.api.Include;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;
@@ -47,7 +46,7 @@ import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
-import ca.uhn.fhir.rest.param.DateParam;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -182,8 +181,8 @@ public class DocumentReferenceResourceProvider implements IResourceProvider {
 			@OptionalParam(name=DocumentReference.SP_SUBJECT, chainWhitelist = { "", Patient.SP_NAME }) ReferenceParam theSubject,
 			@OptionalParam(name=DocumentReference.SP_ENCOUNTER) ReferenceParam theEncounter,
 			@OptionalParam(name=DocumentReference.SP_TYPE) TokenOrListParam theOrType,
-			@OptionalParam(name=DocumentReference.SP_CREATED) DateParam theCreated,
-			@OptionalParam(name=DocumentReference.SP_INDEXED) DateParam theIndexed,
+			@OptionalParam(name=DocumentReference.SP_CREATED) DateRangeParam theRangeCreated,
+			@OptionalParam(name=DocumentReference.SP_INDEXED) DateRangeParam theRangeIndexed,
 			
 			@IncludeParam(allow={"DocumentReference:patient", "DocumentReference:subject", 
 					"DocumentReference:encounter"})
@@ -204,12 +203,12 @@ public class DocumentReferenceResourceProvider implements IResourceProvider {
 			}
 		}
 
-		if (theCreated != null) {
-			paramList.addAll(getMyMapper().mapParameter(DocumentReference.SP_CREATED, theCreated, false));
+		if (theRangeCreated != null) {
+			paramList.addAll(getMyMapper().mapParameter(DocumentReference.SP_CREATED, theRangeCreated, false));
 		}
 
-		if (theIndexed != null) {
-			paramList.addAll(getMyMapper().mapParameter(DocumentReference.SP_INDEXED, theIndexed, false));
+		if (theRangeIndexed != null) {
+			paramList.addAll(getMyMapper().mapParameter(DocumentReference.SP_INDEXED, theRangeIndexed, false));
 		}
 
 		if (theSubject != null) {

@@ -32,7 +32,6 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
 import ca.uhn.fhir.model.api.Include;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;
@@ -45,7 +44,7 @@ import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
-import ca.uhn.fhir.rest.param.DateParam;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -216,7 +215,7 @@ public class ProcedureResourceProvider implements IResourceProvider {
 	public IBundleProvider findProceduresByParams(@OptionalParam(name = Procedure.SP_CODE) TokenOrListParam theOrCodes,
 //			@OptionalParam(name = Procedure.SP_CONTEXT) ReferenceParam theContextParam,
 //		This SP doesn't exist in DSTU2
-			@OptionalParam(name = Procedure.SP_DATE) DateParam theDateParm,
+			@OptionalParam(name = Procedure.SP_DATE) DateRangeParam theDateRangeParm,
 			@OptionalParam(name = Procedure.SP_ENCOUNTER) ReferenceParam theEncounterParam,
 			@OptionalParam(name = Procedure.SP_SUBJECT) ReferenceParam theSubjectParam,
 			@OptionalParam(name = Procedure.SP_PATIENT) ReferenceParam thePatientParam,
@@ -247,8 +246,8 @@ public class ProcedureResourceProvider implements IResourceProvider {
 //		if (theContextParam != null) {
 //			paramList.addAll(myMapper.mapParameter(Procedure.SP_CONTEXT, theContextParam, false));
 //		}
-		if (theDateParm != null) {
-			paramList.addAll(myMapper.mapParameter(Procedure.SP_DATE, theDateParm, false));
+		if (theDateRangeParm != null) {
+			paramList.addAll(myMapper.mapParameter(Procedure.SP_DATE, theDateRangeParm, false));
 		}
 		if (theEncounterParam != null) {
 			paramList.addAll(myMapper.mapParameter(Procedure.SP_ENCOUNTER, theEncounterParam, false));

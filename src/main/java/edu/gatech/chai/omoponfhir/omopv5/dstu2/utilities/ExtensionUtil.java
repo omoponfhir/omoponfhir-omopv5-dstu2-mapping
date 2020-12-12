@@ -14,7 +14,7 @@ public class ExtensionUtil {
 	public static Map<String, Long>  resourceCounts = new HashMap<String, Long>();
 
 	public static USCorePatient usCorePatientFromResource(BaseResource resource) {
-		IParser p = FhirContext.forDstu2().newJsonParser();
+		IParser p = StaticValues.myFhirContext.newJsonParser();
 		String patientJSON = p.encodeResourceToString(resource);
 
 		return p.parseResource(USCorePatient.class, patientJSON);

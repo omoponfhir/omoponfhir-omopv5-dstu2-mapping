@@ -43,7 +43,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.Include;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;
@@ -58,7 +57,7 @@ import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.SortSpec;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
-import ca.uhn.fhir.rest.param.DateParam;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -66,8 +65,6 @@ import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
-
-import javax.persistence.Id;
 
 public class ObservationResourceProvider implements IResourceProvider {
 
@@ -179,7 +176,7 @@ public class ObservationResourceProvider implements IResourceProvider {
 	@Search()
 	public IBundleProvider findObservationsByParams(
 			@OptionalParam(name=Observation.SP_CODE) TokenOrListParam theOrCodes,
-			@OptionalParam(name=Observation.SP_DATE) DateParam theDate,
+			@OptionalParam(name=Observation.SP_DATE) DateRangeParam theRangeDate,
 			@OptionalParam(name=Observation.SP_PATIENT, chainWhitelist={"", Patient.SP_NAME, Patient.SP_IDENTIFIER}) ReferenceParam thePatient,
 			@OptionalParam(name=Observation.SP_SUBJECT, chainWhitelist={"", Patient.SP_NAME, Patient.SP_IDENTIFIER}) ReferenceParam theSubject,
 			@Sort SortSpec theSort,
@@ -205,8 +202,8 @@ public class ObservationResourceProvider implements IResourceProvider {
 			}
 		}
 		
-		if (theDate != null) {
-			paramList.addAll(getMyMapper().mapParameter(Observation.SP_DATE, theDate, false));
+		if (theRangeDate != null) {
+			paramList.addAll(getMyMapper().mapParameter(Observation.SP_DATE, theRangeDate, false));
 		}
 		
 		// With OMOP, we only support subject to be patient.

@@ -68,19 +68,18 @@ public class DateUtil {
 		return sqlOperator;
 	}
 	
-	public static ParameterWrapper constructParameterWrapper(DateRangeParam dateRangeParam, String dateColumn) {
+	public static void constructParameterWrapper(DateRangeParam dateRangeParam, String dateColumn, ParameterWrapper paramWrapper, List<ParameterWrapper> mapList) {
 		// There are 3 possible cases. 
 		// case 1 is range.
 		// case 2 is lower bound and no upper bound
 		// case 3 is upper bound and no lower bound
-		ParameterWrapper paramWrapper = new ParameterWrapper ();
 		
 		DateParam lowerDateParam = dateRangeParam.getLowerBound();
 		DateParam upperDateParam = dateRangeParam.getUpperBound();
 		if (lowerDateParam != null && upperDateParam != null) {
 			// case 1
-			String lowerSqlOperator = getSqlOperator(lowerDateParam.getPrefix());
-			String upperSqlOperator = getSqlOperator(upperDateParam.getPrefix());
+			String lowerSqlOperator = DateUtil.getSqlOperator(lowerDateParam.getPrefix());
+			String upperSqlOperator = DateUtil.getSqlOperator(upperDateParam.getPrefix());
 			
 			paramWrapper.setParameterType("Date");
 			paramWrapper.setParameters(Arrays.asList(dateColumn, dateColumn));
@@ -89,23 +88,23 @@ public class DateUtil {
 					String.valueOf(upperDateParam.getValue().getTime())));
 			paramWrapper.setRelationship("and");
 		} else if (lowerDateParam != null && upperDateParam == null) {
-			String lowerSqlOperator = getSqlOperator(lowerDateParam.getPrefix());
+			String lowerSqlOperator = DateUtil.getSqlOperator(lowerDateParam.getPrefix());
 			
 			paramWrapper.setParameterType("Date");
 			paramWrapper.setParameters(Arrays.asList(dateColumn));
 			paramWrapper.setOperators(Arrays.asList(lowerSqlOperator));
 			paramWrapper.setValues(Arrays.asList(String.valueOf(lowerDateParam.getValue().getTime())));
-			paramWrapper.setRelationship("or");
+			paramWrapper.setRelationship("and");
 		} else {
-			String upperSqlOperator = getSqlOperator(upperDateParam.getPrefix());
+			String upperSqlOperator = DateUtil.getSqlOperator(upperDateParam.getPrefix());
 			
 			paramWrapper.setParameterType("Date");
 			paramWrapper.setParameters(Arrays.asList(dateColumn));
 			paramWrapper.setOperators(Arrays.asList(upperSqlOperator));
 			paramWrapper.setValues(Arrays.asList(String.valueOf(upperDateParam.getValue().getTime())));
-			paramWrapper.setRelationship("or");
+			paramWrapper.setRelationship("and");
 		}
 		
-		return paramWrapper;
+		mapList.add(paramWrapper);
 	}
 }

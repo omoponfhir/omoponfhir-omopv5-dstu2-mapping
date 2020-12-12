@@ -359,8 +359,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 //			paramWrapper.setOperators(Arrays.asList(sqlOperator));
 //			paramWrapper.setValues(Arrays.asList(String.valueOf(date.getTime())));
 //			paramWrapper.setRelationship("or");
-			paramWrapper = DateUtil.constructParameterWrapper(dateRangeParam, "procedureDate");
-			mapList.add(paramWrapper);
+			DateUtil.constructParameterWrapper(dateRangeParam, "procedureDate", paramWrapper, mapList);
 			break;
 		case Procedure.SP_SUBJECT:
 		case Procedure.SP_PATIENT:

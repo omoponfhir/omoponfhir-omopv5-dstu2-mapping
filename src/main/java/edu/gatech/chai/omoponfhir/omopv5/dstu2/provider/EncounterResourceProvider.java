@@ -125,8 +125,6 @@ public class EncounterResourceProvider implements IResourceProvider {
 			@OptionalParam(name = Encounter.SP_PATIENT, chainWhitelist = { "",
 					Patient.SP_NAME }) ReferenceParam thePatient,
 //			@OptionalParam(name = Encounter.SP_SUBJECT, chainWhitelist = { "",
-			@OptionalParam(name = Encounter.SP_PATIENT, chainWhitelist = { "",
-					Patient.SP_NAME }) ReferenceParam theSubject,
 //			@OptionalParam(name = Encounter.SP_DIAGNOSIS) ReferenceParam theDiagnosis,
 			@OptionalParam(name = Encounter.SP_CONDITION) ReferenceParam theDiagnosis,
 
@@ -144,21 +142,21 @@ public class EncounterResourceProvider implements IResourceProvider {
 
 		// With OMOP, we only support subject to be patient.
 		// If the subject has only ID part, we assume that is patient.
-		if (theSubject != null) {
-			if (theSubject.getResourceType() != null
-					&& theSubject.getResourceType().equals(PatientResourceProvider.getType())) {
-				thePatient = theSubject;
-			} else {
-				// If resource is null, we assume Patient.
-				if (theSubject.getResourceType() == null) {
-					thePatient = theSubject;
-				} else {
-					ThrowFHIRExceptions
-							.unprocessableEntityException("subject search allows Only Patient Resource, but provided "
-									+ theSubject.getResourceType());
-				}
-			}
-		}
+//		if (theSubject != null) {
+//			if (theSubject.getResourceType() != null
+//					&& theSubject.getResourceType().equals(PatientResourceProvider.getType())) {
+//				thePatient = theSubject;
+//			} else {
+//				// If resource is null, we assume Patient.
+//				if (theSubject.getResourceType() == null) {
+//					thePatient = theSubject;
+//				} else {
+//					ThrowFHIRExceptions
+//							.unprocessableEntityException("subject search allows Only Patient Resource, but provided "
+//									+ theSubject.getResourceType());
+//				}
+//			}
+//		}
 
 		if (thePatient != null) {
 			String patientChain = thePatient.getChain();

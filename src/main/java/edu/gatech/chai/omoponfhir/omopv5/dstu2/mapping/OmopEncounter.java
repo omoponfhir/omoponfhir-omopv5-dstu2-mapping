@@ -16,31 +16,20 @@
 package edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.Coding;
-import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-//import org.hl7.fhir.dstu3.model.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
-//import org.hl7.fhir.dstu3.model.IdType;
 
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Period;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-//import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
-//import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import ca.uhn.fhir.model.dstu2.resource.Encounter.Participant;
-//import org.hl7.fhir.dstu3.model.Encounter.EncounterStatus;
 import ca.uhn.fhir.model.dstu2.valueset.EncounterStateEnum;
 import ca.uhn.fhir.model.dstu2.valueset.EncounterClassEnum;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.ConditionResourceProvider;
@@ -48,11 +37,10 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvide
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.OrganizationResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.V3ActCode;
 
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omopv5.dba.service.CareSiteService;

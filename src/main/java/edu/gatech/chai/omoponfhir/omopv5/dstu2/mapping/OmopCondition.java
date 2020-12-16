@@ -15,6 +15,8 @@
  *******************************************************************************/
 package edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping;
 
+import org.hl7.fhir.exceptions.FHIRException;
+
 import ca.uhn.fhir.model.api.IDatatype;
 import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.ParamPrefixEnum;
@@ -27,7 +29,6 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ConditionCategory;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.*;
 import edu.gatech.chai.omopv5.model.entity.*;
 

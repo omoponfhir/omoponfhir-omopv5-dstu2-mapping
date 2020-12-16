@@ -19,19 +19,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Organization;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopOrganization;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.model.api.Include;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;

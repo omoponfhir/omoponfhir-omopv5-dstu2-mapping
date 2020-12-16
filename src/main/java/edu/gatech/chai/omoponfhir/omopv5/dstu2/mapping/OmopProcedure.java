@@ -20,45 +20,36 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-//import org.hl7.fhir.dstu3.model.DateTimeType;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
-//import org.hl7.fhir.dstu3.model.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Practitioner;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
-//import org.hl7.fhir.dstu3.model.Procedure;
 import ca.uhn.fhir.model.dstu2.resource.Procedure;
-//import org.hl7.fhir.dstu3.model.Procedure.ProcedurePerformerComponent;
 import ca.uhn.fhir.model.dstu2.resource.Procedure.Performer;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-//import org.hl7.fhir.dstu3.model.Type;
 import ca.uhn.fhir.model.api.IDatatype;
 import ca.uhn.fhir.model.dstu2.valueset.ProcedureStatusEnum;
+
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ParamPrefixEnum;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
+
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.ProcedureResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.DateUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
@@ -324,10 +315,19 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 			}
 			break;
 		case Procedure.SP_DATE:
+			// We got Date Range here. 
 			DateRangeParam dateRangeParam = ((DateRangeParam) value);
-			DateUtil.constructParameterWrapper(dateRangeParam, "procedureDate", paramWrapper, mapList);
 			
-//			DateParam dateParam = ((DateParam) value);
+			// There are 3 possible cases. 
+			// case 1 is range.
+			// case 2 is lower bound and no upper bound
+			// case 3 is upper bound and no lower bound
+			
+//			if (dateRangeParam.getUpperBound() == null) {
+//				// case 2
+//				Date lowerDate = dateRangeParam.getLowerBoundAsInstant();
+//				
+//			}
 //			ParamPrefixEnum apiOperator = dateParam.getPrefix();
 //			String sqlOperator = null;
 //			if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN)) {
@@ -350,7 +350,7 @@ public class OmopProcedure extends BaseOmopResource<Procedure, ProcedureOccurren
 //			paramWrapper.setOperators(Arrays.asList(sqlOperator));
 //			paramWrapper.setValues(Arrays.asList(String.valueOf(date.getTime())));
 //			paramWrapper.setRelationship("or");
-//			mapList.add(paramWrapper);
+			DateUtil.constructParameterWrapper(dateRangeParam, "procedureDate", paramWrapper, mapList);
 			break;
 		case Procedure.SP_SUBJECT:
 		case Procedure.SP_PATIENT:

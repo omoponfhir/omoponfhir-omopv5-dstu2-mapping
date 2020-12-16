@@ -25,37 +25,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-//import org.hl7.fhir.dstu3.model.DateTimeType;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Identifier;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-//import org.hl7.fhir.dstu3.model.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
-//import org.hl7.fhir.dstu3.model.Period;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
-//import org.hl7.fhir.dstu3.model.Observation.ObservationComponentComponent;
 import ca.uhn.fhir.model.dstu2.resource.Observation.Component;
-//import org.hl7.fhir.dstu3.model.Observation.ObservationReferenceRangeComponent;
 import ca.uhn.fhir.model.dstu2.resource.Observation.ReferenceRange;
-//import org.hl7.fhir.dstu3.model.Observation.ObservationStatus;
 import ca.uhn.fhir.model.dstu2.valueset.ObservationStatusEnum;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Quantity;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-//import org.hl7.fhir.dstu3.model.SimpleQuantity;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
-//import org.hl7.fhir.dstu3.model.StringType;
 import ca.uhn.fhir.model.primitive.StringDt;
-//import org.hl7.fhir.dstu3.model.Type;
 import ca.uhn.fhir.model.api.IDatatype;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -63,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.api.SortSpec;
 import ca.uhn.fhir.rest.param.DateParam;
@@ -76,7 +61,6 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProv
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.DateUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.FObservationViewService;
 import edu.gatech.chai.omopv5.dba.service.FactRelationshipService;
@@ -819,7 +803,6 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 //			}
 		}
 
-		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 		if (fhirResource.getEffective() instanceof DateTimeDt) {
 			Date date = ((DateTimeDt) fhirResource.getEffective()).getValue();
 			if (systolicMeasurement != null) {
@@ -1262,7 +1245,6 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			}
 		}
 
-		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 		if (fhirResource.getEffective() instanceof DateTimeDt) {
 			Date date = ((DateTimeDt) fhirResource.getEffective()).getValue();
 			measurement.setMeasurementDate(date);
@@ -2181,7 +2163,6 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			case Observation.SP_DATE:
 				DateRangeParam dateRangeParam = ((DateRangeParam) value);
 				DateUtil.constructParameterWrapper(dateRangeParam, "observationDate", paramWrapper, mapList);
-				
 //				Date date = ((DateParam) value).getValue();
 //				ParamPrefixEnum prefix = ((DateParam) value).getPrefix();
 //				String inequality = "=";
@@ -2229,7 +2210,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 //				paramWrapper_time.setValues(Arrays.asList(String.valueOf(date)));
 //				paramWrapper_time.setRelationship("and");
 //				mapList.add(paramWrapper_time);
-
+//
 				break;
 			case Observation.SP_CODE:
 				String system = ((TokenParam) value).getSystem();

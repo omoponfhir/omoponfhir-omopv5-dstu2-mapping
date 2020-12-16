@@ -26,7 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.ConceptMapResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
+import org.hl7.fhir.exceptions.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptRelationshipService;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;

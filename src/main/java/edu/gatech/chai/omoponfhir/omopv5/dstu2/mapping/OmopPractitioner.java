@@ -20,33 +20,24 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.Address;
 import ca.uhn.fhir.model.dstu2.composite.AddressDt;
-//import org.hl7.fhir.dstu3.model.HumanName;
 import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Identifier;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Practitioner;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
-//import org.hl7.fhir.dstu3.model.StringType;
 import ca.uhn.fhir.model.primitive.StringDt;
-//import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
-//import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.AddressUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.CareSiteService;
 import edu.gatech.chai.omopv5.dba.service.LocationService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;

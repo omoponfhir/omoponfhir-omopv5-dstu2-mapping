@@ -21,34 +21,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-//import org.hl7.fhir.dstu3.model.Resource;
 import ca.uhn.fhir.model.dstu2.resource.BaseResource;
-//import org.hl7.fhir.dstu3.model.ResourceType;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;
-//import org.hl7.fhir.dstu3.model.StringType;
 import ca.uhn.fhir.model.primitive.StringDt;
-//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
-//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryResponseComponent;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryResponse;
-//import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import ca.uhn.fhir.model.dstu2.valueset.HTTPVerbEnum;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 
 import org.hl7.fhir.instance.model.api.IIdType;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.model.USCorePatient;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
 import edu.gatech.chai.omopv5.dba.service.MeasurementService;
 import edu.gatech.chai.omopv5.dba.service.ObservationService;

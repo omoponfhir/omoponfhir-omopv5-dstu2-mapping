@@ -23,22 +23,12 @@ import java.util.List;
 //import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.composite.*;
-//import org.hl7.fhir.dstu3.model.Coding;
-//import org.hl7.fhir.dstu3.model.Device;
 import ca.uhn.fhir.model.dstu2.resource.Device;
-//import org.hl7.fhir.dstu3.model.Device.DeviceUdiComponent;
-//import org.hl7.fhir.dstu3.model.DeviceUseStatement;
 import ca.uhn.fhir.model.dstu2.resource.DeviceUseStatement;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Period;
-//import org.hl7.fhir.dstu3.model.Reference;
-//import org.hl7.fhir.dstu3.model.Resource;
 import ca.uhn.fhir.model.dstu2.resource.BaseResource;
-//import org.hl7.fhir.dstu3.model.ResourceType;
 import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;
 
 import org.hl7.fhir.instance.model.api.IIdType;
@@ -46,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.model.MyDevice;
@@ -54,7 +45,6 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.DeviceUseStatementResour
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DeviceExposureService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;

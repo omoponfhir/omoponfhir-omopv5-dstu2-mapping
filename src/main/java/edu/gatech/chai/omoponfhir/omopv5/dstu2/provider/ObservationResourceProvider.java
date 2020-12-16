@@ -19,27 +19,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Observation;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
-//import org.hl7.fhir.dstu3.model.OperationOutcome;
 import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
 import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopObservation;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.Include;

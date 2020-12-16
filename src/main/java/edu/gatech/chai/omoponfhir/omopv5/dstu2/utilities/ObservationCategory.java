@@ -1,6 +1,7 @@
 package edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities;
 
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
+import org.hl7.fhir.exceptions.FHIRException;
+
 public enum ObservationCategory {
 
     /**

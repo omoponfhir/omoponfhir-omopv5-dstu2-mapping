@@ -19,22 +19,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//import org.hl7.fhir.dstu3.model.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopEncounter;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.model.api.Include;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;
@@ -125,8 +120,6 @@ public class EncounterResourceProvider implements IResourceProvider {
 			@OptionalParam(name = Encounter.SP_PATIENT, chainWhitelist = { "",
 					Patient.SP_NAME }) ReferenceParam thePatient,
 //			@OptionalParam(name = Encounter.SP_SUBJECT, chainWhitelist = { "",
-			@OptionalParam(name = Encounter.SP_PATIENT, chainWhitelist = { "",
-					Patient.SP_NAME }) ReferenceParam theSubject,
 //			@OptionalParam(name = Encounter.SP_DIAGNOSIS) ReferenceParam theDiagnosis,
 			@OptionalParam(name = Encounter.SP_CONDITION) ReferenceParam theDiagnosis,
 
@@ -144,21 +137,21 @@ public class EncounterResourceProvider implements IResourceProvider {
 
 		// With OMOP, we only support subject to be patient.
 		// If the subject has only ID part, we assume that is patient.
-		if (theSubject != null) {
-			if (theSubject.getResourceType() != null
-					&& theSubject.getResourceType().equals(PatientResourceProvider.getType())) {
-				thePatient = theSubject;
-			} else {
-				// If resource is null, we assume Patient.
-				if (theSubject.getResourceType() == null) {
-					thePatient = theSubject;
-				} else {
-					ThrowFHIRExceptions
-							.unprocessableEntityException("subject search allows Only Patient Resource, but provided "
-									+ theSubject.getResourceType());
-				}
-			}
-		}
+//		if (theSubject != null) {
+//			if (theSubject.getResourceType() != null
+//					&& theSubject.getResourceType().equals(PatientResourceProvider.getType())) {
+//				thePatient = theSubject;
+//			} else {
+//				// If resource is null, we assume Patient.
+//				if (theSubject.getResourceType() == null) {
+//					thePatient = theSubject;
+//				} else {
+//					ThrowFHIRExceptions
+//							.unprocessableEntityException("subject search allows Only Patient Resource, but provided "
+//									+ theSubject.getResourceType());
+//				}
+//			}
+//		}
 
 		if (thePatient != null) {
 			String patientChain = thePatient.getChain();

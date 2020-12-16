@@ -22,32 +22,22 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.Attachment;
 import ca.uhn.fhir.model.dstu2.composite.AttachmentDt;
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-//import org.hl7.fhir.dstu3.model.DocumentReference;
 import ca.uhn.fhir.model.dstu2.resource.DocumentReference;
-//import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContentComponent;
 import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Content;
-//import org.hl7.fhir.dstu3.model.DocumentReference.DocumentReferenceContextComponent;
 import ca.uhn.fhir.model.dstu2.resource.DocumentReference.Context;
-//import org.hl7.fhir.dstu3.model.Encounter;
 import ca.uhn.fhir.model.dstu2.resource.Encounter;
-//import org.hl7.fhir.dstu3.model.Enumerations.DocumentReferenceStatus;
 import ca.uhn.fhir.model.dstu2.valueset.DocumentReferenceStatusEnum;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.DateRangeParam;
@@ -61,7 +51,6 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.DateUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
@@ -170,7 +159,6 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		case DocumentReference.SP_INDEXED:
 			DateRangeParam dateRangeParam = ((DateRangeParam) value);
 			DateUtil.constructParameterWrapper(dateRangeParam, "noteDate", paramWrapper, mapList);
-			
 //			Date date = ((DateParam) value).getValue();
 //			ParamPrefixEnum prefix = ((DateParam) value).getPrefix();
 //			String inequality = "=";
@@ -252,11 +240,11 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 				paramWrapper.setOperators(Arrays.asList("="));
 				paramWrapper.setValues(Arrays.asList(code));
 			} else if (!"None".equals(omopVocabulary) && (code == null || code.isEmpty())) {
-				paramWrapper.setParameters(Arrays.asList("typeConcept.vocabulary"));
+				paramWrapper.setParameters(Arrays.asList("typeConcept.vocabularyId"));
 				paramWrapper.setOperators(Arrays.asList("="));
 				paramWrapper.setValues(Arrays.asList(omopVocabulary));				
 			} else {
-				paramWrapper.setParameters(Arrays.asList("typeConcept.vocabulary", "typeConcept.conceptCode"));
+				paramWrapper.setParameters(Arrays.asList("typeConcept.vocabularyId", "typeConcept.conceptCode"));
 				paramWrapper.setOperators(Arrays.asList("=","="));
 				paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
 			}

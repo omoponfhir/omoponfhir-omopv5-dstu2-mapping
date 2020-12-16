@@ -19,26 +19,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Identifier;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-//import org.hl7.fhir.dstu3.model.Organization;
 import ca.uhn.fhir.model.dstu2.resource.Organization;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 
 import org.hl7.fhir.instance.model.api.IIdType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.hl7.fhir.exceptions.FHIRException;
 
-//import org.hl7.fhir.dstu3.model.Address;
 import ca.uhn.fhir.model.dstu2.composite.AddressDt;
-//import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
@@ -47,7 +40,6 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.OrganizationResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.AddressUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.CareSiteService;
 import edu.gatech.chai.omopv5.dba.service.LocationService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;

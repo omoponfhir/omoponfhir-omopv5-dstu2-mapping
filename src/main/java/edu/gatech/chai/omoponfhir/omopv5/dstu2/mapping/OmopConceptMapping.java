@@ -15,13 +15,15 @@
  *******************************************************************************/
 package edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping;
 
+import org.hl7.fhir.exceptions.FHIRException;
+
 //import org.hl7.fhir.dstu3.model.codesystems.AdministrativeGender;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ConditionCategory;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ObservationCategory;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.OrganizationType;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.V3ActCode;
+
 public enum OmopConceptMapping {
 
 	/**

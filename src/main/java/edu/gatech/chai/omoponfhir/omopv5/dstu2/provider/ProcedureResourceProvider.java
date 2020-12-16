@@ -19,17 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Procedure;
 import ca.uhn.fhir.model.dstu2.resource.Procedure;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopProcedure;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.model.api.Include;
 import ca.uhn.fhir.rest.annotation.Create;
@@ -215,6 +213,7 @@ public class ProcedureResourceProvider implements IResourceProvider {
 	public IBundleProvider findProceduresByParams(@OptionalParam(name = Procedure.SP_CODE) TokenOrListParam theOrCodes,
 //			@OptionalParam(name = Procedure.SP_CONTEXT) ReferenceParam theContextParam,
 //		This SP doesn't exist in DSTU2
+			// DateRnageParam supports date range (multiple dates).
 			@OptionalParam(name = Procedure.SP_DATE) DateRangeParam theDateRangeParm,
 			@OptionalParam(name = Procedure.SP_ENCOUNTER) ReferenceParam theEncounterParam,
 			@OptionalParam(name = Procedure.SP_SUBJECT) ReferenceParam theSubjectParam,

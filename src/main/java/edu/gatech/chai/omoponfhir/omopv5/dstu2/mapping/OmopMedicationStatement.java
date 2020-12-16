@@ -22,46 +22,28 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-//import org.hl7.fhir.dstu3.model.Annotation;
 import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-//import org.hl7.fhir.dstu3.model.DateTimeType;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
-//import org.hl7.fhir.dstu3.model.Dosage;
 import ca.uhn.fhir.model.dstu2.resource.MedicationStatement.Dosage;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Identifier;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-//import org.hl7.fhir.dstu3.model.Medication;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
-//import org.hl7.fhir.dstu3.model.MedicationStatement;
 import ca.uhn.fhir.model.dstu2.resource.MedicationStatement;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
-//import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
-//import org.hl7.fhir.dstu3.model.Period;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-//import org.hl7.fhir.dstu3.model.Resource;
 import ca.uhn.fhir.model.dstu2.resource.BaseResource;
-//import org.hl7.fhir.dstu3.model.SimpleQuantity;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
-//import org.hl7.fhir.dstu3.model.Type;
 import ca.uhn.fhir.model.api.IDatatype;
-//import org.hl7.fhir.dstu3.model.ValueSet.ConceptReferenceComponent;
-//import org.hl7.fhir.dstu3.model.ValueSet.ConceptSetComponent;
 import ca.uhn.fhir.model.dstu2.resource.ValueSet.CodeSystemConcept;
 
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.ParamPrefixEnum;
@@ -69,12 +51,11 @@ import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.param.TokenParamModifier;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvider;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationRequestResourceProvider;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationOrderResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationStatementResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.TerminologyServiceClient;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
@@ -402,8 +383,8 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 		// If OMOP medication type has the following prescription type, we set
 		// basedOn reference to the prescription.
 		if (entity.getDrugTypeConcept() != null) {
-			if (entity.getDrugTypeConcept().getId() == OmopMedicationRequest.MEDICATIONREQUEST_CONCEPT_TYPE_ID) {
-				IdDt referenceIdType = new IdDt(MedicationRequestResourceProvider.getType(), IdMapping.getFHIRfromOMOP(entity.getId(), MedicationRequestResourceProvider.getType()));
+			if (entity.getDrugTypeConcept().getId() == OmopMedicationOrder.MEDICATIONREQUEST_CONCEPT_TYPE_ID) {
+				IdDt referenceIdType = new IdDt(MedicationOrderResourceProvider.getType(), IdMapping.getFHIRfromOMOP(entity.getId(), MedicationOrderResourceProvider.getType()));
 				ResourceReferenceDt basedOnReference = new ResourceReferenceDt(referenceIdType);
 //				medicationStatement.addBasedOn(basedOnReference);
 //				this doesn't exist in DSTU2
@@ -470,7 +451,7 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 //						// We need to loop
 //						ParameterWrapper myParamWrapper = new ParameterWrapper();
 //						myParamWrapper.setParameterType("Code:In");
-//						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabulary", "drugConcept.conceptCode"));
+//						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabularyId", "drugConcept.conceptCode"));
 //						myParamWrapper.setOperators(Arrays.asList("=", "in"));
 //
 //						String valueSetSystem = include.getSystem();
@@ -499,7 +480,7 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 //						// We need to loop
 //						ParameterWrapper myParamWrapper = new ParameterWrapper();
 //						myParamWrapper.setParameterType("Code:In");
-//						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabulary", "drugConcept.conceptCode"));
+//						myParamWrapper.setParameters(Arrays.asList("drugConcept.vocabularyId", "drugConcept.conceptCode"));
 //						myParamWrapper.setOperators(Arrays.asList("=", "out"));
 //
 //						String valueSetSystem = exclude.getSystem();

@@ -18,28 +18,19 @@ package edu.gatech.chai.omoponfhir.omopv5.dstu2.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Medication;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
-//import org.hl7.fhir.dstu3.model.MedicationRequest;
 import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
-//import org.hl7.fhir.dstu3.model.OperationOutcome;
 import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
-//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
 import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopMedicationRequest;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 
+import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;
@@ -51,30 +42,24 @@ import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
-import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopMedicationAdministration;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 
-public class MedicationRequestResourceProvider implements IResourceProvider {
+public class MedicationAdministrationResourceProvider implements IResourceProvider {
 
 	private WebApplicationContext myAppCtx;
-	private String myDbType;
-	private OmopMedicationRequest myMapper;
+	private OmopMedicationAdministration myMapper;
 	private int preferredPageSize = 30;
 
-	public MedicationRequestResourceProvider() {
+	public MedicationAdministrationResourceProvider() {
 		myAppCtx = ContextLoaderListener.getCurrentWebApplicationContext();
-		myDbType = myAppCtx.getServletContext().getInitParameter("backendDbType");
-		if (myDbType.equalsIgnoreCase("omopv5") == true) {
-			myMapper = new OmopMedicationRequest(myAppCtx);
-		} else {
-			myMapper = new OmopMedicationRequest(myAppCtx);
-		}
+		myMapper = new OmopMedicationAdministration(myAppCtx);
 
 		String pageSizeStr = myAppCtx.getServletContext().getInitParameter("preferredPageSize");
 		if (pageSizeStr != null && pageSizeStr.isEmpty() == false) {
@@ -86,10 +71,10 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 	}
 	
 	public static String getType() {
-		return "MedicationOrder";
+		return "MedicationAdministration";
 	}
 
-    public OmopMedicationRequest getMyMapper() {
+    public OmopMedicationAdministration getMyMapper() {
     	return myMapper;
     }
 

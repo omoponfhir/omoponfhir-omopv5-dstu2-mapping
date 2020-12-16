@@ -20,10 +20,11 @@ import java.util.List;
 
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.primitive.IdDt;
-import ca.uhn.fhir.model.dstu2.resource.MedicationStatement;
+import ca.uhn.fhir.model.dstu2.resource.Medication;
+import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
 import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
 import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopMedicationStatement;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopMedicationOrder;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
@@ -45,27 +46,20 @@ import ca.uhn.fhir.rest.api.server.IBundleProvider;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.param.TokenParam;
-import ca.uhn.fhir.rest.param.TokenParamModifier;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 
-public class MedicationStatementResourceProvider implements IResourceProvider {
+public class MedicationOrderResourceProvider implements IResourceProvider {
 
 	private WebApplicationContext myAppCtx;
-	private String myDbType;
-	private OmopMedicationStatement myMapper;
+	private OmopMedicationOrder myMapper;
 	private int preferredPageSize = 30;
 
-	public MedicationStatementResourceProvider() {
+	public MedicationOrderResourceProvider() {
 		myAppCtx = ContextLoaderListener.getCurrentWebApplicationContext();
-		myDbType = myAppCtx.getServletContext().getInitParameter("backendDbType");
-		if (myDbType.equalsIgnoreCase("omopv5") == true) {
-			myMapper = new OmopMedicationStatement(myAppCtx);
-		} else {
-			myMapper = new OmopMedicationStatement(myAppCtx);
-		}
+		myMapper = new OmopMedicationOrder(myAppCtx);
 
 		String pageSizeStr = myAppCtx.getServletContext().getInitParameter("preferredPageSize");
 		if (pageSizeStr != null && pageSizeStr.isEmpty() == false) {
@@ -75,16 +69,15 @@ public class MedicationStatementResourceProvider implements IResourceProvider {
 			}
 		}
 	}
-
-	public static String getType() {
-		return "MedicationStatement";
-	}
-
-	public OmopMedicationStatement getMyMapper() {
-		return myMapper;
-		
-	}
 	
+	public static String getType() {
+		return "MedicationOrder";
+	}
+
+    public OmopMedicationOrder getMyMapper() {
+    	return myMapper;
+    }
+
 	private Integer getTotalSize(List<ParameterWrapper> paramList) {
 		final Long totalSize;
 		if (paramList.size() == 0) {
@@ -96,19 +89,23 @@ public class MedicationStatementResourceProvider implements IResourceProvider {
 		return totalSize.intValue();
 	}
 
+	@Override
+	public Class<? extends IBaseResource> getResourceType() {
+		return MedicationOrder.class;
+	}
+
 	/**
 	 * The "@Create" annotation indicates that this method implements "create=type", which adds a 
 	 * new instance of a resource to the server.
 	 */
 	@Create()
-	public MethodOutcome createMedicationStatement(@ResourceParam MedicationStatement theMedicationStatement) {
-		validateResource(theMedicationStatement);
+	public MethodOutcome createMedicationRequest(@ResourceParam MedicationOrder theMedicationRequest) {
+		validateResource(theMedicationRequest);
 		
 		Long id=null;
 		try {
-			id = myMapper.toDbase(theMedicationStatement, null);
+			id = myMapper.toDbase(theMedicationRequest, null);
 		} catch (FHIRException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -124,19 +121,19 @@ public class MedicationStatementResourceProvider implements IResourceProvider {
 	}
 
 	@Delete()
-	public void deleteMedicationStatement(@IdParam IdDt theId) {
+	public void deleteMedicationRequest(@IdParam IdDt theId) {
 		if (myMapper.removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
 	}
 
 	@Update()
-	public MethodOutcome updateMedicationStatement(@IdParam IdDt theId, @ResourceParam MedicationStatement theMedicationStatement) {
-		validateResource(theMedicationStatement);
+	public MethodOutcome updateMedicationRequest(@IdParam IdDt theId, @ResourceParam MedicationOrder theMedicationRequest) {
+		validateResource(theMedicationRequest);
 		
 		Long fhirId=null;
 		try {
-			fhirId = myMapper.toDbase(theMedicationStatement, theId);
+			fhirId = myMapper.toDbase(theMedicationRequest, theId);
 		} catch (FHIRException e) {
 			e.printStackTrace();
 		}
@@ -149,128 +146,116 @@ public class MedicationStatementResourceProvider implements IResourceProvider {
 	}
 
 	@Read()
-	public MedicationStatement readMedicationStatement(@IdParam IdDt theId) {
-		MedicationStatement retval = (MedicationStatement) myMapper.toFHIR(theId);
+	public MedicationOrder readMedicationRequest(@IdParam IdDt theId) {
+		MedicationOrder retval = (MedicationOrder) myMapper.toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
 		}
 			
 		return retval;
 	}
-
+	
 	@Search()
-	public IBundleProvider findMedicationStatementsById(
-			@RequiredParam(name = MedicationStatement.SP_RES_ID) TokenParam theMedicationStatementId
+	public IBundleProvider findMedicationRequetsById(
+			@RequiredParam(name = MedicationOrder.SP_RES_ID) TokenParam theMedicationRequestId
 			) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
 
-		if (theMedicationStatementId != null) {
-			paramList.addAll(myMapper.mapParameter (MedicationStatement.SP_RES_ID, theMedicationStatementId, false));
+		if (theMedicationRequestId != null) {
+			paramList.addAll(myMapper.mapParameter (MedicationOrder.SP_RES_ID, theMedicationRequestId, false));
 		}
-
+				
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);
 		myBundleProvider.setTotalSize(getTotalSize(paramList));
 		myBundleProvider.setPreferredPageSize(preferredPageSize);
+
 		return myBundleProvider;
 	}
-	
+
 	@Search()
-	public IBundleProvider findMedicationStatementsByParams(
-			@OptionalParam(name = MedicationStatement.SP_CODE) TokenOrListParam theOrCodes,
-//			@OptionalParam(name = MedicationStatement.SP_CONTEXT) ReferenceParam theContext,
-//			@OptionalParam(name = MedicationStatement.SP_EFFECTIVE) DateParam theDate,
-			//			This SP doesn't exist in DSTU2
-			@OptionalParam(name = MedicationStatement.SP_PATIENT) ReferenceParam thePatient,
-//			@OptionalParam(name = MedicationStatement.SP_SUBJECT) ReferenceParam theSubject,
-//			This SP doesn't exist in DSTU2
-			@OptionalParam(name = MedicationStatement.SP_SOURCE) ReferenceParam theSource
+	public IBundleProvider findMedicationRequestsByParams(
+			@OptionalParam(name = MedicationOrder.SP_CODE) TokenOrListParam theOrCodes,
+			@OptionalParam(name = MedicationOrder.SP_MEDICATION+"."+Medication.SP_CODE) TokenOrListParam theMedicationOrCodes,
+			@OptionalParam(name = MedicationOrder.SP_MEDICATION, chainWhitelist={""}) ReferenceParam theMedication,
+//			@OptionalParam(name = MedicationOrder.SP_CONTEXT) ReferenceParam theContext,
+//			@OptionalParam(name = MedicationOrder.SP_AUTHOREDON) DateParam theDate,
+//			SP Doesn't Exist in DSTU2
+			@OptionalParam(name = MedicationOrder.SP_PATIENT) ReferenceParam thePatient
+//			@OptionalParam(name = MedicationOrder.SP_SUBJECT) ReferenceParam theSubject
+// 			SP Doesn't Exist in DSTU2
 			) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
 		
 		if (theOrCodes != null) {
 			List<TokenParam> codes = theOrCodes.getValuesAsQueryTokens();
-
-			if (codes.size() == 1) {
-				TokenParam theCode = codes.get(0);
-				if (theCode.getModifier() != null && theCode.getModifier().compareTo(TokenParamModifier.IN) == 0) {
-					// We have modifier to search data in certain code value set.
-					// With this modifier, the code is URI for value set.
-					String valueSetValue = theCode.getValue();
-					if (valueSetValue.split("?").length > 1) {
-						errorProcessing("code:in="+valueSetValue+" is not supported. We only support simple value set URL");
-					} 
-				}
-				paramList.addAll(myMapper.mapParameter (MedicationStatement.SP_CODE, theCode, false));
-
-			} else {
-				for (TokenParam code : codes) {
-					paramList.addAll(myMapper.mapParameter(MedicationStatement.SP_CODE, code, true));
-				}
+			boolean orValue = true;
+			if (codes.size() <= 1)
+				orValue = false;
+			for (TokenParam code : codes) {
+				paramList.addAll(myMapper.mapParameter(MedicationOrder.SP_CODE, code, orValue));
 			}
-		}		
+		}
+//			SP Doesn't Exist in DSTU2
 //		if (theContext != null) {
-//			paramList.addAll(myMapper.mapParameter (MedicationStatement.SP_CONTEXT, theContext, false));
+//			paramList.addAll(myMapper.mapParameter (MedicationOrder.SP_CONTEXT, theContext, false));
 //		}
+//
 //		if (theDate != null) {
-//			paramList.addAll(myMapper.mapParameter (MedicationStatement.SP_EFFECTIVE, theDate, false));
+//			paramList.addAll(myMapper.mapParameter (MedicationOrder.SP_AUTHOREDON, theDate, false));
 //		}
+
+		if (theMedicationOrCodes != null) {
+			List<TokenParam> codes = theMedicationOrCodes.getValuesAsQueryTokens();
+
+			boolean orValue = true;
+			if (codes.size() <= 1)
+				orValue = false;
+			for (TokenParam code : codes) {
+				paramList.addAll(myMapper.mapParameter("Medication:"+Medication.SP_CODE, code, orValue));
+			}
+		}
+		
+		if (theMedication != null) {
+			String medicationChain = theMedication.getChain();
+			if ("".equals(medicationChain)) {
+				paramList.addAll(getMyMapper().mapParameter("Medication:"+Medication.SP_RES_ID, theMedication.getValue(), false));
+			}
+		}
+
+//			SP Doesn't Exist in DSTU2
 //		if (theSubject != null) {
 //			if (theSubject.getResourceType().equals(PatientResourceProvider.getType())) {
 //				thePatient = theSubject;
 //			} else {
-//				errorProcessing("subject search allows Only Patient Resource.");
+//				ThrowFHIRExceptions.unprocessableEntityException("We only support Patient resource for subject");
 //			}
-//		}//			This SP doesn't exist in DSTU2
+//		}
 		if (thePatient != null) {
-			paramList.addAll(myMapper.mapParameter (MedicationStatement.SP_PATIENT, thePatient, false));
-		}
-		if (theSource != null) {
-			paramList.addAll(myMapper.mapParameter (MedicationStatement.SP_SOURCE, theSource, false));
+			paramList.addAll(myMapper.mapParameter(MedicationOrder.SP_PATIENT, thePatient, false));
 		}
 
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);
 		myBundleProvider.setTotalSize(getTotalSize(paramList));
 		myBundleProvider.setPreferredPageSize(preferredPageSize);
-		return myBundleProvider;
 		
-	}
-
-	@Override
-	public Class<? extends IBaseResource> getResourceType() {
-		return MedicationStatement.class;
-	}
-
-	private void errorProcessing(String msg) {
-		OperationOutcome outcome = new OperationOutcome();
-		CodeableConceptDt detailCode = new CodeableConceptDt();
-		detailCode.setText(msg);
-		outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-		throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);		
+		return myBundleProvider;
 	}
 	
-	/**
-	 * This method just provides simple business validation for resources we are storing.
-	 * 
-	 * @param theMedication
-	 *            The medication statement to validate
-	 */
-	private void validateResource(MedicationStatement theMedication) {
-		/*
-		 * Our server will have a rule that patients must have a family name or we will reject them
-		 */
-//		if (thePatient.getNameFirstRep().getFamily().isEmpty()) {
-//			OperationOutcome outcome = new OperationOutcome();
-//			CodeableConcept detailCode = new CodeableConcept();
-//			detailCode.setText("No family name provided, Patient resources must have at least one family name.");
-//			outcome.addIssue().setSeverity(IssueSeverity.FATAL).setDetails(detailCode);
-//			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+//	private void mapParameter(Map<String, List<ParameterWrapper>> paramMap, String FHIRparam, Object value, boolean or) {
+//		List<ParameterWrapper> paramList = myMapper.mapParameter(FHIRparam, value, or);
+//		if (paramList != null) {
+//			paramMap.put(FHIRparam, paramList);
 //		}
+//	}
+
+	private void validateResource(MedicationOrder theMedication) {
+		// TODO: implement validation method
 	}
-
+	
 	class MyBundleProvider extends OmopFhirBundleProvider implements IBundleProvider {
-
 		public MyBundleProvider(List<ParameterWrapper> paramList) {
 			super(paramList);
+			setPreferredPageSize (preferredPageSize);
 		}
 
 		@Override
@@ -287,6 +272,6 @@ public class MedicationStatementResourceProvider implements IResourceProvider {
 			}
 
 			return retv;
-		}
+		}		
 	}
 }

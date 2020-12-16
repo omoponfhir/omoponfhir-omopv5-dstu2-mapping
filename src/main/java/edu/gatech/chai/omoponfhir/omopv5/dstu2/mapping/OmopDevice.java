@@ -19,32 +19,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-//import org.hl7.fhir.dstu3.model.Device;
 import ca.uhn.fhir.model.dstu2.resource.Device;
-//import org.hl7.fhir.dstu3.model.Device.DeviceUdiComponent;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Identifier;
-import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.model.MyDevice;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.DeviceResourceProvider;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.DeviceExposureService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 import edu.gatech.chai.omopv5.model.entity.Concept;

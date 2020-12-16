@@ -23,34 +23,25 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.tuple.Pair;
-//import org.hl7.fhir.dstu3.model.Bundle;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
-//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
-//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryRequestComponent;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.EntryRequest;
-//import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import ca.uhn.fhir.model.dstu2.valueset.BundleTypeEnum;
-//import org.hl7.fhir.dstu3.model.Bundle.HTTPVerb;
 import ca.uhn.fhir.model.dstu2.valueset.HTTPVerbEnum;
-//import org.hl7.fhir.dstu3.model.Composition;
 import ca.uhn.fhir.model.dstu2.resource.Composition;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Resource;
 import ca.uhn.fhir.model.dstu2.resource.BaseResource;
-//import org.hl7.fhir.dstu3.model.ResourceType;
 import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;
 
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.annotation.Transaction;
 import ca.uhn.fhir.rest.annotation.TransactionParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.BaseOmopResource;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopTransaction;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.model.MyBundle;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 

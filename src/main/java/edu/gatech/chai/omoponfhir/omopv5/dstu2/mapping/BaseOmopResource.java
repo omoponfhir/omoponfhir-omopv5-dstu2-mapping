@@ -18,19 +18,14 @@ package edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping;
 import java.util.Arrays;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-//import org.hl7.fhir.dstu3.model.Resource;
 import ca.uhn.fhir.model.dstu2.resource.BaseResource;
 
+import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -40,11 +35,11 @@ import edu.gatech.chai.omoponfhir.local.dao.FhirOmopVocabularyMapImpl;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.IService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 import edu.gatech.chai.omopv5.dba.service.VisitOccurrenceService;
+import edu.gatech.chai.omopv5.jpa.utility.JPAUtil;
 import edu.gatech.chai.omopv5.model.entity.BaseEntity;
 import edu.gatech.chai.omopv5.model.entity.Concept;
 import edu.gatech.chai.omopv5.model.entity.VisitOccurrence;
@@ -54,7 +49,8 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 
 	protected FhirOmopVocabularyMapImpl fhirOmopVocabularyMap;
 	protected FhirOmopCodeMapImpl fhirOmopCodeMap;
-
+	private String myOmopVersion;
+	
 	private p myOmopService;
 	private Class<t> myEntityClass;
 	private Class<p> myServiceClass;
@@ -70,6 +66,8 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 		myFhirResourceType = fhirResourceType;
 		fhirOmopVocabularyMap = new FhirOmopVocabularyMapImpl();
 		fhirOmopCodeMap = new FhirOmopCodeMapImpl();
+		
+		setMyOmopVersion(JPAUtil.omopVersion);
 	}
 
 	public String getMyFhirResourceType() {
@@ -84,6 +82,14 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 		this.myOmopService = context.getBean(myServiceClass);
 	}
 
+	public String getMyOmopVersion() {
+		return this.myOmopVersion;
+	}
+	
+	public void setMyOmopVersion(String myOmopVersion) {
+		this.myOmopVersion = myOmopVersion;
+	}
+	
 	public Class<t> getMyEntityClass() {
 		return this.myEntityClass;
 	}

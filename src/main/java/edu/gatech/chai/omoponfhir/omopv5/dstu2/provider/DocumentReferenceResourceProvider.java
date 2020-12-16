@@ -26,15 +26,14 @@ import ca.uhn.fhir.model.primitive.IdDt;
 //import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopDocumentReference;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.model.api.Include;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;
@@ -47,7 +46,6 @@ import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
-import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenOrListParam;

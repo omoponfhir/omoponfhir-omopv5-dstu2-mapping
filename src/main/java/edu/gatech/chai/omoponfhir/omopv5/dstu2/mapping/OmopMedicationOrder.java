@@ -22,48 +22,34 @@ import java.util.List;
 
 import ca.uhn.fhir.model.dstu2.composite.ContainedDt;
 import ca.uhn.fhir.model.api.IResource;
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
-//import org.hl7.fhir.dstu3.model.Dosage;
 import ca.uhn.fhir.model.dstu2.resource.MedicationOrder.DosageInstruction;
-//import org.hl7.fhir.dstu3.model.Duration;
 import ca.uhn.fhir.model.dstu2.composite.DurationDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Identifier;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-//import org.hl7.fhir.dstu3.model.Medication;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
-//import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent;
 import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;
-//import org.hl7.fhir.dstu3.model.MedicationRequest;
 import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
-//import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestDispenseRequestComponent;
 import ca.uhn.fhir.model.dstu2.resource.MedicationOrder.DispenseRequest;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-//import org.hl7.fhir.dstu3.model.Resource;
-//import org.hl7.fhir.dstu3.model.SimpleQuantity;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
-//import org.hl7.fhir.dstu3.model.StringType;
-//import org.hl7.fhir.dstu3.model.Type;
 import ca.uhn.fhir.model.api.IDatatype;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvider;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationRequestResourceProvider;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationOrderResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
@@ -98,24 +84,24 @@ import edu.gatech.chai.omopv5.model.entity.VisitOccurrence;
  *         list entry 38000181 Drug era - 0 days persistence window 38000182
  *         Drug era - 30 days persistence window 44777970 Randomized Drug
  */
-public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, DrugExposure, DrugExposureService>
+public class OmopMedicationOrder extends BaseOmopResource<MedicationOrder, DrugExposure, DrugExposureService>
 		implements IResourceMapping<MedicationOrder, DrugExposure> {
 
 	public static Long MEDICATIONREQUEST_CONCEPT_TYPE_ID = 38000177L;
-	private static OmopMedicationRequest omopMedicationRequest = new OmopMedicationRequest();
+	private static OmopMedicationOrder omopMedicationRequest = new OmopMedicationOrder();
 	private VisitOccurrenceService visitOccurrenceService;
 	private ConceptService conceptService;
 	private ProviderService providerService;
 	private FPersonService fPersonService;
 
-	public OmopMedicationRequest(WebApplicationContext context) {
-		super(context, DrugExposure.class, DrugExposureService.class, MedicationRequestResourceProvider.getType());
+	public OmopMedicationOrder(WebApplicationContext context) {
+		super(context, DrugExposure.class, DrugExposureService.class, MedicationOrderResourceProvider.getType());
 		initialize(context);
 	}
 
-	public OmopMedicationRequest() {
+	public OmopMedicationOrder() {
 		super(ContextLoaderListener.getCurrentWebApplicationContext(), DrugExposure.class, DrugExposureService.class,
-				MedicationRequestResourceProvider.getType());
+				MedicationOrderResourceProvider.getType());
 		initialize(ContextLoaderListener.getCurrentWebApplicationContext());
 	}
 
@@ -128,8 +114,8 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		getSize();
 	}
 
-	public static OmopMedicationRequest getInstance() {
-		return OmopMedicationRequest.omopMedicationRequest;
+	public static OmopMedicationOrder getInstance() {
+		return OmopMedicationOrder.omopMedicationRequest;
 	}
 
 	@Override
@@ -137,7 +123,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 		Long omopId = null;
 		DrugExposure drugExposure = null;
 		if (fhirId != null) {
-			omopId = IdMapping.getOMOPfromFHIR(fhirId.getIdPartAsLong(), MedicationRequestResourceProvider.getType());
+			omopId = IdMapping.getOMOPfromFHIR(fhirId.getIdPartAsLong(), MedicationOrderResourceProvider.getType());
 		}
 
 		drugExposure = constructOmop(omopId, fhirResource);
@@ -149,7 +135,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 			retOmopId = getMyOmopService().update(drugExposure).getId();
 		}
 
-		return IdMapping.getFHIRfromOMOP(retOmopId, MedicationRequestResourceProvider.getType());
+		return IdMapping.getFHIRfromOMOP(retOmopId, MedicationOrderResourceProvider.getType());
 	}
 
 	@Override
@@ -451,7 +437,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 	}
 
 	final ParameterWrapper filterParam = new ParameterWrapper("Long", Arrays.asList("drugTypeConcept.id"),
-			Arrays.asList("="), Arrays.asList(String.valueOf(OmopMedicationRequest.MEDICATIONREQUEST_CONCEPT_TYPE_ID)),
+			Arrays.asList("="), Arrays.asList(String.valueOf(OmopMedicationOrder.MEDICATIONREQUEST_CONCEPT_TYPE_ID)),
 			"or");
 
 	@Override

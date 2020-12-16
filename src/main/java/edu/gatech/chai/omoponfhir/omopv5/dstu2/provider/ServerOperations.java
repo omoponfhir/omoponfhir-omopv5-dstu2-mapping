@@ -19,41 +19,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-//import org.hl7.fhir.dstu3.model.BooleanType;
 import ca.uhn.fhir.model.primitive.BooleanDt;
-//import org.hl7.fhir.dstu3.model.Bundle;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-//import org.hl7.fhir.dstu3.model.Enumerations.MessageEvent;
 import ca.uhn.fhir.model.dstu2.valueset.MessageEventEnum;
-//import org.hl7.fhir.dstu3.model.MessageHeader;
 import ca.uhn.fhir.model.dstu2.resource.MessageHeader;
-//import org.hl7.fhir.dstu3.model.OperationOutcome;
 import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
-//import org.hl7.fhir.dstu3.model.MessageHeader.MessageHeaderResponseComponent;
 import ca.uhn.fhir.model.dstu2.resource.MessageHeader.Response;
-//import org.hl7.fhir.dstu3.model.MessageHeader.ResponseType;
 import ca.uhn.fhir.model.dstu2.valueset.ResponseTypeEnum;
-//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
 import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
-//import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import ca.uhn.fhir.model.dstu2.resource.Bundle.Entry;
-//import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import ca.uhn.fhir.model.dstu2.valueset.BundleTypeEnum;
-//import org.hl7.fhir.dstu3.model.Resource;
 import ca.uhn.fhir.model.dstu2.resource.BaseResource;
-//import org.hl7.fhir.dstu3.model.ResourceType;
 import ca.uhn.fhir.model.dstu2.valueset.ResourceTypeEnum;
-//import org.hl7.fhir.dstu3.model.UriType;
 import ca.uhn.fhir.model.primitive.UriDt;
 import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.annotation.OperationParam;
+
+import org.hl7.fhir.exceptions.FHIRException;
+
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopServerOperations;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 
 public class ServerOperations {

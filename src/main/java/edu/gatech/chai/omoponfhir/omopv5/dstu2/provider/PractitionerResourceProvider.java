@@ -20,22 +20,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.InstantType;
-import ca.uhn.fhir.model.primitive.InstantDt;
-//import org.hl7.fhir.dstu3.model.Practitioner;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopPractitioner;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.model.api.Include;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;

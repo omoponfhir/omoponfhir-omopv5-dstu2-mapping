@@ -20,25 +20,17 @@ import java.util.List;
 
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 
-//import org.hl7.fhir.dstu3.model.Condition;
 import ca.uhn.fhir.model.dstu2.resource.Condition;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopCondition;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
-//import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
-//import ca.uhn.fhir.model.dstu2.valueset.ContactPointUseEnum;
-//import ca.uhn.fhir.model.primitive.CodeDt;
-//import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.OptionalParam;
 import ca.uhn.fhir.rest.annotation.Read;

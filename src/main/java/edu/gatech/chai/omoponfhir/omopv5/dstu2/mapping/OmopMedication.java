@@ -19,26 +19,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Medication;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
 
-//import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent;
 import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 import edu.gatech.chai.omopv5.model.entity.Concept;

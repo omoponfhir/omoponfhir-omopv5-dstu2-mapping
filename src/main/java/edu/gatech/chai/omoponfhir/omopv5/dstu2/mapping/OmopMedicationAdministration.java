@@ -155,7 +155,7 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 		Date startDate = entity.getDrugExposureStartDate();
 //		Date endDate = entity.getDrugExposureEndDate();
 		if (startDate != null)
-//			note- if we have a preiod, or have an end-date; we need to do something different here
+//			note- if we have a period, or have an end-date; we need to do something different here
 			medicationAdministration.setEffectiveTime(new DateTimeDt(startDate));
 
 		// See what type of Medication info we want to return
@@ -253,39 +253,6 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 			Dosage dosage = new Dosage();
 			dosage.setQuantity(doseQuantity);
 			medicationAdministration.setDosage(dosage);
-		}
-
-		// dispense request mapping.
-		Integer refills = entity.getRefills();
-		DispenseRequest dispenseRequest = new DispenseRequest();
-		if (refills != null) {
-			dispenseRequest.setNumberOfRepeatsAllowed(refills);
-		}
-
-		Double quantity = entity.getQuantity();
-		if (quantity != null) {
-			SimpleQuantityDt simpleQty = new SimpleQuantityDt();
-			simpleQty.setValue(quantity);
-			simpleQty.setUnit(unitUnit);
-			simpleQty.setCode(unitCode);
-			simpleQty.setSystem(unitSystem);
-			dispenseRequest.setQuantity(simpleQty);
-		}
-
-		Integer daysSupply = entity.getDaysSupply();
-		if (daysSupply != null) {
-			DurationDt qty = new DurationDt();
-			qty.setValue(daysSupply);
-			// Set the UCUM unit to day.
-			String fhirUri = OmopCodeableConceptMapping.UCUM.getFhirUri();
-			qty.setSystem(fhirUri);
-			qty.setCode("d");
-			qty.setUnit("day");
-			dispenseRequest.setExpectedSupplyDuration(qty);
-		}
-
-		if (!dispenseRequest.isEmpty()) {
-			medicationAdministration.setDispenseRequest(dispenseRequest);
 		}
 
 		// Recorder mapping
@@ -684,33 +651,6 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 		}
 
 		// dispense request
-		DispenseRequest dispenseRequest = fhirResource.getDispenseRequest();
-		if (dispenseRequest != null && !dispenseRequest.isEmpty()) {
-			Integer refills = dispenseRequest.getNumberOfRepeatsAllowed();
-			if (refills != null) {
-				drugExposure.setRefills(refills);
-			}
-
-			SimpleQuantityDt qty = dispenseRequest.getQuantity();
-			if (qty != null) {
-				drugExposure.setQuantity(qty.getValue().doubleValue());
-				String doseCode = qty.getCode();
-				String doseSystem = qty.getSystem();
-				String vocabId;
-				try {
-					vocabId = OmopCodeableConceptMapping.omopVocabularyforFhirUri(doseSystem);
-					Concept unitConcept = CodeableConceptUtil.getOmopConceptWithOmopVacabIdAndCode(conceptService,
-							vocabId, doseCode);
-					if (unitConcept != null && unitConcept.getId() != 0L)
-						drugExposure.setDoseUnitSourceValue(unitConcept.getConceptName());
-					else
-						drugExposure.setDoseUnitSourceValue(doseCode);
-				} catch (FHIRException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
 
 //		ResourceReferenceDt practitionerRef = fhirResource.getRecorder();
 //		if (practitionerRef != null && !practitionerRef.isEmpty()) {

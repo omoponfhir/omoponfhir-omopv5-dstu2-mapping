@@ -99,7 +99,7 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 	 * new instance of a resource to the server.
 	 */
 	@Create()
-	public MethodOutcome createMedicationRequest(@ResourceParam MedicationOrder theMedicationRequest) {
+	public MethodOutcome createMedicationRequest(@ResourceParam MedicationAdministration theMedicationRequest) {
 		validateResource(theMedicationRequest);
 		
 		Long id=null;
@@ -128,7 +128,7 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 	}
 
 	@Update()
-	public MethodOutcome updateMedicationRequest(@IdParam IdDt theId, @ResourceParam MedicationOrder theMedicationRequest) {
+	public MethodOutcome updateMedicationRequest(@IdParam IdDt theId, @ResourceParam MedicationAdministration theMedicationRequest) {
 		validateResource(theMedicationRequest);
 		
 		Long fhirId=null;
@@ -146,8 +146,8 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 	}
 
 	@Read()
-	public MedicationOrder readMedicationRequest(@IdParam IdDt theId) {
-		MedicationOrder retval = (MedicationOrder) myMapper.toFHIR(theId);
+	public MedicationAdministration readMedicationRequest(@IdParam IdDt theId) {
+		MedicationAdministration retval = (MedicationAdministration) myMapper.toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
 		}

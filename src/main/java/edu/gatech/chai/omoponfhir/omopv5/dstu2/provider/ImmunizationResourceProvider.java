@@ -177,7 +177,7 @@ public class ImmunizationResourceProvider implements IResourceProvider {
 		if (theVaccineOrVCodes != null) {
 			String newWhere = getMyMapper().mapParameter(Immunization.SP_VACCINE_CODE, theVaccineOrVCodes, parameterSet);
 			if (newWhere != null && !newWhere.isEmpty()) {
-				whereStatement = newWhere;
+				whereStatement = "(" + newWhere + ")";
 			}
 		}
 		

@@ -17,6 +17,7 @@ package edu.gatech.chai.omoponfhir.omopv5.dstu2.provider;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 //import org.hl7.fhir.dstu3.model.InstantType;
 import ca.uhn.fhir.model.primitive.InstantDt;
@@ -28,15 +29,23 @@ import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 public abstract class OmopFhirBundleProvider implements IBundleProvider {
 	InstantDt searchTime;
 	List<ParameterWrapper> paramList;
+	Map<String, String> parameterSet;
 	Integer preferredPageSize;
 	Integer totalSize;
 	String orderParams = null;
+	String searchSql;
 
 	public OmopFhirBundleProvider (List<ParameterWrapper> paramList) {
 		this.searchTime = InstantDt.withCurrentTime();
 		this.paramList = paramList;
 	}
 	
+	public OmopFhirBundleProvider (Map<String, String> parameterSet, String searchSql) {
+		this.searchTime = InstantDt.withCurrentTime();
+		this.searchSql = searchSql;
+		this.parameterSet = parameterSet;
+	}
+
 	public void setPreferredPageSize(Integer preferredPageSize) {
 		this.preferredPageSize = preferredPageSize;
 	}

@@ -21,7 +21,7 @@ import java.util.List;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
-import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
+import ca.uhn.fhir.model.dstu2.resource.MedicationAdministration;
 import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
 import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 
@@ -91,7 +91,7 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 
 	@Override
 	public Class<? extends IBaseResource> getResourceType() {
-		return MedicationOrder.class;
+		return MedicationAdministration.class;
 	}
 
 	/**
@@ -157,12 +157,12 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 	
 	@Search()
 	public IBundleProvider findMedicationRequetsById(
-			@RequiredParam(name = MedicationOrder.SP_RES_ID) TokenParam theMedicationRequestId
+			@RequiredParam(name = MedicationAdministration.SP_RES_ID) TokenParam theMedicationRequestId
 			) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
 
 		if (theMedicationRequestId != null) {
-			paramList.addAll(myMapper.mapParameter (MedicationOrder.SP_RES_ID, theMedicationRequestId, false));
+			paramList.addAll(myMapper.mapParameter (MedicationAdministration.SP_RES_ID, theMedicationRequestId, false));
 		}
 				
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);
@@ -174,14 +174,14 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 
 	@Search()
 	public IBundleProvider findMedicationRequestsByParams(
-			@OptionalParam(name = MedicationOrder.SP_CODE) TokenOrListParam theOrCodes,
-			@OptionalParam(name = MedicationOrder.SP_MEDICATION+"."+Medication.SP_CODE) TokenOrListParam theMedicationOrCodes,
-			@OptionalParam(name = MedicationOrder.SP_MEDICATION, chainWhitelist={""}) ReferenceParam theMedication,
-//			@OptionalParam(name = MedicationOrder.SP_CONTEXT) ReferenceParam theContext,
-//			@OptionalParam(name = MedicationOrder.SP_AUTHOREDON) DateParam theDate,
+			@OptionalParam(name = MedicationAdministration.SP_CODE) TokenOrListParam theOrCodes,
+			@OptionalParam(name = MedicationAdministration.SP_MEDICATION+"."+Medication.SP_CODE) TokenOrListParam theMedicationOrCodes,
+			@OptionalParam(name = MedicationAdministration.SP_MEDICATION, chainWhitelist={""}) ReferenceParam theMedication,
+//			@OptionalParam(name = MedicationAdministration.SP_CONTEXT) ReferenceParam theContext,
+//			@OptionalParam(name = MedicationAdministration.SP_AUTHOREDON) DateParam theDate,
 //			SP Doesn't Exist in DSTU2
-			@OptionalParam(name = MedicationOrder.SP_PATIENT) ReferenceParam thePatient
-//			@OptionalParam(name = MedicationOrder.SP_SUBJECT) ReferenceParam theSubject
+			@OptionalParam(name = MedicationAdministration.SP_PATIENT) ReferenceParam thePatient
+//			@OptionalParam(name = MedicationAdministration.SP_SUBJECT) ReferenceParam theSubject
 // 			SP Doesn't Exist in DSTU2
 			) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
@@ -192,7 +192,7 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 			if (codes.size() <= 1)
 				orValue = false;
 			for (TokenParam code : codes) {
-				paramList.addAll(myMapper.mapParameter(MedicationOrder.SP_CODE, code, orValue));
+				paramList.addAll(myMapper.mapParameter(MedicationAdministration.SP_CODE, code, orValue));
 			}
 		}
 //			SP Doesn't Exist in DSTU2
@@ -231,7 +231,7 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 //			}
 //		}
 		if (thePatient != null) {
-			paramList.addAll(myMapper.mapParameter(MedicationOrder.SP_PATIENT, thePatient, false));
+			paramList.addAll(myMapper.mapParameter(MedicationAdministration.SP_PATIENT, thePatient, false));
 		}
 
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);
@@ -248,7 +248,7 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 //		}
 //	}
 
-	private void validateResource(MedicationOrder theMedication) {
+	private void validateResource(MedicationAdministration theMedication) {
 		// TODO: implement validation method
 	}
 	

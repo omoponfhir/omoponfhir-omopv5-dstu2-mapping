@@ -159,7 +159,6 @@ public class OmopDocumentReference extends BaseOmopResource<DocumentReference, N
 		case DocumentReference.SP_INDEXED:
 			DateRangeParam dateRangeParam = ((DateRangeParam) value);
 			DateUtil.constructParameterWrapper(dateRangeParam, "noteDate", paramWrapper, mapList);
-
 //			Date date = ((DateParam) value).getValue();
 //			ParamPrefixEnum prefix = ((DateParam) value).getPrefix();
 //			String inequality = "=";

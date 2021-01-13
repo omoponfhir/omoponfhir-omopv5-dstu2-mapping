@@ -25,6 +25,7 @@ import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
 import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
 import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopMedicationOrder;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.StaticValues;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
@@ -114,7 +115,7 @@ public class MedicationOrderResourceProvider implements IResourceProvider {
 			CodeableConceptDt detailCode = new CodeableConceptDt();
 			detailCode.setText("Failed to create entity.");
 			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+			throw new UnprocessableEntityException(StaticValues.myFhirContext, outcome);
 		}
 
 		return new MethodOutcome(new IdDt(id));
@@ -195,18 +196,9 @@ public class MedicationOrderResourceProvider implements IResourceProvider {
 				paramList.addAll(myMapper.mapParameter(MedicationOrder.SP_CODE, code, orValue));
 			}
 		}
-//			SP Doesn't Exist in DSTU2
-//		if (theContext != null) {
-//			paramList.addAll(myMapper.mapParameter (MedicationOrder.SP_CONTEXT, theContext, false));
-//		}
-//
-//		if (theDate != null) {
-//			paramList.addAll(myMapper.mapParameter (MedicationOrder.SP_AUTHOREDON, theDate, false));
-//		}
 
 		if (theMedicationOrCodes != null) {
 			List<TokenParam> codes = theMedicationOrCodes.getValuesAsQueryTokens();
-
 			boolean orValue = true;
 			if (codes.size() <= 1)
 				orValue = false;

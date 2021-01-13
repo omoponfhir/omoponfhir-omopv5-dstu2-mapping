@@ -214,14 +214,14 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 		}
 
 		// See if we have encounter associated with this medication statement.
-		VisitOccurrence visitOccurrence = entity.getVisitOccurrence();
-		if (visitOccurrence != null) {
-			Long fhirEncounterId = IdMapping.getFHIRfromOMOP(visitOccurrence.getId(),
-					EncounterResourceProvider.getType());
-			ResourceReferenceDt reference = new ResourceReferenceDt(new IdDt(EncounterResourceProvider.getType(), fhirEncounterId));
+//		VisitOccurrence visitOccurrence = entity.getVisitOccurrence();
+//		if (visitOccurrence != null) {
+//			Long fhirEncounterId = IdMapping.getFHIRfromOMOP(visitOccurrence.getId(),
+//					EncounterResourceProvider.getType());
+//			ResourceReferenceDt reference = new ResourceReferenceDt(new IdDt(EncounterResourceProvider.getType(), fhirEncounterId));
 //			medicationStatement.setEncounter(reference);
 //			Encounters aren't included in DSTU2 http://hl7.org/fhir/DSTU2/medicationstatement.html
-		}
+//		}
 
 		// Get medicationCodeableConcept
 		Concept drugConcept = entity.getDrugConcept();
@@ -371,8 +371,8 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 					PractitionerResourceProvider.getType());
 			ResourceReferenceDt infoSourceReference = new ResourceReferenceDt(
 					new IdDt(PractitionerResourceProvider.getType(), fhirPractitionerId));
-			if (provider.getProviderName() != null && !provider.getProviderName().isEmpty())
-				infoSourceReference.setDisplay(provider.getProviderName());
+//			if (provider.getProviderName() != null && !provider.getProviderName().isEmpty())
+//				infoSourceReference.setDisplay(provider.getProviderName());
 			medicationStatement.setInformationSource(infoSourceReference);
 		}
 

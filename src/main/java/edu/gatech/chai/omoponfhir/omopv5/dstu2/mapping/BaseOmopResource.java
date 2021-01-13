@@ -17,6 +17,7 @@ package edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
@@ -117,6 +118,15 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 		return myOmopService.getSize(mapList);
 	}
 
+	public Long getSize(String queryString, Map<String, String> parameterSet) {
+		Long size = myOmopService.getSize(queryString, parameterSet);
+		if (parameterSet == null || parameterSet.size() == 0) {
+			ExtensionUtil.addResourceCount(myFhirResourceType, size);
+		}
+		
+		return size;
+	}
+	
 	/***
 	 * constructResource: Overwrite this if you want to implement includes.
 	 */
@@ -189,6 +199,19 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 		}
 	}
 
+	public void searchWithSql(String sql, Map<String, String> parameters, int fromIndex, int toIndex, String sort, List<IBaseResource> listResources) {
+		List<t> entities = getMyOmopService().searchBySql(fromIndex, toIndex, sql, parameters, sort);
+		
+		for (t entity : entities) {
+			Long omopId = entity.getIdAsLong();
+			Long fhirId = IdMapping.getFHIRfromOMOP(omopId, getMyFhirResourceType());
+			v fhirResource = constructResource(fhirId, entity, null);
+			if (fhirResource != null) {
+				listResources.add(fhirResource);
+			}		
+		}
+	}
+	
 	// Override the this method to provide rev_includes.
 	public void addRevIncludes(Long omopId, List<String> includes, List<IBaseResource> listResources) {
 

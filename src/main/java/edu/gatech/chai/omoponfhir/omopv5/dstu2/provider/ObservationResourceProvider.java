@@ -27,6 +27,7 @@ import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopObservation;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.StaticValues;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -295,21 +296,21 @@ public class ObservationResourceProvider implements IResourceProvider {
 		if (theObservation.getCode().isEmpty()) {
 			detailCode.setText("No code is provided.");
 			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+			throw new UnprocessableEntityException(StaticValues.myFhirContext, outcome);
 		}
 		
 		ResourceReferenceDt subjectReference = theObservation.getSubject();
 		if (subjectReference == null || subjectReference.isEmpty()) {
 			detailCode.setText("Subject cannot be empty for OmopOnFHIR");
 			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+			throw new UnprocessableEntityException(StaticValues.myFhirContext, outcome);
 		}
 		
 		String subjectResource = subjectReference.getReferenceElement().getResourceType();
 		if (!subjectResource.contentEquals("Patient")) {
 			detailCode.setText("Subject ("+subjectResource+") must be Patient resource for OmopOnFHIR");
 			outcome.addIssue().setSeverity(IssueSeverityEnum.FATAL).setDetails(detailCode);
-			throw new UnprocessableEntityException(FhirContext.forDstu3(), outcome);
+			throw new UnprocessableEntityException(StaticValues.myFhirContext, outcome);
 		}
 	}
 

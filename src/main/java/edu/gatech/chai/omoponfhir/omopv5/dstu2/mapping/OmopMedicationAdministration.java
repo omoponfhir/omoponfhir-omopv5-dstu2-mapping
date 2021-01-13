@@ -291,8 +291,8 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationOrd
 		if (provider != null) {
 			ResourceReferenceDt recorderReference = new ResourceReferenceDt(
 					new IdDt(PractitionerResourceProvider.getType(), provider.getId()));
-			recorderReference.setDisplay(provider.getProviderName());
-//			medicationRequest.setRecorder(recorderReference);
+//			recorderReference.setDisplay(provider.getProviderName());
+//			medicationRequest(recorderReference);
 		}
 
 		// Context mapping

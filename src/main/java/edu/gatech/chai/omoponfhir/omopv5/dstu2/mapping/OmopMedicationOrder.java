@@ -379,6 +379,10 @@ public class OmopMedicationOrder extends BaseOmopResource<MedicationOrder, DrugE
 				mapList.add(paramWrapper);
 			}
 			break;
+		case MedicationOrder.SP_DATE:
+			DateRangeParam dateRangeParam = ((DateRangeParam) value);
+			DateUtil.constructParameterWrapper(dateRangeParam, "drugExposureStartDate", paramWrapper, mapList);
+			break;
 //		case MedicationOrder.SP_AUTHOREDON:
 //			DateParam authoredOnDataParam = ((DateParam) value);
 //			ParamPrefixEnum apiOperator = authoredOnDataParam.getPrefix();

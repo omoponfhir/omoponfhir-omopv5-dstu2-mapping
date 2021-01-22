@@ -43,6 +43,7 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
@@ -116,19 +117,21 @@ public class EncounterResourceProvider implements IResourceProvider {
 	}
 
 	@Search()
-	public IBundleProvider findEncounterByParams(@OptionalParam(name = Encounter.SP_RES_ID) TokenParam theEncounterId,
-			@OptionalParam(name = Encounter.SP_PATIENT, chainWhitelist = { "",
+	public IBundleProvider findEncounterByParams(
+		@OptionalParam(name = Encounter.SP_RES_ID) TokenParam theEncounterId,
+		@OptionalParam(name = Encounter.SP_PATIENT, chainWhitelist = { "",
 					Patient.SP_NAME }) ReferenceParam thePatient,
 //			@OptionalParam(name = Encounter.SP_SUBJECT, chainWhitelist = { "",
 //			@OptionalParam(name = Encounter.SP_DIAGNOSIS) ReferenceParam theDiagnosis,
-			@OptionalParam(name = Encounter.SP_CONDITION) ReferenceParam theDiagnosis,
-
-			@IncludeParam(allow = { "Encounter:appointment", "Encounter:diagnosis", "Encounter:episodeofcare",
+		@OptionalParam(name = Encounter.SP_CONDITION) ReferenceParam theDiagnosis,
+		@OptionalParam(name = Encounter.SP_DATE) DateRangeParam theDate,
+		@IncludeParam(allow = { "Encounter:appointment", "Encounter:diagnosis", "Encounter:episodeofcare",
 					"Encounter:incomingreferral", "Encounter:location", "Encounter:part-of", "Encounter:participant",
 					"Encounter:service-provider", "Encounter:patient", "Encounter:practitioner",
 					"Encounter:subject" }) final Set<Include> theIncludes,
 
-			@IncludeParam(reverse = true) final Set<Include> theReverseIncludes) {
+		@IncludeParam(reverse = true) final Set<Include> theReverseIncludes) {
+
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper>();
 
 		if (theEncounterId != null) {
@@ -172,6 +175,10 @@ public class EncounterResourceProvider implements IResourceProvider {
 		if (theDiagnosis != null) {
 //			paramList.addAll(getMyMapper().mapParameter(Encounter.SP_DIAGNOSIS, theDiagnosis, false));
 			paramList.addAll(getMyMapper().mapParameter(Encounter.SP_CONDITION, theDiagnosis, false));
+		}
+
+		if (theDate != null) {
+			paramList.addAll(getMyMapper().mapParameter(Encounter.SP_DATE, theDate, false));
 		}
 
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList, theIncludes, theReverseIncludes);

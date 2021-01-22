@@ -43,6 +43,7 @@ import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationOrderResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationResourceProvider;
@@ -50,6 +51,7 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.DateUtil;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
@@ -379,7 +381,7 @@ public class OmopMedicationOrder extends BaseOmopResource<MedicationOrder, DrugE
 				mapList.add(paramWrapper);
 			}
 			break;
-		case MedicationOrder.SP_DATE:
+		case MedicationOrder.SP_DATEWRITTEN:
 			DateRangeParam dateRangeParam = ((DateRangeParam) value);
 			DateUtil.constructParameterWrapper(dateRangeParam, "drugExposureStartDate", paramWrapper, mapList);
 			break;

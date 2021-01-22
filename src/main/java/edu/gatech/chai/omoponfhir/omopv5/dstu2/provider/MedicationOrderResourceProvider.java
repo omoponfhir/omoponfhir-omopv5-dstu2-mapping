@@ -179,7 +179,7 @@ public class MedicationOrderResourceProvider implements IResourceProvider {
 			@OptionalParam(name = MedicationOrder.SP_CODE) TokenOrListParam theOrCodes,
 			@OptionalParam(name = MedicationOrder.SP_MEDICATION+"."+Medication.SP_CODE) TokenOrListParam theMedicationOrCodes,
 			@OptionalParam(name = MedicationOrder.SP_MEDICATION, chainWhitelist={""}) ReferenceParam theMedication,
-			@OptionalParam(name = MedicationOrder.SP_DATE) DateRangeParam theDateWrittenRange,
+			@OptionalParam(name = MedicationOrder.SP_DATEWRITTEN) DateRangeParam theDateWrittenRange,
 //			@OptionalParam(name = MedicationOrder.SP_CONTEXT) ReferenceParam theContext,
 //			@OptionalParam(name = MedicationOrder.SP_AUTHOREDON) DateParam theDate,
 //			SP Doesn't Exist in DSTU2
@@ -217,7 +217,7 @@ public class MedicationOrderResourceProvider implements IResourceProvider {
 		}
 
 		if (theDateWrittenRange != null) {
-			paramList.addAll(myMapper.mapParameter(MedicationOrder.SP_DATE, theDateWrittenRange, false));
+			paramList.addAll(myMapper.mapParameter(MedicationOrder.SP_DATEWRITTEN, theDateWrittenRange, false));
 		}
 
 //			SP Doesn't Exist in DSTU2

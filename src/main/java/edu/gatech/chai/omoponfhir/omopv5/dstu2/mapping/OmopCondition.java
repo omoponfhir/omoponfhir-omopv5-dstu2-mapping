@@ -22,7 +22,6 @@ import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.ParamPrefixEnum;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.IdMapping;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.ConditionResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
@@ -32,17 +31,15 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ConditionCategory;
 import edu.gatech.chai.omopv5.dba.service.*;
 import edu.gatech.chai.omopv5.model.entity.*;
 
-//import org.hl7.fhir.dstu3.model.*;
 import ca.uhn.fhir.model.dstu2.resource.*;
 import ca.uhn.fhir.model.dstu2.composite.*;
-import ca.uhn.fhir.model.dstu2.valueset.*;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.dstu2.valueset.ConditionCategoryCodesEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
@@ -50,8 +47,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurrence, ConditionOccurrenceService>
-		implements IResourceMapping<Condition, ConditionOccurrence> {
+public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurrence, ConditionOccurrenceService> {
 
 	private static final Logger logger = LoggerFactory.getLogger(OmopCondition.class);
 
@@ -70,18 +66,22 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 	}
 
 	public OmopCondition() {
-		super(ContextLoaderListener.getCurrentWebApplicationContext(), ConditionOccurrence.class,
+		super(ContextLoader.getCurrentWebApplicationContext(), ConditionOccurrence.class,
 				ConditionOccurrenceService.class, ConditionResourceProvider.getType());
-		initialize(ContextLoaderListener.getCurrentWebApplicationContext());
+		initialize(ContextLoader.getCurrentWebApplicationContext());
 	}
 
 	private void initialize(WebApplicationContext context) {
 		// Get bean for other services that we need for mapping.
-		conditionOccurrenceService = context.getBean(ConditionOccurrenceService.class);
-		fPersonService = context.getBean(FPersonService.class);
-		providerService = context.getBean(ProviderService.class);
-		conceptService = context.getBean(ConceptService.class);
-		visitOccurrenceService = context.getBean(VisitOccurrenceService.class);
+		if (context != null) {
+			conditionOccurrenceService = context.getBean(ConditionOccurrenceService.class);
+			fPersonService = context.getBean(FPersonService.class);
+			providerService = context.getBean(ProviderService.class);
+			conceptService = context.getBean(ConceptService.class);
+			visitOccurrenceService = context.getBean(VisitOccurrenceService.class);
+		} else {
+			logger.error("context must be NOT null");
+		}
 		
 		getSize();
 	}
@@ -284,7 +284,7 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 				paramWrapper.setRelationship("or");
 				mapList.add(paramWrapper);
 				break;
-			case Procedure.SP_RES_ID:
+			case Condition.SP_RES_ID:
 				String conditionId = ((TokenParam) value).getValue();
 				paramWrapper.setParameterType("Long");
 				paramWrapper.setParameters(Arrays.asList("id"));
@@ -471,7 +471,6 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 				try {
 					throw new FHIRException("Could not get Person class.");
 				} catch (FHIRException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -481,7 +480,6 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 			try {
 				throw new FHIRException("FHIR Resource does not contain a Subject.");
 			} catch (FHIRException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

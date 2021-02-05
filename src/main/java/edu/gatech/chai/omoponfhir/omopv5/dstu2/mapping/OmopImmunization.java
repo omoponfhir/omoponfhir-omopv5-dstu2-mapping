@@ -219,16 +219,24 @@ public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposur
 					}
 				}
 
-				if (systemValue != null && !systemValue.isEmpty()) {
-					String statement = "c.vacabluaryId = :" + "vaccineCodeSystem" + i;
+				if (systemValue != null && !systemValue.isEmpty() && codeValue != null && !codeValue.isEmpty()) {
+					String vId = "c.vocabularyId = :" + "vaccineCodeSystem" + i;
+					String cCode = "c.conceptCode = :" + "vaccineCodeCode" + i;
+					String statement = "(" + vId + " and " + cCode + ")";
+					
 					whereStatement = (whereStatement == null || whereStatement.isEmpty()) ? statement : whereStatement + " or " + statement;
 					parameterSet.put("vaccineCodeSystem"+i, "String," + omopVocabulary);
-				}
-
-				if (codeValue != null && !codeValue.isEmpty()) {
+					parameterSet.put("vaccineCodeCode"+i, "String," + codeValue);					
+				} else if ((systemValue == null || systemValue.isEmpty()) && codeValue != null && !codeValue.isEmpty()) {
 					String statement = "c.conceptCode = :" + "vaccineCodeCode" + i;
 					whereStatement = (whereStatement == null || whereStatement.isEmpty()) ? statement : whereStatement + " or " + statement;
 					parameterSet.put("vaccineCodeCode"+i, "String," + codeValue);					
+				} else if ((codeValue == null || codeValue.isEmpty()) && systemValue != null && !systemValue.isEmpty()) {
+					String statement = "c.vocabularyId = :" + "vaccineCodeSystem" + i;
+					whereStatement = (whereStatement == null || whereStatement.isEmpty()) ? statement : whereStatement + " or " + statement;
+					parameterSet.put("vaccineCodeSystem"+i, "String," + omopVocabulary);					
+				} else {
+					continue; // no system or code
 				}
 
 				i++;

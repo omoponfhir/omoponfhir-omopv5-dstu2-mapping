@@ -89,6 +89,9 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 		implements IResourceMapping<MedicationAdministration, DrugExposure> {
 
 	public static Long MEDICATIONREQUEST_CONCEPT_TYPE_ID = 38000177L;
+//	TODO needs to be updated, name and ID both (medication Administraton_concept_type_id)
+//	go to DB of the concepts, filter concepts by "medication" or "drug" type, just needs to find one that says "administration"
+//	there may be 1, 2 or 3 options. Myung will help choose
 	private static OmopMedicationAdministration omopMedicationRequest = new OmopMedicationAdministration();
 	private VisitOccurrenceService visitOccurrenceService;
 	private ConceptService conceptService;

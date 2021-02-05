@@ -99,7 +99,7 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 	 * new instance of a resource to the server.
 	 */
 	@Create()
-	public MethodOutcome createMedicationRequest(@ResourceParam MedicationOrder theMedicationRequest) {
+	public MethodOutcome createMedicationAdmin(@ResourceParam MedicationAdministration theMedicationRequest) {
 		validateResource(theMedicationRequest);
 		
 		Long id=null;
@@ -121,14 +121,14 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 	}
 
 	@Delete()
-	public void deleteMedicationRequest(@IdParam IdDt theId) {
+	public void deleteMedicationAdmin(@IdParam IdDt theId) {
 		if (myMapper.removeByFhirId(theId) <= 0) {
 			throw new ResourceNotFoundException(theId);
 		}
 	}
 
 	@Update()
-	public MethodOutcome updateMedicationRequest(@IdParam IdDt theId, @ResourceParam MedicationOrder theMedicationRequest) {
+	public MethodOutcome updateMedicationAdmin(@IdParam IdDt theId, @ResourceParam MedicationAdministration theMedicationRequest) {
 		validateResource(theMedicationRequest);
 		
 		Long fhirId=null;
@@ -146,8 +146,8 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 	}
 
 	@Read()
-	public MedicationOrder readMedicationRequest(@IdParam IdDt theId) {
-		MedicationOrder retval = (MedicationOrder) myMapper.toFHIR(theId);
+	public MedicationAdministration readMedicationAdmin(@IdParam IdDt theId) {
+		MedicationAdministration retval = (MedicationAdministration) myMapper.toFHIR(theId);
 		if (retval == null) {
 			throw new ResourceNotFoundException(theId);
 		}
@@ -156,7 +156,7 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 	}
 	
 	@Search()
-	public IBundleProvider findMedicationRequetsById(
+	public IBundleProvider findMedicationAdminById(
 			@RequiredParam(name = MedicationAdministration.SP_RES_ID) TokenParam theMedicationRequestId
 			) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
@@ -173,7 +173,7 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 	}
 
 	@Search()
-	public IBundleProvider findMedicationRequestsByParams(
+	public IBundleProvider findMedicationAdminByParams(
 			@OptionalParam(name = MedicationAdministration.SP_CODE) TokenOrListParam theOrCodes,
 			@OptionalParam(name = MedicationAdministration.SP_MEDICATION+"."+Medication.SP_CODE) TokenOrListParam theMedicationOrCodes,
 			@OptionalParam(name = MedicationAdministration.SP_MEDICATION, chainWhitelist={""}) ReferenceParam theMedication,

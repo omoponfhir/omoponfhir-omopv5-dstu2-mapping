@@ -43,6 +43,7 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.hl7.fhir.exceptions.FHIRException;
 
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import edu.gatech.chai.omopv5.dba.service.CareSiteService;
@@ -308,6 +309,11 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		// TODO: handle diagnosis. This is condition id. Add join capability to
 		// parameter wrapper.
 //			break;
+		case Encounter.SP_DATE:
+			DateRangeParam dateRangeParam = ((DateRangeParam) value);
+			paramWrapper.setUpperRelationship("or"); // or these two maps
+			DateUtil.constructParameterWrapper(dateRangeParam, "visitStartDate", paramWrapper, mapList);
+			DateUtil.constructParameterWrapper(dateRangeParam, "visitEndDate", paramWrapper, mapList);
 		case "Patient:" + Patient.SP_RES_ID:
 			addParamlistForPatientIDName(parameter, (String) value, paramWrapper, mapList);
 			break;

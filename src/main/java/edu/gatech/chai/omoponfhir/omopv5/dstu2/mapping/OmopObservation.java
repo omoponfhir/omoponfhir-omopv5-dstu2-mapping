@@ -427,9 +427,9 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		if (fObservationView.getProvider() != null) {
 			ResourceReferenceDt performerRef = new ResourceReferenceDt(
 					new IdDt(PractitionerResourceProvider.getType(), fObservationView.getProvider().getId()));
-			String providerName = fObservationView.getProvider().getProviderName();
-			if (providerName != null && !providerName.isEmpty())
-				performerRef.setDisplay(providerName);
+//			String providerName = fObservationView.getProvider().getProviderName();
+//			if (providerName != null && !providerName.isEmpty())
+//				performerRef.setDisplay(providerName);
 			List<ResourceReferenceDt> tempList= observation.getPerformer();
 			tempList.add(performerRef);
 			observation.setPerformer(tempList);
@@ -948,7 +948,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 		if (theSort.getParamName().equals(Observation.SP_CODE)) {
 			orderParam = "observationConcept.conceptCode " + direction;
 		} else if (theSort.getParamName().equals(Observation.SP_DATE)) {
-			orderParam = "date " + direction;
+			orderParam = "observationDate " + direction;
 		} else if (theSort.getParamName().equals(Observation.SP_PATIENT)
 				|| theSort.getParamName().equals(Observation.SP_SUBJECT)) {
 			orderParam = "fPerson.id " + direction;

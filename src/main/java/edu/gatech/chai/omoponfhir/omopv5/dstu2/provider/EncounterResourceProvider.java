@@ -41,6 +41,7 @@ import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.param.DateRangeParam;
@@ -138,6 +139,10 @@ public class EncounterResourceProvider implements IResourceProvider {
 			paramList.addAll(getMyMapper().mapParameter(Encounter.SP_RES_ID, theEncounterId, false));
 		}
 
+		if (theDate != null) {
+			paramList.addAll(getMyMapper().mapParameter(Encounter.SP_DATE, theDate, false));
+		}
+		
 		// With OMOP, we only support subject to be patient.
 		// If the subject has only ID part, we assume that is patient.
 //		if (theSubject != null) {

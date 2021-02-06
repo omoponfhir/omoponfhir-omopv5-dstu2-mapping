@@ -13,6 +13,9 @@ Servers/
 nohup.out
 .DS_Store
 *.orig
+.devcontainer
+gtfhir2_local.sh
+tmp.*
 
 # Vagrant stuff.
 .vagrant

@@ -45,6 +45,7 @@ import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.TokenParam;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import edu.gatech.chai.omopv5.dba.service.CareSiteService;
 import edu.gatech.chai.omopv5.dba.service.ConditionOccurrenceService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
@@ -319,6 +320,10 @@ public class OmopEncounter extends BaseOmopResource<Encounter, VisitOccurrence, 
 		case "Patient:" + Patient.SP_NAME:
 			addParamlistForPatientIDName(parameter, (String) value, paramWrapper, mapList);
 			break;
+		case Encounter.SP_DATE:
+			DateRangeParam dateRangeParam = ((DateRangeParam) value);
+			DateUtil.constructParameterWrapper(dateRangeParam, "visitStartDate", paramWrapper, mapList);
+			break;		
 		default:
 			mapList = null;
 		}

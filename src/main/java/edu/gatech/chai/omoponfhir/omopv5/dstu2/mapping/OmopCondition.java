@@ -432,7 +432,6 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		Provider provider = conditionOccurrence.getProvider();
 		if (provider != null) {
 			ResourceReferenceDt providerRef = new ResourceReferenceDt(new IdDt(PractitionerResourceProvider.getType(), provider.getId()));
-			providerRef.setDisplay(provider.getProviderName());
 			condition.setAsserter(providerRef);
 		}
 	}

@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../omoponfhir-dstu2-server"
+		},
+		{
+			"path": "../omoponfhir-omopv5-jpabase"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/.classpath": true,
+			"**/.project": true,
+			"**/.settings": true,
+			"**/.factorypath": true
+		}
+	}
+}

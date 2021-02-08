@@ -30,6 +30,7 @@ import ca.uhn.fhir.model.dstu2.resource.MedicationAdministration.Dosage;
 import ca.uhn.fhir.model.dstu2.composite.DurationDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
+import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
 import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;
 import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
@@ -63,6 +64,7 @@ import edu.gatech.chai.omopv5.model.entity.DrugExposure;
 import edu.gatech.chai.omopv5.model.entity.FPerson;
 import edu.gatech.chai.omopv5.model.entity.Provider;
 import edu.gatech.chai.omopv5.model.entity.VisitOccurrence;
+import javassist.expr.Instanceof;
 
 
 /**
@@ -89,7 +91,7 @@ import edu.gatech.chai.omopv5.model.entity.VisitOccurrence;
 public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdministration, DrugExposure, DrugExposureService>
 		implements IResourceMapping<MedicationAdministration, DrugExposure> {
 
-	public static Long MEDICATION_ADMINISTRATION_INPATIENT_CONCEPT_TYPE_ID = 38000180L;
+	public static Long MEDICATION_ADMINISTRATION_INPATIENT_CONCEPT_TYPE_ID = 38000179L;
 	private static OmopMedicationAdministration omopMedicationRequest = new OmopMedicationAdministration();
 	private VisitOccurrenceService visitOccurrenceService;
 	private ConceptService conceptService;
@@ -152,13 +154,23 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 		patientRef.setDisplay(entity.getFPerson().getNameAsSingleString());
 		medicationAdministration.setPatient(patientRef);
 
-		// AuthoredOn. TODO: endDate is lost if we map to AuthoredOn.
-		Date startDate = entity.getDrugExposureStartDate();
-//		Date endDate = entity.getDrugExposureEndDate();
-		if (startDate != null)
+		Date startDateNoTime = entity.getDrugExposureStartDate();
+		Date startDateTime = entity.getDrugExposureStartDateTime();
+		Date endDateNoTime = entity.getDrugExposureEndDate();
+		Date endDateTime = entity.getDrugExposureEndDateTime();
+
+		Date startDate = startDateTime != null ? startDateTime : startDateNoTime;
+		Date endDate = endDateTime != null ? endDateTime : endDateNoTime;
+
+		if (startDate != null && endDate != null) {
+			PeriodDt effectivePeriod = new PeriodDt();
+			effectivePeriod.setStart(new DateTimeDt(startDate));
+			effectivePeriod.setEnd(new DateTimeDt(endDate));
+			medicationAdministration.setEffectiveTime(effectivePeriod);
+		} else if (startDate != null) {
 //			note- if we have a period, or have an end-date; we need to do something different here
 			medicationAdministration.setEffectiveTime(new DateTimeDt(startDate));
-
+		}
 		// See what type of Medication info we want to return
 		String medType = System.getenv("MEDICATION_TYPE");
 		if (medType != null && !medType.isEmpty() && "local".equalsIgnoreCase(medType)) {
@@ -614,8 +626,15 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 		}
 		// Set start date from authored on date
 //		Date authoredDate = fhirResource.getAuthoredOn();
-		Date authoredDate= (Date) fhirResource.getEffectiveTime();
-		drugExposure.setDrugExposureStartDate(authoredDate);
+		IDatatype effectiveTime = fhirResource.getEffectiveTime();
+		if (effectiveTime instanceof PeriodDt) {
+			PeriodDt effectivePeriod = (PeriodDt)effectiveTime;
+			drugExposure.setDrugExposureStartDate(effectivePeriod.getStart());
+			drugExposure.setDrugExposureEndDate(effectivePeriod.getEnd());
+		} else if (effectiveTime instanceof DateTimeDt) {
+			DateTimeDt effectiveDate = (DateTimeDt)effectiveTime;
+			drugExposure.setDrugExposureStartDate(effectiveDate.getValue());
+		}
 
 		// Set VisitOccurrence
 		ResourceReferenceDt encounterReference = fhirResource.getEncounter();

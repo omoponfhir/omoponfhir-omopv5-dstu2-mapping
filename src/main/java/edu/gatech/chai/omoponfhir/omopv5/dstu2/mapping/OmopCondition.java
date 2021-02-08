@@ -19,6 +19,7 @@ import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.model.api.IDatatype;
 import ca.uhn.fhir.rest.param.DateParam;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ParamPrefixEnum;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -28,6 +29,7 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ConditionCategory;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.DateUtil;
 import edu.gatech.chai.omopv5.dba.service.*;
 import edu.gatech.chai.omopv5.model.entity.*;
 
@@ -303,6 +305,12 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 //			case Condition.SP_VERIFICATION_STATUS:
 //				// not supporting
 //				break;
+			case Condition.SP_DATE_RECORDED:
+				DateRangeParam dateRangeParam = ((DateRangeParam) value);
+				paramWrapper.setUpperRelationship("or");
+				DateUtil.constructParameterWrapper(dateRangeParam, "conditionStartDate", paramWrapper, mapList);		
+				DateUtil.constructParameterWrapper(dateRangeParam, "conditionEndDate", paramWrapper, mapList);		
+				break;
 			default:
 				mapList = null;
 		}
@@ -432,7 +440,6 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		Provider provider = conditionOccurrence.getProvider();
 		if (provider != null) {
 			ResourceReferenceDt providerRef = new ResourceReferenceDt(new IdDt(PractitionerResourceProvider.getType(), provider.getId()));
-			providerRef.setDisplay(provider.getProviderName());
 			condition.setAsserter(providerRef);
 		}
 	}

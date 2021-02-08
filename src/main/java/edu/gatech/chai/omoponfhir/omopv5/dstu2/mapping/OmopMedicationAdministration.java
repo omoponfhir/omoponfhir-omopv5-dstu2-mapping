@@ -23,6 +23,7 @@ import java.util.List;
 import ca.uhn.fhir.model.dstu2.composite.ContainedDt;
 import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.resource.MedicationAdministration;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.dstu2.resource.MedicationAdministration.Dosage;
@@ -90,10 +91,7 @@ import javassist.expr.Instanceof;
 public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdministration, DrugExposure, DrugExposureService>
 		implements IResourceMapping<MedicationAdministration, DrugExposure> {
 
-	public static Long MEDICATIONREQUEST_CONCEPT_TYPE_ID = 38000179L;
-//	TODO needs to be updated, name and ID both (medication Administraton_concept_type_id)
-//	go to DB of the concepts, filter concepts by "medication" or "drug" type, just needs to find one that says "administration"
-//	there may be 1, 2 or 3 options. Myung will help choose
+	public static Long MEDICATION_ADMINISTRATION_INPATIENT_CONCEPT_TYPE_ID = 38000179L;
 	private static OmopMedicationAdministration omopMedicationRequest = new OmopMedicationAdministration();
 	private VisitOccurrenceService visitOccurrenceService;
 	private ConceptService conceptService;
@@ -420,9 +418,12 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 		return mapList;
 	}
 
-	final ParameterWrapper filterParam = new ParameterWrapper("Long", Arrays.asList("drugTypeConcept.id"),
-			Arrays.asList("="), Arrays.asList(String.valueOf(OmopMedicationAdministration.MEDICATIONREQUEST_CONCEPT_TYPE_ID)),
-			"or");
+	// domain_id='Type Concept' and vocabulary_id = 'Drug Type' and concept_name like '%administ%'
+	
+	final List<ParameterWrapper> filterParams = Arrays.asList (
+			new ParameterWrapper("Long", Arrays.asList("drugTypeConcept.domain_id"), Arrays.asList("="), Arrays.asList("Type Concept"), "or"),
+			new ParameterWrapper("Long", Arrays.asList("drugTypeConcept.vocabulary_id"), Arrays.asList("="), Arrays.asList("Drug Type"), "or"),
+			new ParameterWrapper("Long", Arrays.asList("drugTypeConcept.concept_name"), Arrays.asList("like"), Arrays.asList("%administ%"), "or"));
 
 	@Override
 	public Long getSize() {
@@ -438,7 +439,7 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 
 	@Override
 	public Long getSize(List<ParameterWrapper> paramList) {
-		paramList.add(filterParam);
+		paramList.addAll(filterParams);
 
 		return getMyOmopService().getSize(paramList);
 	}
@@ -457,7 +458,7 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 	@Override
 	public void searchWithParams(int fromIndex, int toIndex, List<ParameterWrapper> mapList,
 			List<IBaseResource> listResources, List<String> includes, String sort) {
-		mapList.add(filterParam);
+		mapList.addAll(filterParams);
 
 		List<DrugExposure> entities = getMyOmopService().searchWithParams(fromIndex, toIndex, mapList, sort);
 
@@ -515,26 +516,25 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 
 		// Set patient.
 		ResourceReferenceDt patientReference = fhirResource.getPatient();
-		if (patientReference == null)
+		if (patientReference == null) {
 			try {
 				throw new FHIRException("Patient must exist.");
 			} catch (FHIRException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
 
 		Long patientFhirId = patientReference.getReferenceElement().getIdPartAsLong();
-		Long omopFPersonId = IdMapping.getOMOPfromFHIR(patientFhirId, PatientResourceProvider.getType());
 
-		FPerson fPerson = fPersonService.findById(omopFPersonId);
-		if (fPerson == null)
+		FPerson fPerson = fPersonService.findById(patientFhirId);
+		if (fPerson == null) {
 			try {
 				throw new FHIRException("Patient/" + patientFhirId + " is not valid");
 			} catch (FHIRException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+		}
+		
 		drugExposure.setFPerson(fPerson);
 
 		// Get medication[x]
@@ -578,12 +578,12 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 		} else {
 			try {
 //				medicationCodeableConcept = fhirResource.getMedicationCodeableConcept();
-				if (!(fhirResource.getMedication() instanceof CodeableConceptDt))
+				if (!(fhirResource.getMedication() instanceof CodeableConceptDt)) {
 					throw new FHIRException("Type mismatch: the type CodeableConcept was expected, but "
 							+ fhirResource.getMedication().getClass().getName() + " was encountered");
+				}
 				medicationCodeableConcept = (CodeableConceptDt) fhirResource.getMedication();
 			} catch (FHIRException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -592,7 +592,6 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 			try {
 				throw new FHIRException("Medication[CodeableConcept or Reference] could not be mapped");
 			} catch (FHIRException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -611,9 +610,20 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 
 		// Set drug exposure type
 		Concept drugExposureType = new Concept();
-		drugExposureType.setId(MEDICATIONREQUEST_CONCEPT_TYPE_ID);
+		drugExposureType.setId(OmopMedicationAdministration.MEDICATION_ADMINISTRATION_INPATIENT_CONCEPT_TYPE_ID);
 		drugExposure.setDrugTypeConcept(drugExposureType);
 
+		// stop reason.
+		Boolean notGiven = fhirResource.getWasNotGiven();
+		if (notGiven) {
+			CodeableConceptDt reasonNotGivenCodeable = fhirResource.getReasonNotGivenFirstRep();
+			if (reasonNotGivenCodeable != null && !reasonNotGivenCodeable.isEmpty()) {
+				CodingDt reasonNotCoding = reasonNotGivenCodeable.getCodingFirstRep();
+				if (reasonNotCoding != null && reasonNotCoding.isEmpty()) {
+				}
+				
+			}
+		}
 		// Set start date from authored on date
 //		Date authoredDate = fhirResource.getAuthoredOn();
 		IDatatype effectiveTime = fhirResource.getEffectiveTime();

@@ -56,7 +56,6 @@ import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
-import edu.gatech.chai.omopv5.dba.service.ProviderService;
 import edu.gatech.chai.omopv5.dba.service.VisitOccurrenceService;
 import edu.gatech.chai.omopv5.model.entity.Concept;
 import edu.gatech.chai.omopv5.model.entity.DrugExposure;
@@ -86,14 +85,12 @@ import edu.gatech.chai.omopv5.model.entity.VisitOccurrence;
  *         list entry 38000181 Drug era - 0 days persistence window 38000182
  *         Drug era - 30 days persistence window 44777970 Randomized Drug
  */
-public class OmopMedicationOrder extends BaseOmopResource<MedicationOrder, DrugExposure, DrugExposureService>
-		implements IResourceMapping<MedicationOrder, DrugExposure> {
+public class OmopMedicationOrder extends BaseOmopResource<MedicationOrder, DrugExposure, DrugExposureService> {
 
 	public static Long MEDICATIONREQUEST_CONCEPT_TYPE_ID = 38000177L;
 	private static OmopMedicationOrder omopMedicationRequest = new OmopMedicationOrder();
 	private VisitOccurrenceService visitOccurrenceService;
 	private ConceptService conceptService;
-	private ProviderService providerService;
 	private FPersonService fPersonService;
 
 	public OmopMedicationOrder(WebApplicationContext context) {
@@ -110,7 +107,6 @@ public class OmopMedicationOrder extends BaseOmopResource<MedicationOrder, DrugE
 	private void initialize(WebApplicationContext context) {
 		visitOccurrenceService = context.getBean(VisitOccurrenceService.class);
 		conceptService = context.getBean(ConceptService.class);
-		providerService = context.getBean(ProviderService.class);
 		fPersonService = context.getBean(FPersonService.class);
 
 		getSize();
@@ -162,7 +158,6 @@ public class OmopMedicationOrder extends BaseOmopResource<MedicationOrder, DrugE
 		String medType = System.getenv("MEDICATION_TYPE");
 		if (medType != null && !medType.isEmpty() && "local".equalsIgnoreCase(medType)) {
 			CodeableConceptDt medicationCodeableConcept;
-			CodeableConceptDt ingredientCodeableConcept;
 			Medication medicationResource = new Medication();
 			try {
 				medicationCodeableConcept = CodeableConceptUtil
@@ -170,7 +165,6 @@ public class OmopMedicationOrder extends BaseOmopResource<MedicationOrder, DrugE
 				List<Concept> ingredients = conceptService.getIngredient(entity.getDrugConcept());
 				Medication.Product tempProduct = new Medication.Product();
 				for (Concept ingredient : ingredients) {
-					ingredientCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(ingredient);
 					ProductIngredient medIngredientComponent = new ProductIngredient();
 					String temp = ingredient.getId().toString();
 					ResourceReferenceDt tempReference = new ResourceReferenceDt("Medication/" + temp);
@@ -565,7 +559,6 @@ public class OmopMedicationOrder extends BaseOmopResource<MedicationOrder, DrugE
 		CodeableConceptDt medicationCodeableConcept = null;
 		if (medicationType instanceof ResourceReferenceDt) {
 			// We may have reference.
-			ResourceReferenceDt medicationReference;
 			try {
 //				medicationReference = fhirResource.getMedicationReference();
 //				medicationReference = fhirResource.getMedication();

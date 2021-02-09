@@ -20,12 +20,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import ca.uhn.fhir.model.api.IResource;
 import ca.uhn.fhir.model.dstu2.composite.AnnotationDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
+import ca.uhn.fhir.model.dstu2.composite.ContainedDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.dstu2.resource.MedicationStatement.Dosage;
 import ca.uhn.fhir.model.primitive.IdDt;
@@ -33,13 +33,12 @@ import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
 import ca.uhn.fhir.model.dstu2.resource.MedicationStatement;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;
 import ca.uhn.fhir.model.dstu2.valueset.MedicationStatementStatusEnum;
 import ca.uhn.fhir.model.dstu2.composite.PeriodDt;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-import ca.uhn.fhir.model.dstu2.resource.BaseResource;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
 import ca.uhn.fhir.model.api.IDatatype;
-import ca.uhn.fhir.model.dstu2.resource.ValueSet.CodeSystemConcept;
 
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
@@ -50,25 +49,20 @@ import ca.uhn.fhir.rest.param.ParamPrefixEnum;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.param.TokenParamModifier;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvider;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationOrderResourceProvider;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationStatementResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.TerminologyServiceClient;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 import edu.gatech.chai.omopv5.dba.service.ProviderService;
-import edu.gatech.chai.omopv5.dba.service.VisitOccurrenceService;
 import edu.gatech.chai.omopv5.model.entity.Concept;
 import edu.gatech.chai.omopv5.model.entity.DrugExposure;
 import edu.gatech.chai.omopv5.model.entity.FPerson;
 import edu.gatech.chai.omopv5.model.entity.Provider;
-import edu.gatech.chai.omopv5.model.entity.VisitOccurrence;
 
 /**
  *
@@ -102,7 +96,6 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 
 	private static Long MEDICATIONSTATEMENT_CONCEPT_TYPE_ID = 44787730L;
 	private static OmopMedicationStatement omopMedicationStatement = new OmopMedicationStatement();
-	private VisitOccurrenceService visitOccurrenceService;
 	private ConceptService conceptService;
 	private ProviderService providerService;
 	private FPersonService fPersonService;
@@ -119,7 +112,6 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 	}
 
 	private void initialize(WebApplicationContext context) {
-		visitOccurrenceService = context.getBean(VisitOccurrenceService.class);
 		conceptService = context.getBean(ConceptService.class);
 		providerService = context.getBean(ProviderService.class);
 		fPersonService = context.getBean(FPersonService.class);
@@ -224,16 +216,68 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 //		}
 
 		// Get medicationCodeableConcept
-		Concept drugConcept = entity.getDrugConcept();
-		CodeableConceptDt medication;
-		try {
-			medication = CodeableConceptUtil.getCodeableConceptFromOmopConcept(drugConcept);
-		} catch (FHIRException e1) {
-			e1.printStackTrace();
-			return null;
-		}
-
-		medicationStatement.setMedication(medication);
+//		Concept drugConcept = entity.getDrugConcept();
+//		CodeableConceptDt medication;
+//		try {
+//			medication = CodeableConceptUtil.getCodeableConceptFromOmopConcept(drugConcept);
+//		} catch (FHIRException e1) {
+//			e1.printStackTrace();
+//			return null;
+//		}
+//
+//		medicationStatement.setMedication(medication);
+		
+		
+		// See what type of Medication info we want to return
+		String medType = System.getenv("MEDICATION_TYPE");
+		if (medType != null && !medType.isEmpty() && "local".equalsIgnoreCase(medType)) {
+			CodeableConceptDt medicationCodeableConcept;
+//			CodeableConceptDt ingredientCodeableConcept;
+			Medication medicationResource = new Medication();
+			try {
+				medicationCodeableConcept = CodeableConceptUtil
+						.getCodeableConceptFromOmopConcept(entity.getDrugConcept());
+				List<Concept> ingredients = conceptService.getIngredient(entity.getDrugConcept());
+				Medication.Product tempProduct = new Medication.Product();
+				for (Concept ingredient : ingredients) {
+//					ingredientCodeableConcept = CodeableConceptUtil.getCodeableConceptFromOmopConcept(ingredient);
+					ProductIngredient medIngredientComponent = new ProductIngredient();
+					String temp = ingredient.getId().toString();
+					ResourceReferenceDt tempReference = new ResourceReferenceDt("Medication/" + temp);
+					medIngredientComponent.setItem(tempReference);
+					tempProduct.addIngredient(medIngredientComponent);
+//					medicationResource.addIngredient(medIngredientComponent);
+				}
+				medicationResource.setProduct(tempProduct);
+			} catch (FHIRException e) {
+				e.printStackTrace();
+				return null;
+			}
+			medicationResource.setCode(medicationCodeableConcept);
+			medicationResource.setId("med1");
+			List<IResource> tempList = medicationStatement.getContained().getContainedResources();
+			tempList.add(medicationResource);
+			ContainedDt tempContained = new ContainedDt();
+			tempContained.setContainedResources(tempList);
+			medicationStatement.setContained(tempContained);
+//			medicationRequest.addContained(medicationResource);
+			medicationStatement.setMedication(new ResourceReferenceDt("#med1"));
+		} else if (medType != null && !medType.isEmpty() && "link".equalsIgnoreCase(medType)) {
+			// Get Medication in a reference.
+			ResourceReferenceDt medicationReference = new ResourceReferenceDt(
+					new IdDt(MedicationResourceProvider.getType(), entity.getDrugConcept().getId()));
+			medicationStatement.setMedication(medicationReference);
+		} else {
+			CodeableConceptDt medicationCodeableConcept;
+			try {
+				medicationCodeableConcept = CodeableConceptUtil
+						.getCodeableConceptFromOmopConcept(entity.getDrugConcept());
+			} catch (FHIRException e1) {
+				e1.printStackTrace();
+				return null;
+			}
+			medicationStatement.setMedication(medicationCodeableConcept);
+		}		
 
 		// See if we can add ingredient version of this medication.
 		// Concept ingredient = conceptService.getIngredient(drugConcept);
@@ -306,8 +350,8 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 			if (unitConcepts.size() > 0) {
 				unitConcept = unitConcepts.get(0);
 				String omopUnitVocab = unitConcept.getVocabularyId();
-				String omopUnitCode = unitConcept.getConceptCode();
-				String omopUnitName = unitConcept.getConceptName();
+//				String omopUnitCode = unitConcept.getConceptCode();
+//				String omopUnitName = unitConcept.getConceptName();
 				String fhirUnitUri;
 				try {
 					fhirUnitUri = OmopCodeableConceptMapping.fhirUriforOmopVocabulary(omopUnitVocab);
@@ -382,29 +426,29 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 
 		// If OMOP medication type has the following prescription type, we set
 		// basedOn reference to the prescription.
-		if (entity.getDrugTypeConcept() != null) {
-			if (entity.getDrugTypeConcept().getId() == OmopMedicationOrder.MEDICATIONREQUEST_CONCEPT_TYPE_ID) {
-				IdDt referenceIdType = new IdDt(MedicationOrderResourceProvider.getType(), IdMapping.getFHIRfromOMOP(entity.getId(), MedicationOrderResourceProvider.getType()));
-				ResourceReferenceDt basedOnReference = new ResourceReferenceDt(referenceIdType);
+//		if (entity.getDrugTypeConcept() != null) {
+//			if (entity.getDrugTypeConcept().getId() == OmopMedicationOrder.MEDICATIONREQUEST_CONCEPT_TYPE_ID) {
+//				IdDt referenceIdType = new IdDt(MedicationOrderResourceProvider.getType(), IdMapping.getFHIRfromOMOP(entity.getId(), MedicationOrderResourceProvider.getType()));
+//				ResourceReferenceDt basedOnReference = new ResourceReferenceDt(referenceIdType);
 //				medicationStatement.addBasedOn(basedOnReference);
-//				this doesn't exist in DSTU2
-			} else if (entity.getDrugTypeConcept().getId() == 38000179L ||
-					entity.getDrugTypeConcept().getId() == 38000180L ||
-					entity.getDrugTypeConcept().getId() == 43542356L ||
-					entity.getDrugTypeConcept().getId() == 43542357L ||
-					entity.getDrugTypeConcept().getId() == 43542358L ||
-					entity.getDrugTypeConcept().getId() == 581373L) {
-				// This is administration related...
-				// TODO: add partOf to MedicationAdministration reference after we implement Medication Administration
-			} else if (entity.getDrugTypeConcept().getId() == 38000175L ||
-					entity.getDrugTypeConcept().getId() == 38000176L ||
-					entity.getDrugTypeConcept().getId() == 581452L) {
-				// TODO: add partOf to MedicationDispense reference.
+////				this doesn't exist in DSTU2
+//			} else if (entity.getDrugTypeConcept().getId() == 38000179L ||
+//					entity.getDrugTypeConcept().getId() == 38000180L ||
+//					entity.getDrugTypeConcept().getId() == 43542356L ||
+//					entity.getDrugTypeConcept().getId() == 43542357L ||
+//					entity.getDrugTypeConcept().getId() == 43542358L ||
+//					entity.getDrugTypeConcept().getId() == 581373L) {
+//				// This is administration related...
+//				// TODO: add partOf to MedicationAdministration reference after we implement Medication Administration
+//			} else if (entity.getDrugTypeConcept().getId() == 38000175L ||
+//					entity.getDrugTypeConcept().getId() == 38000176L ||
+//					entity.getDrugTypeConcept().getId() == 581452L) {
+//				// TODO: add partOf to MedicationDispense reference.
 //				IdType referenceIdType = new IdType("MedicationDispense", IdMapping.getFHIRfromOMOP(entity.getId(), "MedicationDispense"));
 //				medicationStatement.addPartOf(new Reference(referenceIdType));
-			}
-
-		}
+//			}
+//
+//		}
 
 		// If OMOP medicaiton type has the administration or dispense, we set
 		// partOf reference to this.
@@ -733,9 +777,8 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 //		there is no context for MedicationStatement
 
 //		MedicationStatementStatus status = fhirResource.getStatus();
-		String status = fhirResource.getStatus();
-//		if (status != null && status.equals(MedicationStatementStatusEnum.STOPPED)) {
-		if (status != null && status.equals(MedicationStatementStatusEnum.COMPLETED)) {
+		Boolean notGiven = fhirResource.getWasNotTaken();
+		if (notGiven != null && notGiven == true) {
 			// This medication is stopped. See if we have a reason stopped.
 			List<CodeableConceptDt> reasonNotTakens = fhirResource.getReasonNotTaken();
 			String reasonsForStopped = "";
@@ -802,7 +845,6 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 					}
 				}
 			} catch (FHIRException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

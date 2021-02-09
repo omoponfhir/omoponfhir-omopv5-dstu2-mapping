@@ -56,6 +56,7 @@ import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
+import edu.gatech.chai.omopv5.dba.service.ProviderService;
 import edu.gatech.chai.omopv5.dba.service.VisitOccurrenceService;
 import edu.gatech.chai.omopv5.model.entity.Concept;
 import edu.gatech.chai.omopv5.model.entity.DrugExposure;
@@ -90,6 +91,7 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 	public static Long MEDICATION_ADMINISTRATION_INPATIENT_CONCEPT_TYPE_ID = 38000179L;
 	private static OmopMedicationAdministration omopMedicationRequest = new OmopMedicationAdministration();
 	private VisitOccurrenceService visitOccurrenceService;
+	private ProviderService providerService;
 	private ConceptService conceptService;
 	private FPersonService fPersonService;
 
@@ -106,6 +108,7 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 
 	private void initialize(WebApplicationContext context) {
 		visitOccurrenceService = context.getBean(VisitOccurrenceService.class);
+		providerService = context.getBean(ProviderService.class);
 		conceptService = context.getBean(ConceptService.class);
 		fPersonService = context.getBean(FPersonService.class);
 
@@ -680,6 +683,25 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 			}
 		}
 
+		// Set Provider
+		ResourceReferenceDt practitionerReference = fhirResource.getPractitioner();
+		if (practitionerReference != null && !practitionerReference.isEmpty()) {
+			if (PractitionerResourceProvider.getType().equals(practitionerReference.getReferenceElement().getResourceType())) {
+				Long omopPractitionerId = practitionerReference.getReferenceElement().getIdPartAsLong();
+				if (omopPractitionerId != null) {
+					Provider provider = providerService.findById(omopPractitionerId);
+					if (provider != null)
+						drugExposure.setProvider(provider);
+				} else {
+					try {
+						throw new FHIRException("Encounter/" + omopPractitionerId + " is not valid.");
+					} catch (FHIRException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
 		// dosageInstruction
 		Dosage dosage = fhirResource.getDosage();
 		SimpleQuantityDt doseQty;

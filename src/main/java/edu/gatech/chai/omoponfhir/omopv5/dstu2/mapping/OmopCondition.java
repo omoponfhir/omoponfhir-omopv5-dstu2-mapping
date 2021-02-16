@@ -308,8 +308,10 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 			case Condition.SP_DATE_RECORDED:
 				DateRangeParam dateRangeParam = ((DateRangeParam) value);
 				paramWrapper.setUpperRelationship("or");
-				DateUtil.constructParameterWrapper(dateRangeParam, "conditionStartDate", paramWrapper, mapList);		
-				DateUtil.constructParameterWrapper(dateRangeParam, "conditionEndDate", paramWrapper, mapList);		
+				DateUtil.constructParameterWrapper(dateRangeParam, "conditionStartDate", paramWrapper, mapList);
+				ParameterWrapper paramWrapper1 = new ParameterWrapper();
+				paramWrapper1.setUpperRelationship("or");
+				DateUtil.constructParameterWrapper(dateRangeParam, "conditionEndDate", paramWrapper1, mapList);		
 				break;
 			default:
 				mapList = null;

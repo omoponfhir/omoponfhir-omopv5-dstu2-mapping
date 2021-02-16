@@ -45,6 +45,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.hl7.fhir.exceptions.FHIRException;
 
 import ca.uhn.fhir.rest.param.DateParam;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ParamPrefixEnum;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -54,6 +55,7 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationStatementResou
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.DateUtil;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
@@ -593,30 +595,37 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 //				break;
 //			case MedicationStatement.SP_EFFECTIVE:
 			case MedicationStatement.SP_EFFECTIVEDATE:
-				DateParam effectiveDateParam = ((DateParam) value);
-				ParamPrefixEnum apiOperator = effectiveDateParam.getPrefix();
-				String sqlOperator = null;
-				if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN)) {
-					sqlOperator = ">";
-				} else if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN_OR_EQUALS)) {
-					sqlOperator = ">=";
-				} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN)) {
-					sqlOperator = "<";
-				} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN_OR_EQUALS)) {
-					sqlOperator = "<=";
-				} else if (apiOperator.equals(ParamPrefixEnum.NOT_EQUAL)) {
-					sqlOperator = "!=";
-				} else {
-					sqlOperator = "=";
-				}
-				Date effectiveDate = effectiveDateParam.getValue();
+//				DateParam effectiveDateParam = ((DateParam) value);
+//				ParamPrefixEnum apiOperator = effectiveDateParam.getPrefix();
+//				String sqlOperator = null;
+//				if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN)) {
+//					sqlOperator = ">";
+//				} else if (apiOperator.equals(ParamPrefixEnum.GREATERTHAN_OR_EQUALS)) {
+//					sqlOperator = ">=";
+//				} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN)) {
+//					sqlOperator = "<";
+//				} else if (apiOperator.equals(ParamPrefixEnum.LESSTHAN_OR_EQUALS)) {
+//					sqlOperator = "<=";
+//				} else if (apiOperator.equals(ParamPrefixEnum.NOT_EQUAL)) {
+//					sqlOperator = "!=";
+//				} else {
+//					sqlOperator = "=";
+//				}
+//				Date effectiveDate = effectiveDateParam.getValue();
+//
+//				paramWrapper.setParameterType("Date");
+//				paramWrapper.setParameters(Arrays.asList("drugExposureStartDate"));
+//				paramWrapper.setOperators(Arrays.asList(sqlOperator));
+//				paramWrapper.setValues(Arrays.asList(String.valueOf(effectiveDate.getTime())));
+//				paramWrapper.setRelationship("or");
+//				mapList.add(paramWrapper);
+//				
+				DateRangeParam dateRangeParam = ((DateRangeParam) value);
+				DateUtil.constructParameterWrapper(dateRangeParam, "drugExposureStartDate", paramWrapper, mapList);
+				ParameterWrapper paramWrapper1 = new ParameterWrapper();
+				paramWrapper1.setUpperRelationship("or");
+				DateUtil.constructParameterWrapper(dateRangeParam, "drugExposureEndDate", paramWrapper1, mapList);
 
-				paramWrapper.setParameterType("Date");
-				paramWrapper.setParameters(Arrays.asList("drugExposureStartDate"));
-				paramWrapper.setOperators(Arrays.asList(sqlOperator));
-				paramWrapper.setValues(Arrays.asList(String.valueOf(effectiveDate.getTime())));
-				paramWrapper.setRelationship("or");
-				mapList.add(paramWrapper);
 				break;
 			case "Patient:" + Patient.SP_RES_ID:
 				addParamlistForPatientIDName(parameter, (String) value, paramWrapper, mapList);

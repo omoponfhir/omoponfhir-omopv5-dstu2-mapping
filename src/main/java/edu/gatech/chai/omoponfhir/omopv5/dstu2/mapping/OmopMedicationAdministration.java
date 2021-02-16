@@ -365,8 +365,12 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 			}
 			break;
 		case MedicationAdministration.SP_EFFECTIVETIME:
+			paramWrapper.setUpperRelationship("or");
 			DateRangeParam effectiveTimeRangeParam = ((DateRangeParam) value);
 			DateUtil.constructParameterWrapper(effectiveTimeRangeParam, "drugExposureStartDate", paramWrapper, mapList);
+			ParameterWrapper paramWrapper1 = new ParameterWrapper();
+			paramWrapper1.setUpperRelationship("or");
+			DateUtil.constructParameterWrapper(effectiveTimeRangeParam, "drugExposureEndDate", paramWrapper1, mapList);
 			break;
 //		case MedicationOrder.SP_AUTHOREDON:
 //			DateParam authoredOnDataParam = ((DateParam) value);

@@ -43,6 +43,7 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.hl7.fhir.exceptions.FHIRException;
 
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvider;
@@ -51,6 +52,7 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.MedicationResourceProvid
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PatientResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.DateUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
@@ -361,6 +363,10 @@ public class OmopMedicationAdministration extends BaseOmopResource<MedicationAdm
 				paramWrapper.setRelationship("or");
 				mapList.add(paramWrapper);
 			}
+			break;
+		case MedicationAdministration.SP_EFFECTIVETIME:
+			DateRangeParam effectiveTimeRangeParam = ((DateRangeParam) value);
+			DateUtil.constructParameterWrapper(effectiveTimeRangeParam, "drugExposureStartDate", paramWrapper, mapList);
 			break;
 //		case MedicationOrder.SP_AUTHOREDON:
 //			DateParam authoredOnDataParam = ((DateParam) value);

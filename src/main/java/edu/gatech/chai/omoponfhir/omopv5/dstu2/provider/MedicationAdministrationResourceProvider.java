@@ -42,6 +42,7 @@ import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -180,6 +181,7 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 //			@OptionalParam(name = MedicationAdministration.SP_CONTEXT) ReferenceParam theContext,
 //			@OptionalParam(name = MedicationAdministration.SP_AUTHOREDON) DateParam theDate,
 //			SP Doesn't Exist in DSTU2
+			@OptionalParam(name = MedicationAdministration.SP_EFFECTIVETIME) DateRangeParam theEffectiveTimeRange,
 			@OptionalParam(name = MedicationAdministration.SP_PATIENT) ReferenceParam thePatient
 //			@OptionalParam(name = MedicationAdministration.SP_SUBJECT) ReferenceParam theSubject
 // 			SP Doesn't Exist in DSTU2
@@ -232,6 +234,10 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 //		}
 		if (thePatient != null) {
 			paramList.addAll(myMapper.mapParameter(MedicationAdministration.SP_PATIENT, thePatient, false));
+		}
+
+		if (theEffectiveTimeRange != null) {
+			paramList.addAll(myMapper.mapParameter(MedicationAdministration.SP_EFFECTIVETIME, theEffectiveTimeRange, false));
 		}
 
 		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);

@@ -36,12 +36,14 @@ import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.DateUtil;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
+import edu.gatech.chai.omopv5.dba.service.FImmunizationViewService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 import edu.gatech.chai.omopv5.dba.service.ProviderService;
 import edu.gatech.chai.omopv5.dba.service.VisitOccurrenceService;
 import edu.gatech.chai.omopv5.model.entity.Concept;
 import edu.gatech.chai.omopv5.model.entity.DrugExposure;
+import edu.gatech.chai.omopv5.model.entity.FImmunizationView;
 import edu.gatech.chai.omopv5.model.entity.FPerson;
 import edu.gatech.chai.omopv5.model.entity.Provider;
 import edu.gatech.chai.omopv5.model.entity.VisitOccurrence;
@@ -55,12 +57,13 @@ import edu.gatech.chai.omopv5.model.entity.VisitOccurrence;
 *
 * @author  Myung Choi
 */
-public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposure, DrugExposureService>
-		implements IResourceMapping<Immunization, DrugExposure> {
+public class OmopImmunization extends BaseOmopResource<Immunization, FImmunizationView, FImmunizationViewService>
+		implements IResourceMapping<Immunization, FImmunizationView> {
 
 	final static Logger logger = LoggerFactory.getLogger(OmopImmunization.class);
 
 	private VisitOccurrenceService visitOccurrenceService;
+	private DrugExposureService drugExposureService;
 	private ConceptService conceptService;
 	private ProviderService providerService;
 	private FPersonService fPersonService;
@@ -107,18 +110,20 @@ public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposur
 	private String _where = "c2.vocabularyId = 'CVX'";
 	
 	public OmopImmunization(WebApplicationContext context) {
-		super(context, DrugExposure.class, DrugExposureService.class, ImmunizationResourceProvider.getType());
+		super(context, FImmunizationView.class, FImmunizationViewService.class, ImmunizationResourceProvider.getType());
 		initialize(context);
 	}
 
 	private void initialize(WebApplicationContext context) {
 		visitOccurrenceService = context.getBean(VisitOccurrenceService.class);
 		conceptService = context.getBean(ConceptService.class);
+		drugExposureService = context.getBean(DrugExposureService.class);
 		providerService = context.getBean(ProviderService.class);
 		fPersonService = context.getBean(FPersonService.class);
 
-		String sizeSql = "select count(distinct d) from " + _from + " where " + _where;
-		getSize(sizeSql, null);
+//		String sizeSql = "select count(distinct d) from " + _from + " where " + _where;
+//		getSize(sizeSql, null);
+		getSize();
 	}
 
 	@Override
@@ -129,13 +134,13 @@ public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposur
 			omopId = fhirId.getIdPartAsLong();
 		}
 
-		drugExposure = constructOmop(omopId, fhirResource);
+		drugExposure = constructDrugExposure(omopId, fhirResource);
 
 		Long retOmopId = null;
 		if (omopId == null) {
-			retOmopId = getMyOmopService().create(drugExposure).getId();
+			retOmopId = drugExposureService.create(drugExposure).getId();
 		} else {
-			retOmopId = getMyOmopService().update(drugExposure).getId();
+			retOmopId = drugExposureService.update(drugExposure).getId();
 		}
 		return retOmopId;
 	}
@@ -159,6 +164,60 @@ public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposur
 			paramWrapper.setRelationship("or");
 			mapList.add(paramWrapper);
 			break;
+			
+		case Immunization.SP_VACCINE_CODE:
+			String system = ((TokenParam) value).getSystem();
+			String code = ((TokenParam) value).getValue();
+//			System.out.println("\n\n\n\n\nSystem:"+system+"\n\ncode:"+code+"\n\n\n\n\n");
+			if ((system == null || system.isEmpty()) && (code == null || code.isEmpty()))
+				break;
+
+			String omopVocabulary = "None";
+			if (system != null && !system.isEmpty()) {
+				try {
+					omopVocabulary = OmopCodeableConceptMapping.omopVocabularyforFhirUri(system);
+				} catch (FHIRException e) {
+					e.printStackTrace();
+				}
+			}
+
+			paramWrapper.setParameterType("String");
+			if ("None".equals(omopVocabulary) && code != null && !code.isEmpty()) {
+				paramWrapper.setParameters(Arrays.asList("immunizationConcept.conceptCode"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(code));
+			} else if (!"None".equals(omopVocabulary) && (code == null || code.isEmpty())) {
+				paramWrapper.setParameters(Arrays.asList("immunizationConcept.vocabularyId"));
+				paramWrapper.setOperators(Arrays.asList("="));
+				paramWrapper.setValues(Arrays.asList(omopVocabulary));
+			} else {
+				paramWrapper.setParameters(Arrays.asList("immunizationConcept.vocabularyId", "immunizationConcept.conceptCode"));
+				paramWrapper.setOperators(Arrays.asList("=", "="));
+				paramWrapper.setValues(Arrays.asList(omopVocabulary, code));
+			}
+			paramWrapper.setRelationship("and");
+			mapList.add(paramWrapper);
+
+			break;
+
+		case Immunization.SP_DATE:
+			DateRangeParam dateRangeParam = ((DateRangeParam) value);
+			DateUtil.constructParameterWrapper(dateRangeParam, "immunizationDate", paramWrapper, mapList);
+			break;
+			
+		case Immunization.SP_PATIENT:
+			ReferenceParam patientReference = ((ReferenceParam) value);
+			Long fhirPatientId = patientReference.getIdPartAsLong();
+			String omopPersonIdString = String.valueOf(fhirPatientId);
+			
+			paramWrapper.setParameterType("Long");
+			paramWrapper.setParameters(Arrays.asList("fPerson.id"));
+			paramWrapper.setOperators(Arrays.asList("="));
+			paramWrapper.setValues(Arrays.asList(omopPersonIdString));
+			paramWrapper.setRelationship("or");
+			mapList.add(paramWrapper);			
+			break;
+			
 		default:
 			mapList = null;
 		}
@@ -317,7 +376,7 @@ public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposur
 	}
 	
 	@Override
-	public Immunization constructFHIR(Long fhirId, DrugExposure entity) {
+	public Immunization constructFHIR(Long fhirId, FImmunizationView entity) {
 		Immunization immunization = new Immunization();
 		immunization.setId(new IdDt(fhirId));
 		
@@ -330,17 +389,17 @@ public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposur
 		immunization.setPatient(patientReference);
 		
 		// status - set to stopped if we have stop reason. Otherwise, we just set it to
-		if (entity.getStopReason() != null && !entity.getStopReason().isEmpty()) {
+		if (entity.getImmunizationStatus() != null && !entity.getImmunizationStatus().isEmpty()) {
 			immunization.setStatus(MedicationAdministrationStatusEnum.STOPPED.getCode());
 		} else {
 			immunization.setStatus(MedicationAdministrationStatusEnum.COMPLETED.getCode());
 		}
 
 		// date
-		immunization.setDate(new DateTimeDt(entity.getDrugExposureStartDate()));
+		immunization.setDate(new DateTimeDt(entity.getImmunizationDate()));
 		
 		// vaccine code
-		CodeableConceptDt vaccineCodeable = CodeableConceptUtil.getCodeableConceptFromOmopConcept(entity.getDrugConcept(), getFhirOmopVocabularyMap());
+		CodeableConceptDt vaccineCodeable = CodeableConceptUtil.getCodeableConceptFromOmopConcept(entity.getImmunizationConcept(), getFhirOmopVocabularyMap());
 		immunization.setVaccineCode(vaccineCodeable);
 		
 		// performer
@@ -378,16 +437,16 @@ public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposur
 		}
 		
 		// sig
-		String sig = entity.getSig();
-		if (sig != null && !sig.isEmpty()) {
+		String note = entity.getImmunizationNote();
+		if (note != null && !note.isEmpty()) {
 			List<AnnotationDt> theValue = new ArrayList<AnnotationDt> ();
 			AnnotationDt annotation = new AnnotationDt();
-			annotation.setText(sig);
+			annotation.setText(note);
 			immunization.setNote(theValue);
 		}
 		
 		// reported if self reported
-		Concept drugTypeConcept = entity.getDrugTypeConcept();
+		Concept drugTypeConcept = entity.getImmunizationTypeConcept();
 		if (drugTypeConcept.getId() == OmopImmunization.SELF_REPORTED_CONCEPTID) {
 			immunization.setReported(true);
 		} else {
@@ -397,12 +456,11 @@ public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposur
 		return immunization;
 	}
 
-	@Override
-	public DrugExposure constructOmop(Long omopId, Immunization fhirResource) {
+	public DrugExposure constructDrugExposure(Long omopId, Immunization fhirResource) {
 		DrugExposure drugExposure = null;
 		if (omopId != null) {
 			// Update
-			drugExposure = getMyOmopService().findById(omopId);
+			drugExposure = drugExposureService.findById(omopId);
 			if (drugExposure == null) {
 				throw new FHIRException(fhirResource.getId() + " does not exist");
 			}
@@ -413,7 +471,7 @@ public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposur
 				if (identifier.isEmpty())
 					continue;
 				String identifierValue = identifier.getValue();
-				List<DrugExposure> results = getMyOmopService().searchByColumnString("drugSourceValue",
+				List<DrugExposure> results = drugExposureService.searchByColumnString("drugSourceValue",
 						identifierValue);
 				if (results.size() > 0) {
 					drugExposure = results.get(0);
@@ -549,6 +607,12 @@ public class OmopImmunization extends BaseOmopResource<Immunization, DrugExposur
 		}
 		
 		return drugExposure;	
+	}
+
+	@Override
+	public FImmunizationView constructOmop(Long omopId, Immunization fhirResource) {
+		// this is a view. So, it's read-only
+		return null;
 	}
 
 }

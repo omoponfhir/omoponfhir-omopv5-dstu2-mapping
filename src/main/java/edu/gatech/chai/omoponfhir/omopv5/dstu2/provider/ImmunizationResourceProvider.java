@@ -1,7 +1,6 @@
 package edu.gatech.chai.omoponfhir.omopv5.dstu2.provider;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +38,7 @@ import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopImmunization;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.StaticValues;
+import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 
 public class ImmunizationResourceProvider implements IResourceProvider {
 	private static final Logger logger = LoggerFactory.getLogger(ImmunizationResourceProvider.class);
@@ -71,6 +71,17 @@ public class ImmunizationResourceProvider implements IResourceProvider {
 	private Integer getTotalSize(String queryString, Map<String, String> parameterSet) {
 		final Long totalSize = getMyMapper().getSize(queryString, parameterSet);
 			
+		return totalSize.intValue();
+	}
+
+	private Integer getTotalSize(List<ParameterWrapper> paramList) {
+		final Long totalSize;
+		if (paramList.size() == 0) {
+			totalSize = getMyMapper().getSize();
+		} else {
+			totalSize = getMyMapper().getSize(paramList);
+		}
+		
 		return totalSize.intValue();
 	}
 
@@ -143,25 +154,42 @@ public class ImmunizationResourceProvider implements IResourceProvider {
 	
 	@Search()
 	public IBundleProvider findImmunizationById(
-			@RequiredParam(name = Immunization.SP_RES_ID) TokenParam theImmunizationId
+			@RequiredParam(name = Immunization.SP_RES_ID) TokenParam theImmunizationId,
+			@Sort SortSpec theSort
 			) {
-		Map<String, String> parameterSet = new HashMap<String, String> ();
-		String whereStatement = "";
+//		Map<String, String> parameterSet = new HashMap<String, String> ();
+//		String whereStatement = "";
+//
+//		if (theImmunizationId != null) {
+//			whereStatement += getMyMapper().mapParameter (Immunization.SP_RES_ID, theImmunizationId, parameterSet);
+//		}
+//				
+//		whereStatement = whereStatement.trim();
+//		
+//		String searchSql = getMyMapper().constructSearchSql(whereStatement);
+//		String sizeSql = getMyMapper().constructSizeSql(whereStatement);
+//		
+//		MyBundleProvider myBundleProvider = new MyBundleProvider(parameterSet, searchSql);
+//		myBundleProvider.setTotalSize(getTotalSize(sizeSql, parameterSet));
+//		myBundleProvider.setPreferredPageSize(preferredPageSize);
+//
+//		return myBundleProvider;
+		
+		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
 
 		if (theImmunizationId != null) {
-			whereStatement += getMyMapper().mapParameter (Immunization.SP_RES_ID, theImmunizationId, parameterSet);
+			paramList.addAll(getMyMapper().mapParameter (Immunization.SP_RES_ID, theImmunizationId, false));
 		}
-				
-		whereStatement = whereStatement.trim();
-		
-		String searchSql = getMyMapper().constructSearchSql(whereStatement);
-		String sizeSql = getMyMapper().constructSizeSql(whereStatement);
-		
-		MyBundleProvider myBundleProvider = new MyBundleProvider(parameterSet, searchSql);
-		myBundleProvider.setTotalSize(getTotalSize(sizeSql, parameterSet));
+
+		String orderParams = getMyMapper().constructOrderParams(theSort);
+
+		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);
+		myBundleProvider.setTotalSize(getTotalSize(paramList));
 		myBundleProvider.setPreferredPageSize(preferredPageSize);
+		myBundleProvider.setOrderParams(orderParams);
 
 		return myBundleProvider;
+
 	}
 
 	@Search()
@@ -171,42 +199,80 @@ public class ImmunizationResourceProvider implements IResourceProvider {
 			@OptionalParam(name = Immunization.SP_PATIENT) ReferenceParam thePatient,
 			@Sort SortSpec theSort
 			) {
-		Map<String, String> parameterSet = new HashMap<String, String> ();
-		String whereStatement = "";
-				
+//		Map<String, String> parameterSet = new HashMap<String, String> ();
+//		String whereStatement = "";
+//				
+//		if (theVaccineOrVCodes != null) {
+//			String newWhere = getMyMapper().mapParameter(Immunization.SP_VACCINE_CODE, theVaccineOrVCodes, parameterSet);
+//			if (newWhere != null && !newWhere.isEmpty()) {
+//				whereStatement = "(" + newWhere + ")";
+//			}
+//		}
+//		
+//		if (thePatient != null) {
+//			String newWhere = getMyMapper().mapParameter(Immunization.SP_PATIENT, thePatient, parameterSet);
+//			if (newWhere != null && !newWhere.isEmpty()) {
+//				whereStatement = whereStatement.isEmpty() ? newWhere : whereStatement + " and " + newWhere;
+//			}
+//		}
+//
+//		if (theDateRangeParam != null) {
+//			String newWhere = getMyMapper().mapParameter(Immunization.SP_DATE, theDateRangeParam, parameterSet);
+//			if (newWhere != null && !newWhere.isEmpty()) {
+//				whereStatement = whereStatement.isEmpty() ? newWhere : whereStatement + " and " + newWhere; 
+//			}
+//		}
+//		
+//		whereStatement = whereStatement.trim();
+//		
+//		String searchSql = getMyMapper().constructSearchSql(whereStatement);
+//		String sizeSql = getMyMapper().constructSizeSql(whereStatement);
+//		String orderParams = getMyMapper().constructOrderParams(theSort);
+//
+//		MyBundleProvider myBundleProvider = new MyBundleProvider(parameterSet, searchSql);
+//		myBundleProvider.setTotalSize(getTotalSize(sizeSql, parameterSet));
+//		myBundleProvider.setPreferredPageSize(preferredPageSize);
+//		myBundleProvider.setOrderParams(orderParams);
+//		
+//		logger.debug("I am HERE : " + searchSql + " " + orderParams);
+//		return myBundleProvider;
+		
+		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper>();
+
 		if (theVaccineOrVCodes != null) {
-			String newWhere = getMyMapper().mapParameter(Immunization.SP_VACCINE_CODE, theVaccineOrVCodes, parameterSet);
-			if (newWhere != null && !newWhere.isEmpty()) {
-				whereStatement = "(" + newWhere + ")";
+			List<TokenParam> codes = theVaccineOrVCodes.getValuesAsQueryTokens();
+			boolean orValue = true;
+			if (codes.size() <= 1)
+				orValue = false;
+			for (TokenParam code : codes) {
+				paramList.addAll(getMyMapper().mapParameter(Immunization.SP_VACCINE_CODE, code, orValue));
 			}
 		}
-		
+
 		if (thePatient != null) {
-			String newWhere = getMyMapper().mapParameter(Immunization.SP_PATIENT, thePatient, parameterSet);
-			if (newWhere != null && !newWhere.isEmpty()) {
-				whereStatement = whereStatement.isEmpty() ? newWhere : whereStatement + " and " + newWhere;
-			}
+			paramList.addAll(getMyMapper().mapParameter(Immunization.SP_PATIENT, thePatient, false));
+//			String newWhere = getMyMapper().mapParameter(Immunization.SP_PATIENT, thePatient, parameterSet);
+//			if (newWhere != null && !newWhere.isEmpty()) {
+//				whereStatement = whereStatement.isEmpty() ? newWhere : whereStatement + " and " + newWhere;
+//			}
 		}
 
 		if (theDateRangeParam != null) {
-			String newWhere = getMyMapper().mapParameter(Immunization.SP_DATE, theDateRangeParam, parameterSet);
-			if (newWhere != null && !newWhere.isEmpty()) {
-				whereStatement = whereStatement.isEmpty() ? newWhere : whereStatement + " and " + newWhere; 
-			}
+			paramList.addAll(getMyMapper().mapParameter(Immunization.SP_DATE, theDateRangeParam, false));
+//			String newWhere = getMyMapper().mapParameter(Immunization.SP_DATE, theDateRangeParam, parameterSet);
+//			if (newWhere != null && !newWhere.isEmpty()) {
+//				whereStatement = whereStatement.isEmpty() ? newWhere : whereStatement + " and " + newWhere; 
+//			}
 		}
-		
-		whereStatement = whereStatement.trim();
-		
-		String searchSql = getMyMapper().constructSearchSql(whereStatement);
-		String sizeSql = getMyMapper().constructSizeSql(whereStatement);
+
 		String orderParams = getMyMapper().constructOrderParams(theSort);
 
-		MyBundleProvider myBundleProvider = new MyBundleProvider(parameterSet, searchSql);
-		myBundleProvider.setTotalSize(getTotalSize(sizeSql, parameterSet));
+		MyBundleProvider myBundleProvider = new MyBundleProvider(paramList);
+		myBundleProvider.setTotalSize(getTotalSize(paramList));
 		myBundleProvider.setPreferredPageSize(preferredPageSize);
+		
 		myBundleProvider.setOrderParams(orderParams);
 		
-		logger.debug("I am HERE : " + searchSql + " " + orderParams);
 		return myBundleProvider;
 	}
 	
@@ -215,8 +281,8 @@ public class ImmunizationResourceProvider implements IResourceProvider {
 	}
 
 	class MyBundleProvider extends OmopFhirBundleProvider implements IBundleProvider {
-		public MyBundleProvider(Map<String, String> parameterSet, String searchSql) {
-			super(parameterSet, searchSql);
+		public MyBundleProvider(List<ParameterWrapper> paramList) {
+			super(paramList);
 			setPreferredPageSize (preferredPageSize);
 		}
 
@@ -225,13 +291,27 @@ public class ImmunizationResourceProvider implements IResourceProvider {
 			List<IBaseResource> retv = new ArrayList<IBaseResource>();
 
 			// _Include
-//			List<String> includes = new ArrayList<String>();
+			List<String> includes = new ArrayList<String>();
 
-			String finalSql = searchSql + " " + orderParams;
-			logger.debug("Final SQL: " + finalSql);
-			getMyMapper().searchWithSql(searchSql, parameterSet, fromIndex, toIndex, orderParams, retv);
+			if (paramList.size() == 0) {
+				myMapper.searchWithoutParams(fromIndex, toIndex, retv, includes, null);
+			} else {
+				myMapper.searchWithParams(fromIndex, toIndex, paramList, retv, includes, null);
+			}
 
 			return retv;
+//
+//			
+//			List<IBaseResource> retv = new ArrayList<IBaseResource>();
+//
+//			// _Include
+////			List<String> includes = new ArrayList<String>();
+//
+//			String finalSql = searchSql + " " + orderParams;
+//			logger.debug("Final SQL: " + finalSql);
+//			getMyMapper().searchWithSql(searchSql, parameterSet, fromIndex, toIndex, orderParams, retv);
+//
+//			return retv;
 		}		
 	}
 }

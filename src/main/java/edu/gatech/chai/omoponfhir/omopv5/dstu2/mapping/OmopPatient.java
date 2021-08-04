@@ -915,7 +915,13 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		List<IdentifierDt> identifiers = patient.getIdentifier();
 		boolean first = true;
 		for (IdentifierDt identifier : identifiers) {
-			if (identifier.getValue().isEmpty() == false) {
+			if (identifier == null) {
+				System.out.println("CANYOUSEEME? - identifier is NULL");
+			} else {
+				System.out.println("CANYOUSEEME? - identifier is not NULL. value=" + identifier.getValue());
+			}
+			
+			if (!identifier.getValue().isEmpty()) {
 				String personSourceValueTemp = getPersonSourceValue(identifier);
 				if (first) {
 					personSourceValue = personSourceValueTemp;

@@ -916,12 +916,11 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		boolean first = true;
 		for (IdentifierDt identifier : identifiers) {
 			if (identifier == null) {
-				System.out.println("CANYOUSEEME? - identifier is NULL");
-			} else {
-				System.out.println("CANYOUSEEME? - identifier is not NULL. value=" + identifier.getValue());
+				logger.warn("Identifier in the list is NULL - skipped");
+				continue;
 			}
-			
-			if (!identifier.getValue().isEmpty()) {
+
+			if (identifier.getValue() != null && !identifier.getValue().isEmpty()) {
 				String personSourceValueTemp = getPersonSourceValue(identifier);
 				if (first) {
 					personSourceValue = personSourceValueTemp;

@@ -163,8 +163,9 @@ public class SystemTransactionProvider {
 
 		try {
 			BaseResource resource;
-			switch (theBundle.getType()) {
-			case "DOCUMENT":
+			if (theBundle.getType() != null && "document".equalsIgnoreCase(theBundle.getType())) {
+				ThrowFHIRExceptions.unprocessableEntityException("Unsupported Bundle Type, "
+				+ theBundle.getType().toString() + ". DOCUMENT is work in progress");
 				// https://www.hl7.org/fhir/documents.html#bundle
 				// Ignore the fact that the bundle is a document and process all of the
 				// resources that it contains as individual resources. Clients SHOULD not expect
@@ -173,30 +174,30 @@ public class SystemTransactionProvider {
 				// the document (see below), the result cannot be expected to be in the same
 				// order, etc. Thus a document signature will very likely be invalid.)
 				
-				List<Entry> entries = theBundle.getEntry();
-				int index = 0;
-				for (Entry entry: entries) {
-					resource = (BaseResource) entry.getResource();
+// 				List<Entry> entries = theBundle.getEntry();
+// 				int index = 0;
+// 				for (Entry entry: entries) {
+// 					resource = (BaseResource) entry.getResource();
 					
-					// First entry is Composition
-					if (index == 0) {
-//						if (resource.getResourceType() == ResourceTypeEnum.COMPOSITION) {
-						if (resource.getResourceName() == ResourceTypeEnum.COMPOSITION.toString()) {
-							// First check the patient 
-							Composition composition = (Composition) resource;
+// 					// First entry is Composition
+// 					if (index == 0) {
+// //						if (resource.getResourceType() == ResourceTypeEnum.COMPOSITION) {
+// 						if (resource.getResourceName() == ResourceTypeEnum.COMPOSITION.toString()) {
+// 							// First check the patient 
+// 							Composition composition = (Composition) resource;
 							
-						} else {
-							// First entry must be Composition resource.
-							ThrowFHIRExceptions
-									.unprocessableEntityException("First entry in "
-											+ "Bundle document type should be Composition");
-						}
-					} else {
-						// 
-					}
+// 						} else {
+// 							// First entry must be Composition resource.
+// 							ThrowFHIRExceptions
+// 									.unprocessableEntityException("First entry in "
+// 											+ "Bundle document type should be Composition");
+// 						}
+// 					} else {
+// 						// 
+// 					}
 					
-					index++;
-				}
+// 					index++;
+// 				}
 				
 				
 //				entry = theBundle.getEntryFirstRep();
@@ -222,7 +223,7 @@ public class SystemTransactionProvider {
 //					ThrowFHIRExceptions
 //							.unprocessableEntityException("First entry in Bundle document type should be Composition");
 //				}
-			case "TRANSACTION":
+			} else if (theBundle.getType() != null && "transaction".equalsIgnoreCase(theBundle.getType())) {
 				System.out.println("We are at the transaction");
 				for (Entry nextEntry : theBundle.getEntry()) {
 					resource = (BaseResource) nextEntry.getResource();
@@ -243,23 +244,30 @@ public class SystemTransactionProvider {
 						// the entry to process.
 //						HTTPVerbEnum method = request.getMethod();
 						String method = request.getMethod();
-						if (method == HTTPVerbEnum.POST.toString()) {
+						if (method.equalsIgnoreCase(HTTPVerbEnum.POST.toString())) {
 							postList.add(resource);
-						} else if (method == HTTPVerbEnum.PUT.toString()) {
+						} else if (method.equalsIgnoreCase(HTTPVerbEnum.PUT.toString())) {
 							putList.add(resource);
-						} else if (method == HTTPVerbEnum.DELETE.toString()) {
+						} else if (method.equalsIgnoreCase(HTTPVerbEnum.DELETE.toString())) {
 							deleteList.add(request.getUrl());
-						} else if (method == HTTPVerbEnum.GET.toString()) {
+						} else if (method.equalsIgnoreCase(HTTPVerbEnum.GET.toString())) {
 							// TODO: getList.add(new ParameterWrapper());
 							// create parameter here.
-						} else {
-							continue;
-						}
+						} 
 					}
 				}
 
-				break;
-			case "MESSAGE":
+				List<Entry> responseTransaction = myMapper.executeRequests(transactionEntries);
+				if (responseTransaction != null && responseTransaction.size() > 0) {
+					retVal.setEntry(responseTransaction);
+					retVal.setType(BundleTypeEnum.TRANSACTION_RESPONSE);
+				} else {
+					ThrowFHIRExceptions
+							.unprocessableEntityException("Faied process the bundle, " + theBundle.getType().toString());
+				}	
+			} else if (theBundle.getType() != null && "message".equalsIgnoreCase(theBundle.getType())) {
+				ThrowFHIRExceptions.unprocessableEntityException("Unsupported Bundle Type, "
+						+ theBundle.getType().toString() + ". MESSAGE is work in progress");
 //				entry = theBundle.getEntryFirstRep();
 //				resource = entry.getResource();
 //				if (resource.getResourceType() == ResourceType.MessageHeader) {
@@ -279,19 +287,9 @@ public class SystemTransactionProvider {
 //					ThrowFHIRExceptions
 //							.unprocessableEntityException("First entry in Bundle message type should be MessageHeader");
 //				}
-				break;
-			default:
-				ThrowFHIRExceptions.unprocessableEntityException("Unsupported Bundle Type, "
-						+ theBundle.getType().toString() + ". We support DOCUMENT, TRANSACTION, and MESSAGE");
-			}
-
-			List<Entry> responseTransaction = myMapper.executeRequests(transactionEntries);
-			if (responseTransaction != null && responseTransaction.size() > 0) {
-				retVal.setEntry(responseTransaction);
-				retVal.setType(BundleTypeEnum.TRANSACTION_RESPONSE);
 			} else {
-				ThrowFHIRExceptions
-						.unprocessableEntityException("Faied process the bundle, " + theBundle.getType().toString());
+				ThrowFHIRExceptions.unprocessableEntityException("Unsupported Bundle Type, "
+						+ theBundle.getType().toString() + ". We support DOCUMENT and TRANSACTION");
 			}
 
 		} catch (FHIRException e) {

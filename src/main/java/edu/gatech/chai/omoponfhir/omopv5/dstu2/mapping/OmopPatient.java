@@ -1046,7 +1046,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 //		if (personSourceValue != null)
 //			fperson.setPersonSourceValue(personSourceValue);
 
-		if (patient.getActive())
+		if (patient.getActive() != null && patient.getActive())
 			fperson.setActive((short) 1);
 		else
 			fperson.setActive((short) 0);

@@ -348,7 +348,7 @@ public class OmopMedicationStatement extends BaseOmopResource<MedicationStatemen
 		Concept unitConcept;
 		if (unitUnit != null && !unitUnit.isEmpty()) {
 			// See if we can convert this unit to concept code.
-			List<Concept> unitConcepts = conceptService.searchByColumnString("drugConcept.conceptName", unitUnit);
+			List<Concept> unitConcepts = conceptService.searchByColumnString("conceptName", unitUnit);
 			if (unitConcepts.size() > 0) {
 				unitConcept = unitConcepts.get(0);
 				String omopUnitVocab = unitConcept.getVocabularyId();

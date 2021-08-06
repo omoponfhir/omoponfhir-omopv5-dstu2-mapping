@@ -204,21 +204,22 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 				if ((system == null || system.isEmpty()) && (code == null || code.isEmpty()))
 					break;
 
-				String omopVocabulary = "None";
+				String omopVocabulary = null;
 				if (system != null && !system.isEmpty()) {
 					try {
-						omopVocabulary = OmopCodeableConceptMapping.omopVocabularyforFhirUri(system);
+						// omopVocabulary = OmopCodeableConceptMapping.omopVocabularyforFhirUri(system);
+						omopVocabulary = fhirOmopVocabularyMap.getOmopVocabularyFromFhirSystemName(system);
 					} catch (FHIRException e) {
 						e.printStackTrace();
 					}
 				}
 
 				paramWrapper.setParameterType("String");
-				if ("None".equals(omopVocabulary) && code != null && !code.isEmpty()) {
+				if (omopVocabulary == null && code != null && !code.isEmpty()) {
 					paramWrapper.setParameters(Arrays.asList("conditionConcept.conceptCode"));
 					paramWrapper.setOperators(Arrays.asList("="));
 					paramWrapper.setValues(Arrays.asList(code));
-				} else if (!"None".equals(omopVocabulary) && (code == null || code.isEmpty())) {
+				} else if (omopVocabulary != null && (code == null || code.isEmpty())) {
 					paramWrapper.setParameters(Arrays.asList("conditionConcept.vocabularyId"));
 					paramWrapper.setOperators(Arrays.asList("="));
 					paramWrapper.setValues(Arrays.asList(omopVocabulary));

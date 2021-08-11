@@ -934,7 +934,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 		List<IdentifierDt> identifiers = patient.getIdentifier();
 		boolean first = true;
 		for (IdentifierDt identifier : identifiers) {
-			if (identifier.getValue().isEmpty() == false) {
+			if (identifier != null && identifier.getValue() != null && !identifier.getValue().isEmpty()) {
 				String personSourceValueTemp = getPersonSourceValue(identifier);
 				if (first) {
 					personSourceValue = personSourceValueTemp;
@@ -950,6 +950,8 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 						break;
 					}
 				}
+			} else {
+				logger.warn("Identifier in the list is either NULL or has no value - skipped");
 			}
 		}
 
@@ -1065,7 +1067,7 @@ public class OmopPatient extends BaseOmopResource<USCorePatient, FPerson, FPerso
 //		if (personSourceValue != null)
 //			fperson.setPersonSourceValue(personSourceValue);
 
-		if (patient.getActive())
+		if (patient.getActive() != null && patient.getActive())
 			fperson.setActive((short) 1);
 		else
 			fperson.setActive((short) 0);

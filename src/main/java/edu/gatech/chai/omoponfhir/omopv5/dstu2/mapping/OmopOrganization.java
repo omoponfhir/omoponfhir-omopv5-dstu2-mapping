@@ -136,7 +136,7 @@ public class OmopOrganization extends BaseOmopResource<Organization, CareSite, C
 				if (identifier.getValue().isEmpty() == false) {
 					careSiteSourceValue = identifier.getValue();
 					List<CareSite> careSiteList = getMyOmopService().searchByColumnString("careSiteSourceValue", careSiteSourceValue);
-					if(!careSiteList.isEmpty() && careSiteList!=null){
+					if(careSiteList != null && !careSiteList.isEmpty()){
 						existingCareSite = careSiteList.get(0);
 						if (existingCareSite != null) {
 							omopId = existingCareSite.getId();

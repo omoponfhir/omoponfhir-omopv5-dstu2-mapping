@@ -87,7 +87,7 @@ public class DateUtil {
 			paramWrapper.setValues(Arrays.asList(String.valueOf(lowerDateParam.getValue().getTime()),
 					String.valueOf(upperDateParam.getValue().getTime())));
 			paramWrapper.setRelationship("and");
-		} else if (lowerDateParam != null && upperDateParam == null) {
+		} else if (lowerDateParam != null) {
 			String lowerSqlOperator = DateUtil.getSqlOperator(lowerDateParam.getPrefix());
 			
 			paramWrapper.setParameterType("Date");

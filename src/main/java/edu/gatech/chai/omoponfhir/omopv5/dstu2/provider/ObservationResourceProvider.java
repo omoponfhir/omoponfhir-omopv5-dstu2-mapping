@@ -109,7 +109,7 @@ public class ObservationResourceProvider implements IResourceProvider {
 	 * new instance of a resource to the server.
 	 */
 	@Create()
-	public MethodOutcome createPatient(@ResourceParam Observation theObservation) {
+	public MethodOutcome createObservation(@ResourceParam Observation theObservation) {
 		validateResource(theObservation);
 		
 		Long id = null;

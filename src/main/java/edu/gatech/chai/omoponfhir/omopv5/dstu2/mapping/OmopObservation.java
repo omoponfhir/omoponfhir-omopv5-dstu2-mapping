@@ -1785,7 +1785,9 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				DateParam dateParam = new DateParam();
 				dateParam.setPrefix(ParamPrefixEnum.EQUAL);
 				dateParam.setValue(date);
-				paramList.addAll(mapParameter(Observation.SP_DATE, dateParam, false));
+
+				DateRangeParam dateRangeParam = new DateRangeParam(dateParam);
+				paramList.addAll(mapParameter(Observation.SP_DATE, dateRangeParam, false));
 
 				if (concept == null) {
 					ParameterWrapper pw = new ParameterWrapper();
@@ -1807,7 +1809,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 				List<String> includes = new ArrayList<String>();
 
 				searchWithParams(0, 0, paramList, resources, includes, null);
-				if (resources.size() > 0) {
+				if (!resources.isEmpty()) {
 					IBaseResource res = resources.get(0);
 					fhirIdLong = res.getIdElement().getIdPartAsLong();
 					omopId = IdMapping.getOMOPfromFHIR(fhirIdLong, ObservationResourceProvider.getType());

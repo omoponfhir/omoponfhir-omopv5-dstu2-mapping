@@ -1793,7 +1793,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 					ParameterWrapper pw = new ParameterWrapper();
 					String sourceValueString = fhirSystem + " " + code + " " + display;
 					pw.setParameterType("String");
-					pw.setParameters(Arrays.asList("sourceValue"));
+					pw.setParameters(Arrays.asList("observationSourceValue"));
 					pw.setOperators(Arrays.asList("="));
 					pw.setValues(Arrays.asList(sourceValueString));
 					pw.setRelationship("and");

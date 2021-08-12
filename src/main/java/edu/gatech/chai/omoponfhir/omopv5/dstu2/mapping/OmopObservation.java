@@ -1629,7 +1629,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 			}
 
 			List<Concept> conceptForCodes = conceptService.searchByColumnString("conceptCode", code);
-			if (conceptForCodes.size() <= 0) {
+			if (conceptForCodes.isEmpty()) {
 				// we have no matching code. Put no matching code.
 				conceptForCodes.add(conceptService.findById(0L));
 			}
@@ -1673,8 +1673,8 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 						}
 //					} else if (domain.equalsIgnoreCase("observation") && systemName
 //							.equalsIgnoreCase(OmopCodeableConceptMapping.omopVocabularyforFhirUri(system))) {
-					} else if (domain.equalsIgnoreCase("observation") && systemName
-							.equalsIgnoreCase(fhirOmopVocabularyMap.getOmopVocabularyFromFhirSystemName(system))) {
+					// } else if (domain.equalsIgnoreCase("observation") && systemName
+					// 		.equalsIgnoreCase(fhirOmopVocabularyMap.getOmopVocabularyFromFhirSystemName(system))) {
 
 						// TODO: Omop does not have a place holder to track the source of observation
 						// data.
@@ -1692,7 +1692,7 @@ public class OmopObservation extends BaseOmopResource<Observation, FObservationV
 //								}
 //							}
 //						}
-
+					} else {
 						observation = constructOmopObservation(omopId, fhirResource);
 						if (observation != null) {
 							retVal.put("type", "Observation");

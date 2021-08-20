@@ -22,32 +22,18 @@ import java.util.List;
 
 import ca.uhn.fhir.model.dstu2.composite.ContainedDt;
 import ca.uhn.fhir.model.api.IResource;
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
-//import org.hl7.fhir.dstu3.model.Dosage;
 import ca.uhn.fhir.model.dstu2.resource.MedicationOrder.DosageInstruction;
-//import org.hl7.fhir.dstu3.model.Duration;
 import ca.uhn.fhir.model.dstu2.composite.DurationDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Identifier;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-//import org.hl7.fhir.dstu3.model.Medication;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
-//import org.hl7.fhir.dstu3.model.Medication.MedicationIngredientComponent;
 import ca.uhn.fhir.model.dstu2.resource.Medication.ProductIngredient;
-//import org.hl7.fhir.dstu3.model.MedicationRequest;
 import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
-//import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestDispenseRequestComponent;
 import ca.uhn.fhir.model.dstu2.resource.MedicationOrder.DispenseRequest;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-//import org.hl7.fhir.dstu3.model.Resource;
-//import org.hl7.fhir.dstu3.model.SimpleQuantity;
 import ca.uhn.fhir.model.dstu2.composite.SimpleQuantityDt;
-//import org.hl7.fhir.dstu3.model.StringType;
-//import org.hl7.fhir.dstu3.model.Type;
 import ca.uhn.fhir.model.api.IDatatype;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -68,7 +54,6 @@ import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.DrugExposureService;
 import edu.gatech.chai.omopv5.dba.service.FPersonService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
-//import edu.gatech.chai.omopv5.dba.service.ProviderService;
 import edu.gatech.chai.omopv5.dba.service.VisitOccurrenceService;
 import edu.gatech.chai.omopv5.model.entity.Concept;
 import edu.gatech.chai.omopv5.model.entity.DrugExposure;
@@ -105,7 +90,6 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 	private static OmopMedicationRequest omopMedicationRequest = new OmopMedicationRequest();
 	private VisitOccurrenceService visitOccurrenceService;
 	private ConceptService conceptService;
-//	private ProviderService providerService;
 	private FPersonService fPersonService;
 
 	public OmopMedicationRequest(WebApplicationContext context) {
@@ -122,7 +106,6 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 	private void initialize(WebApplicationContext context) {
 		visitOccurrenceService = context.getBean(VisitOccurrenceService.class);
 		conceptService = context.getBean(ConceptService.class);
-//		providerService = context.getBean(ProviderService.class);
 		fPersonService = context.getBean(FPersonService.class);
 
 		getSize();
@@ -511,11 +494,7 @@ public class OmopMedicationRequest extends BaseOmopResource<MedicationOrder, Dru
 			// Update
 			drugExposure = getMyOmopService().findById(omopId);
 			if (drugExposure == null) {
-				try {
-					throw new FHIRException(fhirResource.getId() + " does not exist");
-				} catch (FHIRException e) {
-					e.printStackTrace();
-				}
+				throw new FHIRException(fhirResource.getId() + " does not exist");
 			}
 		} else {
 			// Create

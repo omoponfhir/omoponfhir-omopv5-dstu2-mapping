@@ -18,28 +18,20 @@ package edu.gatech.chai.omoponfhir.omopv5.dstu2.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Medication;
 import ca.uhn.fhir.model.dstu2.resource.Medication;
-//import org.hl7.fhir.dstu3.model.MedicationRequest;
 import ca.uhn.fhir.model.dstu2.resource.MedicationOrder;
-//import org.hl7.fhir.dstu3.model.OperationOutcome;
 import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
-//import org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity;
 import ca.uhn.fhir.model.dstu2.valueset.IssueSeverityEnum;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopMedicationRequest;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ThrowFHIRExceptions;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.Delete;
 import ca.uhn.fhir.rest.annotation.IdParam;
@@ -51,7 +43,6 @@ import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.server.IBundleProvider;
-import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -95,7 +86,7 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
 
 	private Integer getTotalSize(List<ParameterWrapper> paramList) {
 		final Long totalSize;
-		if (paramList.size() == 0) {
+		if (paramList.isEmpty()) {
 			totalSize = getMyMapper().getSize();
 		} else {
 			totalSize = getMyMapper().getSize(paramList);

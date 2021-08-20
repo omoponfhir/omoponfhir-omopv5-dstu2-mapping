@@ -113,12 +113,7 @@ public class ObservationResourceProvider implements IResourceProvider {
 		validateResource(theObservation);
 		
 		Long id = null;
-		try {
-			id = getMyMapper().toDbase(theObservation, null);
-		} catch (FHIRException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		id = getMyMapper().toDbase(theObservation, null);
 		
 		if (id == null) {
 			OperationOutcome outcome = new OperationOutcome();

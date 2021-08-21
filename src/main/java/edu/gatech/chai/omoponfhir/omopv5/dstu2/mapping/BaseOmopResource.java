@@ -18,17 +18,11 @@ package edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping;
 import java.util.Arrays;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Reference;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-//import org.hl7.fhir.dstu3.model.Resource;
 import ca.uhn.fhir.model.dstu2.resource.BaseResource;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -38,15 +32,18 @@ import ca.uhn.fhir.rest.api.SortSpec;
 import edu.gatech.chai.omoponfhir.local.dao.FhirOmopCodeMapImpl;
 import edu.gatech.chai.omoponfhir.local.dao.FhirOmopVocabularyMapImpl;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.EncounterResourceProvider;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.ExtensionUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.IService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
+import edu.gatech.chai.omopv5.dba.service.ProviderService;
 import edu.gatech.chai.omopv5.dba.service.VisitOccurrenceService;
 import edu.gatech.chai.omopv5.model.entity.BaseEntity;
 import edu.gatech.chai.omopv5.model.entity.Concept;
+import edu.gatech.chai.omopv5.model.entity.Provider;
 import edu.gatech.chai.omopv5.model.entity.VisitOccurrence;
 
 public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEntity, p extends IService<t>>
@@ -337,12 +334,8 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 					visitOccurrence = visitOccurrenceService.findById(omopVisitOccurrenceId);
 				}
 				if (visitOccurrence == null) {
-					try {
-						throw new FHIRException(
-								"The Encounter (" + contextReference.getReference() + ") context couldn't be found.");
-					} catch (FHIRException e) {
-						e.printStackTrace();
-					}
+					throw new FHIRException(
+						"The Encounter (" + contextReference.getReference() + ") context couldn't be found.");
 				} else {
 					return visitOccurrence;
 				}
@@ -353,5 +346,31 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 		}
 
 		return visitOccurrence;
+	}
+
+	public Provider fhirContext2OmopProvider(ProviderService providerService, ResourceReferenceDt contextReference) {
+		Provider provider = null;
+		if (contextReference != null && !contextReference.isEmpty()) {
+			if (contextReference.getReferenceElement().getResourceType().equals(PractitionerResourceProvider.getType())) {
+				// Encounter context.
+				Long fhirEncounterId = contextReference.getReferenceElement().getIdPartAsLong();
+				Long omopProviderId = IdMapping.getOMOPfromFHIR(fhirEncounterId,
+					PractitionerResourceProvider.getType());
+				if (omopProviderId != null) {
+					provider = providerService.findById(omopProviderId);
+				}
+				if (provider == null) {
+					throw new FHIRException(
+						"The Practitioner (" + contextReference.getReference() + ") context couldn't be found.");
+				} else {
+					return provider;
+				}
+			} else {
+				// Episode of Care context.
+				// TODO: Do we have a mapping for the Episode of Care??
+			}
+		}
+
+		return provider;
 	}
 }

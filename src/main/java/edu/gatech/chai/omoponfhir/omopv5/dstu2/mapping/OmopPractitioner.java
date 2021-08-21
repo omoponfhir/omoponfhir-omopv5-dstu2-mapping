@@ -166,8 +166,9 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 
 				// See if we have existing patient
 				// with this identifier.
-				allreadyIdentifiedProvider = getMyOmopService().searchByColumnString("providerSourceValue", providerSourceValue).get(0);
-				if (allreadyIdentifiedProvider != null) {
+				List<Provider> existingProviders = getMyOmopService().searchByColumnString("providerSourceValue", providerSourceValue);
+				if (!existingProviders.isEmpty()) {
+					allreadyIdentifiedProvider = existingProviders.get(0);
 					omopId = allreadyIdentifiedProvider.getId();
 					break;
 				}

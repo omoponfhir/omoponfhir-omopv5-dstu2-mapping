@@ -17,26 +17,19 @@ package edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.Address;
 import ca.uhn.fhir.model.dstu2.composite.AddressDt;
-//import org.hl7.fhir.dstu3.model.HumanName;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;
-//import org.hl7.fhir.dstu3.model.IdType;
 import ca.uhn.fhir.model.primitive.IdDt;
-//import org.hl7.fhir.dstu3.model.Identifier;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-//import org.hl7.fhir.dstu3.model.Patient;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
-//import org.hl7.fhir.dstu3.model.Practitioner;
 import ca.uhn.fhir.model.dstu2.resource.Practitioner;
-//import org.hl7.fhir.dstu3.model.StringType;
+import ca.uhn.fhir.model.dstu2.resource.Practitioner.PractitionerRole;
 import ca.uhn.fhir.model.primitive.StringDt;
-//import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import ca.uhn.fhir.model.dstu2.valueset.AddressUseEnum;
-//import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 
 import org.springframework.web.context.ContextLoaderListener;
@@ -46,8 +39,10 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.provider.PractitionerResourceProvider;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.AddressUtil;
+import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.CodeableConceptUtil;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omopv5.dba.service.CareSiteService;
+import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.LocationService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;
 import edu.gatech.chai.omopv5.dba.service.ProviderService;
@@ -62,6 +57,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 
 	private CareSiteService careSiteService;
 	private LocationService locationService;
+	private ConceptService conceptService;
 
 	public OmopPractitioner(WebApplicationContext context) {
 		super(context, Provider.class, ProviderService.class, PractitionerResourceProvider.getType());
@@ -77,6 +73,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 
 		careSiteService = context.getBean(CareSiteService.class);
 		locationService = context.getBean(LocationService.class);
+		conceptService = context.getBean(ConceptService.class);
 		
 		getSize();
 	}
@@ -84,26 +81,6 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 	public static OmopPractitioner getInstance() {
 		return omopPractitioner;
 	}
-
-//	@Override
-//	public Practitioner toFHIR(IdType id) {
-//		String practitioncerResourceName = ResourceType.Practitioner.getPath();
-//		Long id_long_part = id.getIdPartAsLong();
-//		Long omopId = IdMapping.getOMOPfromFHIR(id_long_part, practitioncerResourceName);
-//
-//		Provider omopProvider = getMyOmopService().findById(omopId);
-//		if(omopProvider == null) return null;
-//
-//		Long fhirId = IdMapping.getFHIRfromOMOP(id_long_part, practitioncerResourceName);
-//
-//		return constructResource(fhirId, omopProvider, null);
-//	}
-
-//	@Override
-//	public Practitioner constructResource(Long fhirId, Provider entity,List<String> includes) {
-//		Practitioner practitioner = constructFHIR(fhirId,entity); //Assuming default active state
-//		return practitioner;
-//	}
 
 	@Override
 	public Practitioner constructFHIR(Long fhirId, Provider omopProvider) {
@@ -115,9 +92,6 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		if(omopProvider.getProviderName() != null && !omopProvider.getProviderName().isEmpty()) {
 			HumanNameDt fhirName = new HumanNameDt();
 			fhirName.setText(omopProvider.getProviderName());
-//			List<HumanNameDt> fhirNameList = new ArrayList<HumanNameDt>();
-//			fhirNameList.add(fhirName);
-//			practitioner.setName(fhirNameList);
 			practitioner.setName(fhirName);
 		}
 
@@ -145,6 +119,29 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 				}
 			}
 		}
+
+		// Set practionerRole
+		Concept specialtyConcept = omopProvider.getSpecialtyConcept();
+		if (specialtyConcept == null || specialtyConcept.getId() == 0L) {
+			String specialtySourceValue = omopProvider.getSpecialtySourceValue();
+			if (specialtySourceValue != null && !specialtySourceValue.isEmpty()) {
+				String[] specialtyCode = specialtySourceValue.split("\\^");
+				if (specialtyCode.length != 3) {
+					practitioner.addPractitionerRole().addSpecialty().setText(specialtySourceValue);
+				} else {
+					practitioner.addPractitionerRole().addSpecialty().addCoding().setSystem(specialtyCode[0]);
+					practitioner.getPractitionerRoleFirstRep().getSpecialtyFirstRep().getCodingFirstRep().setCode(specialtyCode[1]);
+					practitioner.getPractitionerRoleFirstRep().getSpecialtyFirstRep().getCodingFirstRep().setDisplay(specialtyCode[2]);
+				}
+			}
+		} else {
+			String fhirSystem = fhirOmopVocabularyMap.getFhirSystemNameFromOmopVocabulary(specialtyConcept.getVocabularyId());
+			
+			practitioner.addPractitionerRole().addSpecialty().addCoding().setSystem(fhirSystem);
+			practitioner.getPractitionerRoleFirstRep().getSpecialtyFirstRep().getCodingFirstRep().setCode(specialtyConcept.getConceptCode());
+			practitioner.getPractitionerRoleFirstRep().getSpecialtyFirstRep().getCodingFirstRep().setDisplay(specialtyConcept.getConceptName());
+		}
+		
 		return practitioner;
 	}
 
@@ -330,11 +327,7 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		if (omopId != null) {
 			omopProvider = getMyOmopService().findById(omopId);
 			if (omopProvider == null) {
-				try {
-					throw new FHIRException(practitioner.getId() + " does not exist");
-				} catch (FHIRException e) {
-					e.printStackTrace();
-				}
+				throw new FHIRException(practitioner.getId() + " does not exist");
 			}
 		} else {
 			omopProvider = new Provider();
@@ -343,18 +336,12 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		String providerSourceValue = null;
 		CareSite omopCareSite = new CareSite();
 
-		//Set name
-//		Iterator<HumanNameDt> practitionerIterator = practitioner.getName().iterator();
-//		if(practitionerIterator.hasNext()) {
-//			HumanNameDt next = practitionerIterator.next();
-//			omopProvider.setProviderName(next.getText());
-//		}
 		String tempName=practitioner.getName().getFamilyAsSingleString()+", "+practitioner.getName().getGivenAsSingleString();
 		omopProvider.setProviderName(tempName);
 		//Set address
 		List<AddressDt> addresses = practitioner.getAddress();
 		Location retLocation = null;
-		if (addresses != null && addresses.size() > 0) {
+		if (addresses != null && !addresses.isEmpty()) {
 			AddressDt address = addresses.get(0);
 			retLocation = AddressUtil.searchAndUpdate(locationService, address, null);
 			if (retLocation != null) {
@@ -363,15 +350,34 @@ public class OmopPractitioner extends BaseOmopResource<Practitioner, Provider, P
 		}
 
 		//Set gender concept
-
-//		String genderCode = practitioner.getGender().toCode();
 		String genderCode = practitioner.getGender();
-		if(genderCode!=null) {
+		if(genderCode != null) {
 			omopProvider.setGenderConcept(new Concept());
 			try {
 				omopProvider.getGenderConcept().setId(OmopConceptMapping.omopForAdministrativeGenderCode(genderCode));
 			} catch (FHIRException e) {
 				e.printStackTrace();
+			}
+		}
+
+		// Set practitioner role
+		PractitionerRole practitionerRole = practitioner.getPractitionerRoleFirstRep();
+		if (!practitionerRole.isEmpty()) {
+			CodeableConceptDt specialty = practitionerRole.getSpecialtyFirstRep();
+			if (!specialty.isEmpty()) {
+				Concept specialtyConcept = CodeableConceptUtil.searchConcept(conceptService, specialty);
+				if (specialtyConcept == null) {
+					if (specialty.getText() != null && !specialty.getText().isEmpty()) {
+						omopProvider.setSpecialtySourceValue(specialty.getText());
+					} else {
+						CodingDt specialtyCoding = specialty.getCodingFirstRep();
+						if (specialtyCoding != null && !specialtyCoding.isEmpty()) {
+							omopProvider.setSpecialtySourceValue(specialtyCoding.getSystem() + "^" + specialtyCoding.getCode() + "^" + specialtyCoding.getDisplay());
+						}
+					}
+				} else {
+					omopProvider.setSpecialtyConcept(specialtyConcept);
+				}
 			}
 		}
 

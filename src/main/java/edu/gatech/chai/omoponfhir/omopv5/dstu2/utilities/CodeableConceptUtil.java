@@ -19,13 +19,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//import org.hl7.fhir.dstu3.model.CodeableConcept;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
-//import org.hl7.fhir.dstu3.model.Coding;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.BaseOmopResource;
 import edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping.OmopCodeableConceptMapping;
-import edu.gatech.chai.omoponfhir.omopv5.dstu2.utilities.FHIRException;
 import edu.gatech.chai.omoponfhir.local.dao.FhirOmopVocabularyMapImpl;
 import edu.gatech.chai.omopv5.dba.service.ConceptService;
 import edu.gatech.chai.omopv5.dba.service.ParameterWrapper;

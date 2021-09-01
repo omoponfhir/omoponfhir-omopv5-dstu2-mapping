@@ -32,7 +32,7 @@
 		<jaxb_api_version>2.3.1</jaxb_api_version>
 		<spring_version>5.2.4.RELEASE</spring_version>
 		<hibernate_version>5.4.6.Final</hibernate_version>
-		<omoponfhir_sqlrender_version>1.0.0</omoponfhir_sqlrender_version>
+		<omoponfhir_sqlrender_version>1.1.0</omoponfhir_sqlrender_version>
 	</properties>
 	
 	<dependencies>
@@ -88,7 +88,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.6</version>
+			<version>42.2.23.jre7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>

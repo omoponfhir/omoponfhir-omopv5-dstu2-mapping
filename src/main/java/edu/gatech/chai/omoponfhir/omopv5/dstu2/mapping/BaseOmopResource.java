@@ -17,6 +17,7 @@ package edu.gatech.chai.omoponfhir.omopv5.dstu2.mapping;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
@@ -107,6 +108,15 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 	public Long getSize(List<ParameterWrapper> mapList) {
 		return myOmopService.getSize(mapList);
 	}
+
+	// public Long getSize(String queryString, Map<String, String> parameterSet) {
+	// 	Long size = myOmopService.getSize(queryString, parameterSet);
+	// 	if (parameterSet == null || parameterSet.size() == 0) {
+	// 		ExtensionUtil.addResourceCount(myFhirResourceType, size);
+	// 	}
+		
+	// 	return size;
+	// }
 
 	/***
 	 * constructResource: Overwrite this if you want to implement includes.

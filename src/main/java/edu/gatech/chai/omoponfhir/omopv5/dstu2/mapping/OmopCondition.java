@@ -379,13 +379,13 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 
 	private void addStartAndEndDateToCondition(ConditionOccurrence conditionOccurrence, Condition condition) {
 		// Condition.onsetDateTime
-		Date startDate = conditionOccurrence.getStartDate();
+		Date startDate = conditionOccurrence.getConditionStartDate();
 		if (startDate != null) {
 			DateTimeDt onsetDateTime = new DateTimeDt(startDate);
 			condition.setOnset(onsetDateTime);
 		}
 		// Condition.abatementDateTime
-		Date endDate = conditionOccurrence.getEndDate();
+		Date endDate = conditionOccurrence.getConditionEndDate();
 		if (endDate != null) {
 			DateTimeDt abatementDateTime = new DateTimeDt(endDate);
 			condition.setAbatement(abatementDateTime);
@@ -524,55 +524,51 @@ public class OmopCondition extends BaseOmopResource<Condition, ConditionOccurren
 		IDatatype onSet = fhirResource.getOnset();
 		if (onSet != null && onSet instanceof DateTimeDt) {
 			Date onSetDate = ((DateTimeDt) fhirResource.getOnset()).getValueAsCalendar().getTime();
-			conditionOccurrence.setStartDate(onSetDate);
-			conditionOccurrence.setStartDateTime(onSetDate);
+			conditionOccurrence.setConditionStartDate(onSetDate);
+			conditionOccurrence.setConditionStartDateTime(onSetDate);
 		} if (onSet != null && onSet instanceof PeriodDt) {
 			PeriodDt period = (PeriodDt)onSet;
 			Date start = period.getStart();
 			Date end = period.getEnd();
 			if (start != null) {
-				conditionOccurrence.setStartDate(start);
-				conditionOccurrence.setStartDateTime(start);
+				conditionOccurrence.setConditionStartDate(start);
+				conditionOccurrence.setConditionStartDateTime(start);
 			}
 			if (end != null) {
-				conditionOccurrence.setEndDate(end);
-				conditionOccurrence.setEndDateTime(end);
+				conditionOccurrence.setConditionEndDate(end);
+				conditionOccurrence.setConditionEndDateTime(end);
 			}
 		}
 
 		if (fhirResource.getAbatement() != null && fhirResource.getAbatement() instanceof DateTimeDt) {
-//			conditionOccurrence.setEndDate(((DateTimeDt) fhirResource.getAbatement()).toCalendar().getTime());
-			conditionOccurrence.setEndDate(((DateTimeDt) fhirResource.getAbatement()).getValueAsCalendar().getTime());
+			conditionOccurrence.setConditionEndDate(((DateTimeDt) fhirResource.getAbatement()).getValueAsCalendar().getTime());
 		} else {
 			// leave alone, end date not required
 		}
 
 		// set the category
-//		List<CodeableConceptDt> categories = fhirResource.getCategory();
 		BoundCodeableConceptDt<ConditionCategoryCodesEnum> category= fhirResource.getCategory();
 		Long typeConceptId = 0L;
-//		for (CodeableConceptDt category : categories) {
-			List<CodingDt> codings = category.getCoding();
-			for (CodingDt coding : codings) {
-				String fhirSystem = coding.getSystem();
-				String fhirCode = coding.getCode();
-				if (fhirSystem == null || fhirSystem.isEmpty() || fhirCode == null || fhirCode.isEmpty()) {
-					continue;
-				}
-				try {
-					typeConceptId = OmopConceptMapping.omopForConditionCategoryCode(fhirCode);
-				} catch (FHIRException e) {
-					e.printStackTrace();
-				}
-				if (typeConceptId > 0L)
-					break;
+		List<CodingDt> codings = category.getCoding();
+		for (CodingDt coding : codings) {
+			String fhirSystem = coding.getSystem();
+			String fhirCode = coding.getCode();
+			if (fhirSystem == null || fhirSystem.isEmpty() || fhirCode == null || fhirCode.isEmpty()) {
+				continue;
+			}
+			try {
+				typeConceptId = OmopConceptMapping.omopForConditionCategoryCode(fhirCode);
+			} catch (FHIRException e) {
+				e.printStackTrace();
 			}
 			if (typeConceptId > 0L)
-//				break;
-//		}
+				break;
+		}
 
-		concept = conceptService.findById(typeConceptId);
-		conditionOccurrence.setConditionTypeConcept(concept);
+		if (typeConceptId > 0L) {
+			concept = conceptService.findById(typeConceptId);
+			conditionOccurrence.setConditionTypeConcept(concept);
+		}
 
 		// set the context
 		/* Set visit occurrence */

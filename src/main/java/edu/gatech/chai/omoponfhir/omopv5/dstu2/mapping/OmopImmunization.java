@@ -70,43 +70,28 @@ public class OmopImmunization extends BaseOmopResource<Immunization, FImmunizati
 	private final static Long SELF_REPORTED_CONCEPTID = 44787730L;
 	private final static Long PHYSICIAN_ADMINISTERED_PROCEDURE = 38000179L;
 	
-	private static String _columns = "distinct d.id as id,"
-			+ " d.stopReason as stopReason,"
-			+ " d.drugExposureStartDate as drugExposureStartDate,"
-			+ " d.drugExposureStartDatetime as drugExposureStartDateTime,"
-			+ " d.drugExposureEndDate as drugExposureEndDate,"
-			+ " d.drugExposureEndDatetime as drugExposureEndDateTime,"
-			+ " d.drugConcept as drugConceptId,"
-			+ " c.vocabularyId as vaccineVocabularyId,"
-			+ " c.conceptCode as vaccineConceptCode,"
-			+ " c.conceptName as vaccineConceptName,"
-			+ " d.person as persionId,"
-			+ " fp.familyName as familyName,"
-			+ " fp.given1Name as given1Name,"
-			+ " fp.given2Name as given2Name,"
-			+ " fp.prefixName as prefixName,"
-			+ " fp.suffixName as suffixName,"
-			+ " d.provider as providerId,"
-			+ " pr.providerName as providerName,"
-			+ " d.visitOccurrence as visitOccurrenceId,"
-			+ " d.lotNumber as lotName,"
-			+ " d.routeConcept_id as routeConceptId,"
-			+ " r.vocabularyId as routeVocabularyId,"
-			+ " r.conceptCode as routeConceptCode,"
-			+ " r.conceptName as routeConceptName,"
-			+ " d.quantity as quantity,"
-			+ " d.sig as sig";
-	
-	private static String _from = "DrugExposure d join Concept c on d.drugConcept = c.id"
-			+ " join ConceptRelationship cr on d.drugConcept = cr.id.conceptId2"
-			+ " join Concept c2 on cr.id.conceptId1 = c2.id"
-			+ " join Person p on d.fPerson = p.id"
-			+ " join FPerson fp on d.fPerson = fp.id"
-			+ " left join Provider pr on d.provider = pr.id"
-			+ " left join VisitOccurrence v on d.visitOccurrence = v.id"
-			+ " left join Concept r on d.routeConcept = r.id";
-	
-	private String _where = "c2.vocabularyId = 'CVX'";
+	private static String _columns = "distinct d.drug_exposure_id as id," + " d.stop_reason as stopReason,"
+		+ " d.drug_exposure_start_date as drugExposureStartDate,"
+		+ " d.drug_exposure_start_datetime as drugExposureStartDateTime,"
+		+ " d.drug_exposure_end_date as drugExposureEndDate,"
+		+ " d.drug_exposure_end_datetime as drugExposureEndDateTime," + " d.drug_concept_id as drugConceptId,"
+		+ " c.vocabulary_id as vaccineVocabularyId," + " c.concept_code as vaccineConceptCode,"
+		+ " c.concept_name as vaccineConceptName," + " d.person_id as persionId," + " fp.family_name as familyName,"
+		+ " fp.given1_name as given1Name," + " fp.given2_name as given2Name," + " fp.prefix_name as prefixName,"
+		+ " fp.suffix_name as suffixName," + " d.provider_id as providerId," + " pr.provider_name as providerName,"
+		+ " d.visit_occurrence_id as visitOccurrenceId," + " d.lot_number as lotName,"
+		+ " d.route_concept_id as routeConceptId," + " r.vocabulary_id as routeVocabularyId,"
+		+ " r.concept_code as routeConceptCode," + " r.concept_name as routeConceptName," + " d.quantity as quantity,"
+		+ " d.sig as sig";
+
+	private static String _from = "drug_exposure d join concept c on d.drug_concept_id = c.concept_id"
+		+ " join concept_relationship cr on d.drug_concept_id = cr.concept_id_2"
+		+ " join Concept c2 on cr.concept_id_1 = c2.concept_id" + " join person p on d.person_id = p.person_id"
+		+ " join f_person fp on d.person_id = fp.person_id" + " left join provider pr on d.provider_id = pr.provider_id"
+		+ " left join visit_occurrence v on d.visit_occurrence_id = v.visit_occurrence_id"
+		+ " left join concept r on d.route_concept_id = r.concept_id";
+
+	private String _where = "c2.vocabulary_id = 'CVX'";
 	
 	public OmopImmunization(WebApplicationContext context) {
 		super(context, FImmunizationView.class, FImmunizationViewService.class, ImmunizationResourceProvider.getType());
@@ -120,9 +105,8 @@ public class OmopImmunization extends BaseOmopResource<Immunization, FImmunizati
 		providerService = context.getBean(ProviderService.class);
 		fPersonService = context.getBean(FPersonService.class);
 
-//		String sizeSql = "select count(distinct d) from " + _from + " where " + _where;
-//		getSize(sizeSql, null);
-		getSize();
+		String sizeSql = "select count(distinct d) from " + _from + " where " + _where;
+		getSize(sizeSql, null, null);
 	}
 
 	@Override
@@ -242,103 +226,119 @@ public class OmopImmunization extends BaseOmopResource<Immunization, FImmunizati
 		return searchSql;
 	}
 
-	public String mapParameter(String parameter, Object value, Map<String, String> parameterSet) {
+	public String mapParameter(String parameter, Object value, List<String> parameterList, List<String> valueList) {
 		String whereStatement = "";
 		
 		switch (parameter) {
-		case Immunization.SP_RES_ID:
-			String immunizationId = ((TokenParam) value).getValue();
-			whereStatement = "d.id = :drugExposureId";
-			parameterSet.put("drugExposureId", "Long," + immunizationId);
-			break;
-			
-		case Immunization.SP_VACCINE_CODE:
-			List<TokenParam> codes = ((TokenOrListParam) value).getValuesAsQueryTokens();
+			case Immunization.SP_RES_ID:
+				String immunizationId = ((TokenParam) value).getValue();
+				whereStatement = "d.id = @drugExposureId";
+				parameterList.add("drugExposureId");
+				valueList.add(immunizationId);
+				break;
+		
+			case Immunization.SP_VACCINE_CODE:
+				List<TokenParam> codes = ((TokenOrListParam) value).getValuesAsQueryTokens();
 
-			int i = 0;
-			for (TokenParam code : codes) {
-				String systemValue = code.getSystem();
-				String codeValue = code.getValue();
+				int i = 0;
+				for (TokenParam code : codes) {
+					String systemValue = code.getSystem();
+					String codeValue = code.getValue();
 
-				if ((systemValue == null || systemValue.isEmpty()) && (codeValue == null || codeValue.isEmpty())) {
-					// This is not searchable. So, skip this. 
-					continue;
-				}
-
-				String omopVocabulary = "None";
-				if (systemValue != null && !systemValue.isEmpty()) {
-					// Find OMOP vocabulary_id for this system. If not found,
-					// put empty so that we can search it by code only (if provided).
-					try {
-						omopVocabulary = fhirOmopVocabularyMap.getOmopVocabularyFromFhirSystemName(systemValue);
-					} catch (FHIRException e) {
-						e.printStackTrace();
-						systemValue = "";
+					if ((systemValue == null || systemValue.isEmpty()) && (codeValue == null || codeValue.isEmpty())) {
+						// This is not searchable. So, skip this.
+						continue;
 					}
-				}
 
-				if (systemValue != null && !systemValue.isEmpty() && codeValue != null && !codeValue.isEmpty()) {
-					String vId = "c.vocabularyId = :" + "vaccineCodeSystem" + i;
-					String cCode = "c.conceptCode = :" + "vaccineCodeCode" + i;
-					String statement = "(" + vId + " and " + cCode + ")";
-					
-					whereStatement = (whereStatement == null || whereStatement.isEmpty()) ? statement : whereStatement + " or " + statement;
-					parameterSet.put("vaccineCodeSystem"+i, "String," + omopVocabulary);
-					parameterSet.put("vaccineCodeCode"+i, "String," + codeValue);					
-				} else if ((systemValue == null || systemValue.isEmpty()) && codeValue != null && !codeValue.isEmpty()) {
-					String statement = "c.conceptCode = :" + "vaccineCodeCode" + i;
-					whereStatement = (whereStatement == null || whereStatement.isEmpty()) ? statement : whereStatement + " or " + statement;
-					parameterSet.put("vaccineCodeCode"+i, "String," + codeValue);					
-				} else if ((codeValue == null || codeValue.isEmpty()) && systemValue != null && !systemValue.isEmpty()) {
-					String statement = "c.vocabularyId = :" + "vaccineCodeSystem" + i;
-					whereStatement = (whereStatement == null || whereStatement.isEmpty()) ? statement : whereStatement + " or " + statement;
-					parameterSet.put("vaccineCodeSystem"+i, "String," + omopVocabulary);					
+					String omopVocabulary = "None";
+					if (systemValue != null && !systemValue.isEmpty()) {
+						// Find OMOP vocabulary_id for this system. If not found,
+						// put empty so that we can search it by code only (if provided).
+						try {
+							omopVocabulary = fhirOmopVocabularyMap.getOmopVocabularyFromFhirSystemName(systemValue);
+						} catch (FHIRException e) {
+							e.printStackTrace();
+							systemValue = "";
+						}
+					}
+
+					if (systemValue != null && !systemValue.isEmpty() && codeValue != null && !codeValue.isEmpty()) {
+						String vId = "c.vocabularyId = " + "@vaccineCodeSystem" + i;
+						String cCode = "c.conceptCode = " + "@vaccineCodeCode" + i;
+						String statement = "(" + vId + " and " + cCode + ")";
+
+						whereStatement = (whereStatement == null || whereStatement.isEmpty()) ? statement
+								: whereStatement + " or " + statement;
+						parameterList.add("vaccineCodeSystem" + i);
+						valueList.add(omopVocabulary);
+						parameterList.add("vaccineCodeCode" + i);
+						valueList.add(codeValue);
+					} else if ((systemValue == null || systemValue.isEmpty()) && codeValue != null
+							&& !codeValue.isEmpty()) {
+						String statement = "c.conceptCode = " + "@vaccineCodeCode" + i;
+						whereStatement = (whereStatement == null || whereStatement.isEmpty()) ? statement
+								: whereStatement + " or " + statement;
+						parameterList.add("vaccineCodeCode" + i);
+						valueList.add(codeValue);
+					} else if ((codeValue == null || codeValue.isEmpty()) && systemValue != null
+							&& !systemValue.isEmpty()) {
+						String statement = "c.vocabularyId = " + "@vaccineCodeSystem" + i;
+						whereStatement = (whereStatement == null || whereStatement.isEmpty()) ? statement
+								: whereStatement + " or " + statement;
+						parameterList.add("vaccineCodeSystem" + i);
+						valueList.add(omopVocabulary);
+					} else {
+						continue; // no system or code
+					}
+
+					i++;
+				}
+				break;
+
+			case Immunization.SP_DATE:
+				DateRangeParam dateRangeParam = ((DateRangeParam) value);
+
+				DateParam lowerDateParam = dateRangeParam.getLowerBound();
+				DateParam upperDateParam = dateRangeParam.getUpperBound();
+				if (lowerDateParam != null && upperDateParam != null) {
+					// case 1
+					String lowerSqlOperator = DateUtil.getSqlOperator(lowerDateParam.getPrefix());
+					String upperSqlOperator = DateUtil.getSqlOperator(upperDateParam.getPrefix());
+
+					whereStatement = "d.drugExposureStartDate " + lowerSqlOperator + " @drugExposureStartDate and "
+							+ "d.drugExposureEndDate " + upperSqlOperator + " @drugExposureEndDate";
+					parameterList.add("drugExposureStartDate");
+					valueList.add(String.valueOf(lowerDateParam.getValue().getTime()));
+					parameterList.add("drugExposureEndDate");
+					valueList.add(String.valueOf(upperDateParam.getValue().getTime()));
+				} else if (lowerDateParam != null && upperDateParam == null) {
+					String lowerSqlOperator = DateUtil.getSqlOperator(lowerDateParam.getPrefix());
+
+					whereStatement = "d.drugExposureStartDate " + lowerSqlOperator + " @drugExposureStartDate";
+					parameterList.add("drugExposureStartDate");
+					valueList.add(String.valueOf(lowerDateParam.getValue().getTime()));
 				} else {
-					continue; // no system or code
+					String upperSqlOperator = DateUtil.getSqlOperator(upperDateParam.getPrefix());
+
+					whereStatement = "d.drugExposureEndDate " + upperSqlOperator + " @drugExposureEndDate";
+					parameterList.add("drugExposureEndDate");
+					valueList.add(String.valueOf(upperDateParam.getValue().getTime()));
 				}
+				break;
+				
+			case Immunization.SP_PATIENT:
+				ReferenceParam patientReference = ((ReferenceParam) value);
+				Long fhirPatientId = patientReference.getIdPartAsLong();
+				String omopPersonIdString = String.valueOf(fhirPatientId);
 
-				i++;
-			}
-			break;
-
-		case Immunization.SP_DATE:
-			DateRangeParam dateRangeParam = ((DateRangeParam) value);
-			
-			DateParam lowerDateParam = dateRangeParam.getLowerBound();
-			DateParam upperDateParam = dateRangeParam.getUpperBound();
-			if (lowerDateParam != null && upperDateParam != null) {
-				// case 1
-				String lowerSqlOperator = DateUtil.getSqlOperator(lowerDateParam.getPrefix());
-				String upperSqlOperator = DateUtil.getSqlOperator(upperDateParam.getPrefix());
+				whereStatement = "p.id = @patient";
+				parameterList.add("patient");
+				valueList.add(omopPersonIdString);
+		
+				break;
 				
-				whereStatement = "d.drugExposureStartDate " + lowerSqlOperator + " :drugExposureStartDate and " + "d.drugExposureEndDate " + upperSqlOperator + " :drugExposureEndDate";
-				parameterSet.put("drugExposureStartDate", "Date," + String.valueOf(lowerDateParam.getValue().getTime()));
-				parameterSet.put("drugExposureEndDate", "Date," + String.valueOf(upperDateParam.getValue().getTime()));
-			} else if (lowerDateParam != null && upperDateParam == null) {
-				String lowerSqlOperator = DateUtil.getSqlOperator(lowerDateParam.getPrefix());
+			default:
 				
-				whereStatement = "d.drugExposureStartDate " + lowerSqlOperator + " :drugExposureStartDate";
-				parameterSet.put("drugExposureStartDate", "Date," + String.valueOf(lowerDateParam.getValue().getTime()));
-			} else {
-				String upperSqlOperator = DateUtil.getSqlOperator(upperDateParam.getPrefix());
-				
-				whereStatement = "d.drugExposureEndDate " + upperSqlOperator + " :drugExposureEndDate";
-				parameterSet.put("drugExposureEndDate", "Date," + String.valueOf(upperDateParam.getValue().getTime()));
-			}
-			break;
-			
-		case Immunization.SP_PATIENT:
-			ReferenceParam patientReference = ((ReferenceParam) value);
-			Long fhirPatientId = patientReference.getIdPartAsLong();
-			String omopPersonIdString = String.valueOf(fhirPatientId);
-			
-			whereStatement = "p.id = :patient";
-			parameterSet.put("patient", "Long," + omopPersonIdString);
-			
-			break;
-			
-		default:
-			
 		}
 		
 		
@@ -346,12 +346,15 @@ public class OmopImmunization extends BaseOmopResource<Immunization, FImmunizati
 	}
 
 	public String constructOrderParams(SortSpec theSort) {
-		if (theSort == null) return null;
+		if (theSort == null) 
+			return null;
 
 		String direction;
 
-		if (theSort.getOrder() != null) direction = theSort.getOrder().toString();
-		else direction = "ASC";
+		if (theSort.getOrder() != null) 
+			direction = theSort.getOrder().toString();
+		else 
+			direction = "ASC";
 
 		String orderParam = new String();
 
@@ -472,7 +475,7 @@ public class OmopImmunization extends BaseOmopResource<Immunization, FImmunizati
 				String identifierValue = identifier.getValue();
 				List<DrugExposure> results = drugExposureService.searchByColumnString("drugSourceValue",
 						identifierValue);
-				if (results.size() > 0) {
+				if (!results.isEmpty()) {
 					drugExposure = results.get(0);
 					omopId = drugExposure.getId();
 					break;

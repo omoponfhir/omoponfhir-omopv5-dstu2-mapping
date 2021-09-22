@@ -68,11 +68,11 @@ public class ImmunizationResourceProvider implements IResourceProvider {
     	return myMapper;
     }
 
-	// private Integer getTotalSize(String queryString, Map<String, String> parameterSet) {
-	// 	final Long totalSize = getMyMapper().getSize(queryString, parameterSet);
+	private Integer getTotalSize(String queryString, List<String> parameterList, List<String> valueList) {
+		final Long totalSize = getMyMapper().getSize(queryString, parameterList, valueList);
 			
-	// 	return totalSize.intValue();
-	// }
+		return totalSize.intValue();
+	}
 
 	private Integer getTotalSize(List<ParameterWrapper> paramList) {
 		final Long totalSize;
@@ -293,7 +293,7 @@ public class ImmunizationResourceProvider implements IResourceProvider {
 			// _Include
 			List<String> includes = new ArrayList<String>();
 
-			if (paramList.size() == 0) {
+			if (paramList.isEmpty()) {
 				myMapper.searchWithoutParams(fromIndex, toIndex, retv, includes, null);
 			} else {
 				myMapper.searchWithParams(fromIndex, toIndex, paramList, retv, includes, null);

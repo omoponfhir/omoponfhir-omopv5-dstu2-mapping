@@ -109,14 +109,14 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 		return myOmopService.getSize(mapList);
 	}
 
-	// public Long getSize(String queryString, Map<String, String> parameterSet) {
-	// 	Long size = myOmopService.getSize(queryString, parameterSet);
-	// 	if (parameterSet == null || parameterSet.size() == 0) {
-	// 		ExtensionUtil.addResourceCount(myFhirResourceType, size);
-	// 	}
+	public Long getSize(String queryString, List<String> parameterList, List<String> valueList) {
+		Long size = myOmopService.getSize(queryString, parameterList, valueList);
+		if (parameterList == null || parameterList.isEmpty()) {
+			ExtensionUtil.addResourceCount(myFhirResourceType, size);
+		}
 		
-	// 	return size;
-	// }
+		return size;
+	}
 
 	/***
 	 * constructResource: Overwrite this if you want to implement includes.
@@ -187,6 +187,19 @@ public abstract class BaseOmopResource<v extends BaseResource, t extends BaseEnt
 				// Do the rev_include and add the resource to the list.
 				addRevIncludes(omopId, includes, listResources);
 			}
+		}
+	}
+
+	public void searchWithSql(String sql, List<String> parameterList, List<String> valueList, int fromIndex, int toIndex, String sort, List<IBaseResource> listResources) {
+		List<t> entities = getMyOmopService().searchBySql(fromIndex, toIndex, sql, parameterList, valueList, sort);
+
+		for (t entity : entities) {
+			Long omopId = entity.getIdAsLong();
+			Long fhirId = IdMapping.getFHIRfromOMOP(omopId, getMyFhirResourceType());
+			v fhirResource = constructResource(fhirId, entity, null);
+			if (fhirResource != null) {
+				listResources.add(fhirResource);
+			}		
 		}
 	}
 

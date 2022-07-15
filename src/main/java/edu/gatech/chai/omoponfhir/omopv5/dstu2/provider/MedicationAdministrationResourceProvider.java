@@ -178,13 +178,8 @@ public class MedicationAdministrationResourceProvider implements IResourceProvid
 			@OptionalParam(name = MedicationAdministration.SP_CODE) TokenOrListParam theOrCodes,
 			@OptionalParam(name = MedicationAdministration.SP_MEDICATION+"."+Medication.SP_CODE) TokenOrListParam theMedicationOrCodes,
 			@OptionalParam(name = MedicationAdministration.SP_MEDICATION, chainWhitelist={""}) ReferenceParam theMedication,
-//			@OptionalParam(name = MedicationAdministration.SP_CONTEXT) ReferenceParam theContext,
-//			@OptionalParam(name = MedicationAdministration.SP_AUTHOREDON) DateParam theDate,
-//			SP Doesn't Exist in DSTU2
 			@OptionalParam(name = MedicationAdministration.SP_EFFECTIVETIME) DateRangeParam theEffectiveTimeRange,
 			@OptionalParam(name = MedicationAdministration.SP_PATIENT) ReferenceParam thePatient
-//			@OptionalParam(name = MedicationAdministration.SP_SUBJECT) ReferenceParam theSubject
-// 			SP Doesn't Exist in DSTU2
 			) {
 		List<ParameterWrapper> paramList = new ArrayList<ParameterWrapper> ();
 		

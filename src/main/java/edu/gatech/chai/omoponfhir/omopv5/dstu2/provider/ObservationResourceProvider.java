@@ -171,6 +171,7 @@ public class ObservationResourceProvider implements IResourceProvider {
 	public IBundleProvider findObservationsByParams(
 			@OptionalParam(name=Observation.SP_CODE) TokenOrListParam theOrCodes,
 			@OptionalParam(name=Observation.SP_DATE) DateRangeParam theRangeDate,
+			@OptionalParam(name=OmopObservation.SP_DATEISSUED) DateRangeParam theRangeDateIssued,
 			@OptionalParam(name=Observation.SP_PATIENT, chainWhitelist={"", Patient.SP_NAME, Patient.SP_IDENTIFIER}) ReferenceParam thePatient,
 			@OptionalParam(name=Observation.SP_SUBJECT, chainWhitelist={"", Patient.SP_NAME, Patient.SP_IDENTIFIER}) ReferenceParam theSubject,
 			@Sort SortSpec theSort,
@@ -198,6 +199,8 @@ public class ObservationResourceProvider implements IResourceProvider {
 		
 		if (theRangeDate != null) {
 			paramList.addAll(getMyMapper().mapParameter(Observation.SP_DATE, theRangeDate, false));
+		} else if (theRangeDateIssued != null) {
+			paramList.addAll(getMyMapper().mapParameter(OmopObservation.SP_DATEISSUED, theRangeDateIssued, false));
 		}
 		
 		// With OMOP, we only support subject to be patient.
